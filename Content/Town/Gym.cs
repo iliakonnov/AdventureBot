@@ -58,7 +58,8 @@ namespace Content.Town
             }
 
             user.MessageManager.ShownStats = ShownStats.Health | ShownStats.Strength | ShownStats.Stamina;
-            SendMessage(user, "Вас встречает какой-то тренер.", GetButtons(user));
+            SendMessage(user, "Вас встречает Александр Невский.");
+            SendMessage(user, "— Вот так вот! Вот так вот!", GetButtons(user));
         }
 
         public override bool OnLeave(User user)
