@@ -7,73 +7,27 @@ using System.Threading;
 using MessagePack;
 using MessagePack.ImmutableCollection;
 using MessagePack.Resolvers;
-using Mono.Data.Sqlite;
 using Microsoft.Extensions.Logging;
+using Mono.Data.Sqlite;
 using Timer = System.Timers.Timer;
 
 namespace AdventureBot
 {
     public class UserManager : Singleton<UserManager>
     {
-        private class CachedUser
-        {
-            public CachedUser()
-            {
-                LastLoaded = DateTime.Now;
-            }
-
-            public SemaphoreSlim Lock { get; } = new SemaphoreSlim(1, 1);
-
-            public DateTime LastLoaded { get; set; }
-            public User.User User { get; set; }
-            public bool Changed { get; set; }
-        }
-
-        private class DecreaseCounter
-        {
-            public int Count { get; private set; }
-
-            private readonly ManualResetEventSlim _allowIncrease = new ManualResetEventSlim(true);
-
-            public delegate void ZeroHandler();
-
-            public event ZeroHandler OnZero;
-
-            public void Increase()
-            {
-                _allowIncrease.Wait();
-                Count++;
-            }
-
-            public void Decrease()
-            {
-                Count--;
-                if (Count == 0)
-                {
-                    OnZero?.Invoke();
-                    _allowIncrease.Set();
-                }
-            }
-
-            public void Acquire()
-            {
-                _allowIncrease.Reset();
-            }
-        }
-
         private readonly ConcurrentDictionary<UserId, CachedUser> _cache =
             new ConcurrentDictionary<UserId, CachedUser>();
 
         private readonly string _connectionString;
         private readonly object _databaseLock = new object();
-        private readonly ILogger _logger = Logger.CreateLogger<UserManager>();
-
-        private readonly DecreaseCounter _loadedUsers = new DecreaseCounter();
-        private bool _toFlush;
-        private DateTime _lastFlushed = DateTime.Now;
 
         // ReSharper disable once PrivateFieldCanBeConvertedToLocalVariable (It must not be removed by GC)
         private readonly Timer _flushTimer;
+
+        private readonly DecreaseCounter _loadedUsers = new DecreaseCounter();
+        private readonly ILogger _logger = Logger.CreateLogger<UserManager>();
+        private DateTime _lastFlushed = DateTime.Now;
+        private bool _toFlush;
 
         public UserManager()
         {
@@ -118,12 +72,9 @@ namespace AdventureBot
 
         private void FlushUsers()
         {
-            if (_loadedUsers.Count != 0)
-            {
-                return;
-            }
+            if (_loadedUsers.Count != 0) return;
 
-            if (_toFlush || (DateTime.Now - _lastFlushed) > new TimeSpan(0, 0, 15)) // Every 15 seconds
+            if (_toFlush || DateTime.Now - _lastFlushed > new TimeSpan(0, 0, 15)) // Every 15 seconds
             {
                 Flush(_cache.Values.Where(c => c.Changed));
                 _lastFlushed = DateTime.Now;
@@ -144,10 +95,7 @@ namespace AdventureBot
                 throw new TimeoutException("Timeout waiting for user");
             }
 
-            if (user.User == null)
-            {
-                return null;
-            }
+            if (user.User == null) return null;
 
             var result = MessagePackSerializer.Deserialize<User.User>(MessagePackSerializer.SerializeUnsafe(user.User));
             result.Unsafe = true;
@@ -156,10 +104,7 @@ namespace AdventureBot
 
         private CachedUser AllocateUser(UserId userId, bool safe = true)
         {
-            if (!safe)
-            {
-                return new CachedUser();
-            }
+            if (!safe) return new CachedUser();
 
             const int cacheSize = 500;
             const int maxTries = 3;
@@ -183,7 +128,7 @@ namespace AdventureBot
         }
 
         /// <summary>
-        /// Loads user with given user_id. Returns null if user not found
+        ///     Loads user with given user_id. Returns null if user not found
         /// </summary>
         public User.User Get(UserId userId, bool safe = true)
         {
@@ -238,14 +183,11 @@ namespace AdventureBot
         }
 
         /// <summary>
-        /// Saves given user to cache instead of directly to disk.
+        ///     Saves given user to cache instead of directly to disk.
         /// </summary>
         public void Save(User.User user)
         {
-            if (user.Unsafe)
-            {
-                throw new ArgumentException("This user is not safe!");
-            }
+            if (user.Unsafe) throw new ArgumentException("This user is not safe!");
 
             _loadedUsers.Decrease();
 
@@ -255,13 +197,9 @@ namespace AdventureBot
                 cachedUser.User = user;
                 cachedUser.Changed = true;
                 if (cachedUser.Lock.CurrentCount != 0)
-                {
                     _logger.LogWarning($"CachedUser was not locked. {user.Info.UserId}");
-                }
                 else
-                {
                     cachedUser.Lock.Release();
-                }
             }
             else
             {
@@ -271,14 +209,11 @@ namespace AdventureBot
         }
 
         /// <summary>
-        /// Flushes and removes user from cache
+        ///     Flushes and removes user from cache
         /// </summary>
         private void Flush(CachedUser user)
         {
-            if (user.Lock.CurrentCount == 0)
-            {
-                return;
-            }
+            if (user.Lock.CurrentCount == 0) return;
 
             Flush(new[] {user});
             _cache.TryRemove(user.User.Info.UserId, out _);
@@ -307,10 +242,7 @@ namespace AdventureBot
 
                         foreach (var user in users)
                         {
-                            if (!user.Changed)
-                            {
-                                continue;
-                            }
+                            if (!user.Changed) continue;
 
                             cnt++;
 
@@ -326,14 +258,11 @@ namespace AdventureBot
                 }
             }
 
-            if (cnt != 0)
-            {
-                _logger.LogInformation($"Flushed {cnt} users in {DateTime.Now - beginTime}");
-            }
+            if (cnt != 0) _logger.LogInformation($"Flushed {cnt} users in {DateTime.Now - beginTime}");
         }
 
         /// <summary>
-        /// Saves all cached users to disk.
+        ///     Saves all cached users to disk.
         /// </summary>
         public void Flush()
         {
@@ -341,6 +270,51 @@ namespace AdventureBot
             _loadedUsers.Acquire();
             _toFlush = true;
             FlushUsers();
+        }
+
+        private class CachedUser
+        {
+            public CachedUser()
+            {
+                LastLoaded = DateTime.Now;
+            }
+
+            public SemaphoreSlim Lock { get; } = new SemaphoreSlim(1, 1);
+
+            public DateTime LastLoaded { get; set; }
+            public User.User User { get; set; }
+            public bool Changed { get; set; }
+        }
+
+        private class DecreaseCounter
+        {
+            public delegate void ZeroHandler();
+
+            private readonly ManualResetEventSlim _allowIncrease = new ManualResetEventSlim(true);
+            public int Count { get; private set; }
+
+            public event ZeroHandler OnZero;
+
+            public void Increase()
+            {
+                _allowIncrease.Wait();
+                Count++;
+            }
+
+            public void Decrease()
+            {
+                Count--;
+                if (Count == 0)
+                {
+                    OnZero?.Invoke();
+                    _allowIncrease.Set();
+                }
+            }
+
+            public void Acquire()
+            {
+                _allowIncrease.Reset();
+            }
         }
     }
 }

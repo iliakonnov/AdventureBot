@@ -3,7 +3,6 @@ using System.Linq;
 using AdventureBot;
 using AdventureBot.Item;
 using AdventureBot.Messenger;
-using AdventureBot.ObjectManager;
 using AdventureBot.Room;
 using AdventureBot.User;
 
@@ -13,19 +12,20 @@ namespace Content.Town
     public class Market : RoomBase
     {
         private const string identifier = "town/market";
-        public override string Identifier { get; } = identifier;
-        public override string Name { get; } = "Рынок";
 
         public Market()
         {
-            void Leave(User user, RecivedMessage message) => user.RoomManager.Leave();
+            void Leave(User user, RecivedMessage message)
+            {
+                user.RoomManager.Leave();
+            }
 
             Routes = new MessageRecived[]
             {
                 Buy, Buy2, Sell, Sell2
             };
 
-            Buttons = new NullableDictionary<MessageRecived, Dictionary<string, MessageRecived>>()
+            Buttons = new NullableDictionary<MessageRecived, Dictionary<string, MessageRecived>>
             {
                 {
                     null, new Dictionary<string, MessageRecived>
@@ -37,6 +37,9 @@ namespace Content.Town
                 }
             };
         }
+
+        public override string Identifier { get; } = identifier;
+        public override string Name { get; } = "Рынок";
 
         public override void OnEnter(User user)
         {
@@ -53,10 +56,7 @@ namespace Content.Town
 
         public override void OnMessage(User user, RecivedMessage message)
         {
-            if (!HandleAction(user, message))
-            {
-                HandleButtonAlways(user, message);
-            }
+            if (!HandleAction(user, message)) HandleButtonAlways(user, message);
         }
 
         private List<IItem> AvailableToBuy(User user)
@@ -78,10 +78,7 @@ namespace Content.Town
                 .ToArray();
             SendMessage(user, "Что же вы хотите купить?", buttons);
 
-            foreach (var item in loaded)
-            {
-                SendMessage(user, $"*{item.Name}* [{item.Price}]\n{item.Description}");
-            }
+            foreach (var item in loaded) SendMessage(user, $"*{item.Name}* [{item.Price}]\n{item.Description}");
 
             SwitchAction(user, Buy2);
         }
@@ -133,10 +130,8 @@ namespace Content.Town
             SendMessage(user, "Что же вы хотите продать?", buttons);
 
             foreach (var item in items)
-            {
                 SendMessage(user,
                     $"*{item.Item.Name}* (x{item.Count}) [{item.Item.Price * user.Info.SellMultiplier}]\n{item.Item.Description}");
-            }
 
             SwitchAction(user, Sell2);
         }

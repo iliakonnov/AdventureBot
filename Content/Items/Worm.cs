@@ -15,6 +15,10 @@ namespace Content.Items
         public override decimal? Price => 1m;
         public override string Identifier => "worms/worm";
         public override StatsEffect Effect => null;
-        public override bool CanUse(User user, ItemInfo info) => false;
+
+        public override bool CanUse(User user, ItemInfo info)
+        {
+            return false;
+        }
     }
 }

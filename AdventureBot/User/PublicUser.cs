@@ -1,14 +1,13 @@
 ﻿using System;
-using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 using MessagePack;
 
 namespace AdventureBot.User
 {
     /// <summary>
-    /// Общедоступная информация о пользователе. Не содержит какой-либо информации, которая может дать преимущество.
+    ///     Общедоступная информация о пользователе. Не содержит какой-либо информации, которая может дать преимущество.
     /// </summary>
-    [MessagePackObject(keyAsPropertyName: true)]
+    [MessagePackObject(true)]
     public class PublicUser
     {
         [Obsolete("This constructor for serializer only")]
@@ -17,7 +16,7 @@ namespace AdventureBot.User
         public PublicUser()
         {
         }
-        
+
         public PublicUser(User user)
         {
             Info = user.Info;

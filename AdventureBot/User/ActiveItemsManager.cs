@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Linq;
 using AdventureBot.Item;
 using AdventureBot.User.Stats;
@@ -12,22 +11,8 @@ namespace AdventureBot.User
     [MessagePackObject]
     public class ActiveItemsManager
     {
-        [IgnoreMember] internal User _user;
-
-        /// <summary>
-        /// Текущие активные предметы
-        /// </summary>
-        [IgnoreMember]
-        public IReadOnlyList<ItemInfo> ActiveItems => _activeItems;
-
         [Key("ActiveItems")] private List<ItemInfo> _activeItems = new List<ItemInfo>();
-
-        // TODO: Сделать его internal, в Public -- Только IReadOnly
-        [Key(nameof(ActiveProportions))]
-        public Dictionary<Flag<StatsProperty>, int> ActiveProportions { get; internal set; } =
-            new Dictionary<Flag<StatsProperty>, int>();
-
-        [Key(nameof(ActiveLimit))] public int ActiveLimit { get; internal set; }
+        [IgnoreMember] internal User _user;
 
         [Obsolete("This constructor for serializer only")]
         [UsedImplicitly]
@@ -45,6 +30,19 @@ namespace AdventureBot.User
             _user = user;
         }
 
+        /// <summary>
+        ///     Текущие активные предметы
+        /// </summary>
+        [IgnoreMember]
+        public IReadOnlyList<ItemInfo> ActiveItems => _activeItems;
+
+        // TODO: Сделать его internal, в Public -- Только IReadOnly
+        [Key(nameof(ActiveProportions))]
+        public Dictionary<Flag<StatsProperty>, int> ActiveProportions { get; internal set; } =
+            new Dictionary<Flag<StatsProperty>, int>();
+
+        [Key(nameof(ActiveLimit))] public int ActiveLimit { get; internal set; }
+
         public void ChangeProportion(Flag<StatsProperty> property, int count)
         {
             var currentSum = ActiveProportions.Values.Sum();
@@ -55,13 +53,9 @@ namespace AdventureBot.User
 
             var newValue = currentValue + toAdd;
             if (newValue <= 0)
-            {
                 ActiveProportions.Remove(property);
-            }
             else
-            {
                 ActiveProportions[property] = newValue;
-            }
 
             RecalculateActive();
         }
@@ -73,7 +67,8 @@ namespace AdventureBot.User
                 .Select(i => new
                 {
                     Item = i,
-                    Affects = new StructFlag<StatsProperty>(i.Item.Effect.Effect.Keys) // See what stats this item affects
+                    Affects =
+                        new StructFlag<StatsProperty>(i.Item.Effect.Effect.Keys) // See what stats this item affects
                 })
                 .Where(i => ActiveProportions.ContainsKey(i.Affects)) // Only effects that needed
                 .GroupBy(i => i.Affects) // Group so we can sort each group by corresponding stats
@@ -90,17 +85,15 @@ namespace AdventureBot.User
 
             var result = new List<ItemInfo>();
             foreach (var group in items)
+            foreach (var item in group.Items)
             {
-                foreach (var item in group.Items)
-                {
-                    var taken = Math.Min(remains[group.Key], item.Count);
-                    if (taken == 0) continue;
+                var taken = Math.Min(remains[group.Key], item.Count);
+                if (taken == 0) continue;
 
-                    remains[group.Key] -= taken;
-                    var added = item.Clone();
-                    added.Count = taken;
-                    result.Add(added);
-                }
+                remains[group.Key] -= taken;
+                var added = item.Clone();
+                added.Count = taken;
+                result.Add(added);
             }
 
             _activeItems = result;

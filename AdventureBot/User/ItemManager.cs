@@ -10,13 +10,13 @@ namespace AdventureBot.User
     [MessagePackObject]
     public class ItemManager
     {
-        [IgnoreMember] internal User _user;
-        [IgnoreMember] public IReadOnlyList<ItemInfo> Items => _items;
-        [Key("Items")] private readonly List<ItemInfo> _items = new List<ItemInfo>()
+        [Key("Items")] private readonly List<ItemInfo> _items = new List<ItemInfo>
         {
             new ItemInfo(new Hand()),
             new ItemInfo(new Wand())
-        }; 
+        };
+
+        [IgnoreMember] internal User _user;
 
         [Obsolete("This constructor for serializer only")]
         [UsedImplicitly]
@@ -30,64 +30,49 @@ namespace AdventureBot.User
         {
             _user = user;
 
-            if (_user.Info.UserId.Messenger == -1)  // Testing messenger, empty initial _items
-            {
+            if (_user.Info.UserId.Messenger == -1) // Testing messenger, empty initial _items
                 _items.Clear();
-            }
         }
 
+        [IgnoreMember] public IReadOnlyList<ItemInfo> Items => _items;
+
         /// <summary>
-        /// Добавляет предмет в инвентарь пользователя.
-        /// Автоматически перерасчитывает текущиие активные предметы
+        ///     Добавляет предмет в инвентарь пользователя.
+        ///     Автоматически перерасчитывает текущиие активные предметы
         /// </summary>
         public void Add(ItemInfo item)
         {
             var found = _items.FirstOrDefault(x => x.Identifier == item.Identifier);
             if (found != null)
-            {
                 found.Count += item.Count;
-            }
             else
-            {
                 _items.Add(item);
-            }
 
             _user.ActiveItemsManager.RecalculateActive();
         }
 
         /// <summary>
-        /// Удаляет предмет из инвентаря пользователя.
-        /// Автоматически перерасчитывает текущиие активные предметы
+        ///     Удаляет предмет из инвентаря пользователя.
+        ///     Автоматически перерасчитывает текущиие активные предметы
         /// </summary>
         /// <returns>Удалось ли удалить данный предмет</returns>
         public bool Remove(ItemInfo item)
         {
             var found = _items.FirstOrDefault(x => x.Identifier == item.Identifier);
-            if (found == null)
-            {
-                // Item not found
-                return false;
-            }
+            if (found == null) return false;
 
-            if (found.Count < item.Count)
-            {
-                // Cannot remove so many
-                return false;
-            }
+            if (found.Count < item.Count) return false;
 
             found.Count -= item.Count;
-            if (found.Count == 0)
-            {
-                _items.Remove(found);
-            }
+            if (found.Count == 0) _items.Remove(found);
 
             _user.ActiveItemsManager.RecalculateActive();
 
             return true;
         }
-        
+
         /// <summary>
-        /// Возвращает предмет из инвентаря пользователя
+        ///     Возвращает предмет из инвентаря пользователя
         /// </summary>
         [CanBeNull]
         public ItemInfo Get(string identifier)
@@ -99,12 +84,12 @@ namespace AdventureBot.User
         {
             _items.ForEach(i => i.Item.OnMessage(_user, i));
         }
-        
+
         internal void OnEnter()
         {
             _items.ForEach(i => i.Item.OnEnter(_user, i));
         }
-        
+
         internal void OnLeave()
         {
             _items.ForEach(i => i.Item.OnLeave(_user, i));

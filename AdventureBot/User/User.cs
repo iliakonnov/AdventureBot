@@ -1,14 +1,18 @@
 ﻿using System;
-using System.Runtime.CompilerServices;
 using AdventureBot.Analysis;
 using JetBrains.Annotations;
 using MessagePack;
 
 namespace AdventureBot.User
 {
-    [MessagePackObject(keyAsPropertyName: true)]
+    [MessagePackObject(true)]
     public class User : ISerializable
     {
+        /// <summary>
+        ///     Генератор случайных чисел
+        /// </summary>
+        [IgnoreMember] public Random Random = new Random();
+
         [Obsolete("This constructor for serializer only")]
         [UsedImplicitly]
         [SerializationConstructor]
@@ -29,7 +33,7 @@ namespace AdventureBot.User
 
             MessageManager = messageManager;
             MessageManager._user = this;
-            
+
             VariableManager = variableManager;
         }
 
@@ -38,23 +42,48 @@ namespace AdventureBot.User
             Reset(userId);
         }
 
+        /// <summary>
+        ///     Информация о пользователе и его характеристики
+        /// </summary>
+        public UserInfo Info { get; private set; }
+
+        /// <summary>
+        ///     Управление текущими активными предметами пользователя
+        /// </summary>
+        public ActiveItemsManager ActiveItemsManager { get; private set; }
+
+        /// <summary>
+        ///     Управление предметами пользователя
+        /// </summary>
+        public ItemManager ItemManager { get; private set; }
+
+        /// <summary>
+        ///     Хранилище переменных пользователя
+        /// </summary>
+        public VariableManager VariableManager { get; private set; }
+
+        /// <summary>
+        ///     Переход между комнатами
+        /// </summary>
+        public RoomManager RoomManager { get; private set; }
+
+        public MessageManager MessageManager { get; private set; }
+
+        [IgnoreMember] internal bool Unsafe { get; set; }
+
         private void Reset(UserId userId)
-        {   
+        {
             ActiveItemsManager = new ActiveItemsManager(this);
             Info = new UserInfo(userId, this);
             ItemManager = new ItemManager(this);
             RoomManager = new RoomManager(this);
             MessageManager = new MessageManager(this);
-            
+
             if (VariableManager != null)
-            {
                 VariableManager.Reset();
-            }
             else
-            {
                 VariableManager = new VariableManager();
-            }
-            
+
             Events.Reset(this);
         }
 
@@ -62,39 +91,5 @@ namespace AdventureBot.User
         {
             Reset(Info.UserId);
         }
-        
-        /// <summary>
-        /// Генератор случайных чисел
-        /// </summary>
-        [IgnoreMember] public Random Random = new Random();
-
-        /// <summary>
-        /// Информация о пользователе и его характеристики
-        /// </summary>
-        public UserInfo Info { get; private set; }
-
-        /// <summary>
-        /// Управление текущими активными предметами пользователя
-        /// </summary>
-        public ActiveItemsManager ActiveItemsManager { get; private set; }
-
-        /// <summary>
-        /// Управление предметами пользователя
-        /// </summary>
-        public ItemManager ItemManager { get; private set; }
-
-        /// <summary>
-        /// Хранилище переменных пользователя
-        /// </summary>
-        public VariableManager VariableManager { get; private set; }
-
-        /// <summary>
-        /// Переход между комнатами
-        /// </summary>
-        public RoomManager RoomManager { get; private set; }
-
-        public MessageManager MessageManager { get; private set; }
-        
-        [IgnoreMember] internal bool Unsafe { get; set; }
     }
 }

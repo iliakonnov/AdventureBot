@@ -7,6 +7,9 @@ namespace AdventureBot
         public static ILoggerFactory LoggerFactory { get; } = new LoggerFactory()
             .AddConsole(Configuration.Config.GetSection("Logging"));
 
-        public static ILogger CreateLogger<T>() => LoggerFactory.CreateLogger<T>();
+        public static ILogger CreateLogger<T>()
+        {
+            return LoggerFactory.CreateLogger<T>();
+        }
     }
 }

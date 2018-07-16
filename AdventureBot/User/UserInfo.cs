@@ -1,42 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using AdventureBot.Analysis;
-using AdventureBot.Item;
 using AdventureBot.User.Stats;
-using JetBrains.Annotations;
 using MessagePack;
 
 namespace AdventureBot.User
 {
-    [MessagePackObject(keyAsPropertyName: true)]
+    [MessagePackObject(true)]
     public class UserInfo
     {
-        [IgnoreMember] internal User _user { get; set; }
-
-        public bool Dead { get; internal set; }
-
-        public decimal Gold { get; set; }
-
-        public decimal SellMultiplier { get; } = 0.75m;
-
-        public UserId UserId { get; }
-
-        /// <summary>
-        /// Характеристики без эффектов от предметов
-        /// </summary>
-        public Stats.Stats BaseStats { get; internal set; }
-
-        /// <summary>
-        /// Характеристики с учетом эффектов от активных вещей
-        /// </summary>
-        public Stats.Stats CurrentStats { get; private set; }
-
-        /// <summary>
-        /// Максимально возможные характеристики (базовые). Характеристики с эффектами от бонусов могут быть больше.
-        /// </summary>
-        public Stats.Stats MaxStats { get; set; }
-
         [SerializationConstructor]
         public UserInfo(bool dead, UserId userId, Stats.Stats baseStats, Stats.Stats currentStats)
         {
@@ -74,41 +46,61 @@ namespace AdventureBot.User
             RecalculateStats();
         }
 
+        [IgnoreMember] internal User _user { get; set; }
+
+        public bool Dead { get; internal set; }
+
+        public decimal Gold { get; set; }
+
+        public decimal SellMultiplier { get; } = 0.75m;
+
+        public UserId UserId { get; }
+
         /// <summary>
-        /// Перерасчитывает <see cref="CurrentStats"/>, учитывая текущие активные предметы.
+        ///     Характеристики без эффектов от предметов
+        /// </summary>
+        public Stats.Stats BaseStats { get; internal set; }
+
+        /// <summary>
+        ///     Характеристики с учетом эффектов от активных вещей
+        /// </summary>
+        public Stats.Stats CurrentStats { get; private set; }
+
+        /// <summary>
+        ///     Максимально возможные характеристики (базовые). Характеристики с эффектами от бонусов могут быть больше.
+        /// </summary>
+        public Stats.Stats MaxStats { get; set; }
+
+        /// <summary>
+        ///     Перерасчитывает <see cref="CurrentStats" />, учитывая текущие активные предметы.
         /// </summary>
         internal void RecalculateStats()
         {
             CurrentStats = new Stats.Stats(BaseStats.Effect);
             foreach (var item in _user.ActiveItemsManager.ActiveItems)
             {
-                if (item.Item.Effect == null)
-                {
-                    continue;
-                }
+                if (item.Item.Effect == null) continue;
 
                 CurrentStats = CurrentStats.Apply(item.Item.Effect);
             }
         }
 
         /// <summary>
-        /// Уменьшает количество золота игрока.
-        /// Не позволяет количеству золота стать отрицательным. Если золота не хвататет, то ничего не меняет.
+        ///     Уменьшает количество золота игрока.
+        ///     Не позволяет количеству золота стать отрицательным. Если золота не хвататет, то ничего не меняет.
         /// </summary>
         /// <param name="value">На сколько именно нужно уменьшить</param>
         /// <returns>Достаточно ли золота было у игрока.</returns>
         public bool TryDecreaseGold(decimal value)
         {
-            if (Gold < value)
-            {
-                return false;
-            }
+            if (Gold < value) return false;
 
             Gold -= value;
             return true;
         }
 
-        private bool ChangeStats(ChangeType changeType, StatsProperty property, decimal value, bool allowLess = false, bool allowMore = false)
+        private bool ChangeStats(ChangeType changeType, StatsProperty property, decimal value, bool allowLess = false,
+            bool allowMore = false)
         {
             var changed = BaseStats.Apply(
                 new StatsEffect(changeType, new Dictionary<StatsProperty, decimal>
@@ -118,11 +110,9 @@ namespace AdventureBot.User
             );
             var newValue = changed.Effect[property];
             if (
-                (!allowLess && newValue < 0)
-                || (!allowMore && newValue > MaxStats.Effect[property]))
-            {
+                !allowLess && newValue < 0
+                || !allowMore && newValue > MaxStats.Effect[property])
                 return false;
-            }
 
             BaseStats = changed;
             RecalculateStats();
@@ -130,7 +120,7 @@ namespace AdventureBot.User
         }
 
         /// <summary>
-        /// Изменяет указанную характеристику героя. Не позволяет стать характеристике больше максимума или меньше нуля.
+        ///     Изменяет указанную характеристику героя. Не позволяет стать характеристике больше максимума или меньше нуля.
         /// </summary>
         /// <param name="property">Какую характеристку следует изменить</param>
         /// <param name="value">На сколько надо изменить. Отрицательное для того, чтобы уменьшить</param>
@@ -142,11 +132,8 @@ namespace AdventureBot.User
             if (property == StatsProperty.Health)
             {
                 // Special case
-                var result = ChangeStats(changeType, StatsProperty.Health, value, allowLess: true);
-                if (BaseStats.Effect[StatsProperty.Health] <= 0)
-                {
-                    Kill();
-                }
+                var result = ChangeStats(changeType, StatsProperty.Health, value, true);
+                if (BaseStats.Effect[StatsProperty.Health] <= 0) Kill();
 
                 return result;
             }
@@ -155,7 +142,7 @@ namespace AdventureBot.User
         }
 
         /// <summary>
-        /// Просто напросто убивает игрока
+        ///     Просто напросто убивает игрока
         /// </summary>
         public void Kill()
         {

@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using AdventureBot;
 using AdventureBot.Messenger;
-using AdventureBot.ObjectManager;
 using AdventureBot.Room;
 using AdventureBot.User;
 using AdventureBot.User.Stats;
@@ -11,9 +10,6 @@ namespace Content.Town
     [Room("town/gym")]
     public class Gym : RoomBase
     {
-        public override string Name => "Спортзал";
-        public override string Identifier => "town/gym";
-
         public Gym()
         {
             Buttons = new NullableDictionary<MessageRecived, Dictionary<string, MessageRecived>>
@@ -48,6 +44,9 @@ namespace Content.Town
             };
         }
 
+        public override string Name => "Спортзал";
+        public override string Identifier => "town/gym";
+
         public override void OnEnter(User user)
         {
             if (user.Info.CurrentStats.Effect[StatsProperty.Intelligence] > 10)
@@ -71,10 +70,7 @@ namespace Content.Town
 
         public override void OnMessage(User user, RecivedMessage message)
         {
-            if (!HandleAction(user, message))
-            {
-                HandleButtonAlways(user, message);
-            }
+            if (!HandleAction(user, message)) HandleButtonAlways(user, message);
         }
     }
 }

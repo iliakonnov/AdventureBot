@@ -10,9 +10,6 @@ namespace Content.Rooms
     [Available("room/worms")]
     public class Worms : RoomBase
     {
-        public override string Name => "Террариум";
-        public override string Identifier => "room/worms";
-
         public Worms()
         {
             Buttons = new NullableDictionary<MessageRecived, Dictionary<string, MessageRecived>>
@@ -27,6 +24,9 @@ namespace Content.Rooms
                 }
             };
         }
+
+        public override string Name => "Террариум";
+        public override string Identifier => "room/worms";
 
         public override void OnEnter(User user)
         {

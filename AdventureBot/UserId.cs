@@ -19,7 +19,7 @@ namespace AdventureBot
             return $"<User: {Messenger}/{Id}>";
         }
     }
-    
+
     [MessagePackObject]
     public struct ChatId
     {
@@ -31,7 +31,7 @@ namespace AdventureBot
             Messenger = messenger;
             Id = id;
         }
-        
+
         public override string ToString()
         {
             return $"<Chat: {Messenger}/{Id}>";

@@ -1,4 +1,5 @@
-﻿using AdventureBot;
+﻿using System;
+using AdventureBot;
 using AdventureBot.Item;
 using AdventureBot.User;
 using AdventureBot.User.Stats;
@@ -7,9 +8,15 @@ namespace BotTests
 {
     internal class TestItem : ItemBase
     {
-        public override void OnLeave(User user, ItemInfo info)
+        public TestItem(string identifier)
         {
-            throw new System.NotImplementedException();
+            Identifier = identifier;
+        }
+
+        public TestItem(string identifier, StatsEffect effect)
+        {
+            Identifier = identifier;
+            Effect = effect;
         }
 
         public override string Name => "Test item";
@@ -20,15 +27,9 @@ namespace BotTests
         public override string Identifier { get; } = "test_item";
         public override StatsEffect Effect { get; }
 
-        public TestItem(string identifier)
+        public override void OnLeave(User user, ItemInfo info)
         {
-            Identifier = identifier;
-        }
-        
-        public TestItem(string identifier, StatsEffect effect)
-        {
-            Identifier = identifier;
-            Effect = effect;
+            throw new NotImplementedException();
         }
 
         public override void OnUse(User user, ItemInfo info)

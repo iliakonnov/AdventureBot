@@ -6,11 +6,11 @@ namespace AdventureBot
 {
     public class UserContext : IDisposable
     {
-        private readonly User.User _user;
-        private Timer _timer;
-        private DateTime _opened;
         private readonly ILogger _logger = Logger.CreateLogger<UserContext>();
-        
+        private readonly User.User _user;
+        private DateTime _opened;
+        private Timer _timer;
+
         public UserContext(UserId userId)
         {
             _user = UserManager.Instance.Get(userId);
@@ -23,6 +23,14 @@ namespace AdventureBot
             _user = UserManager.Instance.Get(userId);
             _user.MessageManager.ChatId = chatId;
             InitializeTimer();
+        }
+
+        public void Dispose()
+        {
+            _logger.LogDebug($"User closed in {DateTime.Now - _opened}");
+            _timer.Stop();
+            UserManager.Instance.Save(_user);
+            _timer.Dispose();
         }
 
         private void InitializeTimer()
@@ -40,14 +48,6 @@ namespace AdventureBot
         private void TimerOnElapsed(object sender, ElapsedEventArgs e)
         {
             throw new TimeoutException("User have been opened too long");
-        }
-
-        public void Dispose()
-        {
-            _logger.LogDebug($"User closed in {DateTime.Now - _opened}");
-            _timer.Stop();
-            UserManager.Instance.Save(_user);
-            _timer.Dispose();
         }
 
         public static implicit operator User.User(UserContext userContext)

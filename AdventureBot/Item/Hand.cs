@@ -1,5 +1,4 @@
-﻿using System;
-using AdventureBot.Messenger;
+﻿using AdventureBot.Messenger;
 using AdventureBot.ObjectManager;
 using AdventureBot.Room;
 using AdventureBot.User.Stats;
@@ -10,6 +9,7 @@ namespace AdventureBot.Item
     public class Hand : ItemBase
     {
         public override string Name => "Рука";
+
         public override string Description =>
             "Самая обычная рука. У каждого такая есть, а у некторых даже не одна.";
 

@@ -11,39 +11,6 @@ namespace BotTests
     public class ActiveItemsTests
     {
         [Fact]
-        public void AddHealthTest()
-        {
-            var user = new User(new UserId(-1, -1));
-            Assert.Empty(user.ActiveItemsManager.ActiveItems);
-
-            user.ActiveItemsManager.ActiveLimit = 3;
-            user.ActiveItemsManager.ActiveProportions = new Dictionary<Flag<StatsProperty>, int>
-            {
-                {new Flag<StatsProperty>(StatsProperty.Health), 3}
-            };
-
-            // Adds item
-            user.ItemManager.Add(
-                new ItemInfo(new TestItem
-                (
-                    "test_health",
-                    new StatsEffect(
-                        ChangeType.Add,
-                        new ReadOnlyDictionary<StatsProperty, decimal>(
-                            new Dictionary<StatsProperty, decimal>
-                            {
-                                {StatsProperty.Health, 1}
-                            }
-                        )
-                    )
-                ), 3)
-            );
-
-            var item = Assert.Single(user.ActiveItemsManager.ActiveItems);
-            Assert.Equal(3, item?.Count);
-        }
-
-        [Fact]
         public void AddBetterTest()
         {
             var user = new User(new UserId(-1, -1));
@@ -95,6 +62,39 @@ namespace BotTests
             // Better item
             var better = Assert.Single(user.ActiveItemsManager.ActiveItems, x => x.Identifier == "better_health");
             Assert.Equal(2, better?.Count);
+        }
+
+        [Fact]
+        public void AddHealthTest()
+        {
+            var user = new User(new UserId(-1, -1));
+            Assert.Empty(user.ActiveItemsManager.ActiveItems);
+
+            user.ActiveItemsManager.ActiveLimit = 3;
+            user.ActiveItemsManager.ActiveProportions = new Dictionary<Flag<StatsProperty>, int>
+            {
+                {new Flag<StatsProperty>(StatsProperty.Health), 3}
+            };
+
+            // Adds item
+            user.ItemManager.Add(
+                new ItemInfo(new TestItem
+                (
+                    "test_health",
+                    new StatsEffect(
+                        ChangeType.Add,
+                        new ReadOnlyDictionary<StatsProperty, decimal>(
+                            new Dictionary<StatsProperty, decimal>
+                            {
+                                {StatsProperty.Health, 1}
+                            }
+                        )
+                    )
+                ), 3)
+            );
+
+            var item = Assert.Single(user.ActiveItemsManager.ActiveItems);
+            Assert.Equal(3, item?.Count);
         }
 
         [Fact]

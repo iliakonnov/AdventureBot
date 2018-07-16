@@ -6,17 +6,18 @@ using MessagePack;
 
 namespace AdventureBot.User.Stats
 {
-    [MessagePackObject(keyAsPropertyName: true)]
+    [MessagePackObject(true)]
     public class Stats : StatsEffect
     {
-        private static IReadOnlyDictionary<StatsProperty, decimal> DefaultStats = new Dictionary<StatsProperty, decimal>
-        {
-            {StatsProperty.Health, 100},
-            {StatsProperty.Mana, 100},
-            {StatsProperty.Stamina, 100},
-            {StatsProperty.Intelligence, 1},
-            {StatsProperty.Strength, 1}
-        };
+        private static readonly IReadOnlyDictionary<StatsProperty, decimal> DefaultStats =
+            new Dictionary<StatsProperty, decimal>
+            {
+                {StatsProperty.Health, 100},
+                {StatsProperty.Mana, 100},
+                {StatsProperty.Stamina, 100},
+                {StatsProperty.Intelligence, 1},
+                {StatsProperty.Strength, 1}
+            };
 
         public static IReadOnlyDictionary<StatsProperty, string> Emojis = new ReadOnlyDictionary<StatsProperty, string>(
             new Dictionary<StatsProperty, string>

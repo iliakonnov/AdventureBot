@@ -1,11 +1,8 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using AdventureBot;
 using AdventureBot.Messenger;
-using AdventureBot.ObjectManager;
 using AdventureBot.Room;
 using AdventureBot.User;
-using RoomManager = AdventureBot.User.RoomManager;
 
 namespace Content.Town
 {
@@ -13,8 +10,6 @@ namespace Content.Town
     public class Town : RoomBase
     {
         private const string identifier = "town";
-        public override string Identifier { get; } = identifier;
-        public override string Name { get; } = "Город";
 
         public Town()
         {
@@ -32,6 +27,9 @@ namespace Content.Town
                 }
             };
         }
+
+        public override string Identifier { get; } = identifier;
+        public override string Name { get; } = "Город";
 
         public override void OnReturn(User user)
         {

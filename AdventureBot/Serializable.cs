@@ -1,6 +1,5 @@
 ﻿using AdventureBot.Item;
 using AdventureBot.Messenger;
-using AdventureBot.User;
 using AdventureBot.User.Stats;
 using MessagePack;
 
@@ -20,9 +19,9 @@ namespace AdventureBot
     public interface ISerializable
     {
     }
-    
+
     public static class Serializable
-    {       
+    {
         [MessagePackObject]
         public class String : ISerializable
         {
@@ -33,18 +32,18 @@ namespace AdventureBot
             {
                 _value = value;
             }
-            
+
             public static implicit operator string(String s)
             {
                 return s._value;
             }
-            
+
             public static implicit operator String(string s)
             {
                 return new String(s);
             }
         }
-        
+
         [MessagePackObject]
         public class Int : ISerializable
         {
@@ -55,18 +54,18 @@ namespace AdventureBot
             {
                 _value = value;
             }
-            
+
             public static implicit operator int(Int i)
             {
                 return i?._value ?? default;
             }
-            
+
             public static implicit operator int?(Int i)
             {
                 return i?._value;
             }
         }
-        
+
         [MessagePackObject]
         public class Double : ISerializable
         {
@@ -77,18 +76,18 @@ namespace AdventureBot
             {
                 _value = value;
             }
-            
+
             public static implicit operator double(Double d)
             {
                 return d?._value ?? default;
             }
-            
+
             public static implicit operator double?(Double d)
             {
                 return d?._value;
             }
         }
-        
+
         [MessagePackObject]
         public class Decimal : ISerializable
         {
@@ -99,18 +98,18 @@ namespace AdventureBot
             {
                 _value = value;
             }
-            
+
             public static implicit operator decimal(Decimal d)
             {
                 return d?._value ?? default;
             }
-            
+
             public static implicit operator decimal?(Decimal d)
             {
                 return d?._value;
             }
         }
-        
+
         [MessagePackObject]
         public class Bool : ISerializable
         {
@@ -121,12 +120,12 @@ namespace AdventureBot
             {
                 _value = value;
             }
-            
+
             public static implicit operator bool(Bool b)
             {
                 return b?._value ?? default;
             }
-            
+
             public static implicit operator bool?(Bool b)
             {
                 return b?._value;

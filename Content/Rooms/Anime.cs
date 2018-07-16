@@ -1,5 +1,4 @@
 ﻿using AdventureBot.Item;
-using AdventureBot.Messenger;
 using AdventureBot.Room;
 using AdventureBot.User;
 
@@ -11,7 +10,7 @@ namespace Content.Rooms
         public override string Name => "Анимешник";
         public override string Identifier => "monster/anime";
         public override decimal Health => 150;
-        
+
         public override decimal GetDamage(User user)
         {
             return 15;

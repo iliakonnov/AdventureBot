@@ -9,26 +9,30 @@ namespace Content.Rooms
     [Available("room/wedding")]
     public class Wedding : RoomBase
     {
-        public override string Name => "Грузинская свадьба";
-        public override string Identifier => "room/wedding";
-
         public Wedding()
         {
             Routes = new MessageRecived[] {TryLeave};
-            Buttons = new NullableDictionary<MessageRecived, Dictionary<string, MessageRecived>>()
+            Buttons = new NullableDictionary<MessageRecived, Dictionary<string, MessageRecived>>
             {
-                {null, new Dictionary<string, MessageRecived>
                 {
-                    {"Попытаться уйти", (user, message) => SwitchAndHandle(user, TryLeave, message)},
-                    {"Выпить с ними", (user, message) => user.RoomManager.Leave()}
-                }},
-                {TryLeave, new Dictionary<string, MessageRecived>
+                    null, new Dictionary<string, MessageRecived>
+                    {
+                        {"Попытаться уйти", (user, message) => SwitchAndHandle(user, TryLeave, message)},
+                        {"Выпить с ними", (user, message) => user.RoomManager.Leave()}
+                    }
+                },
                 {
-                    {"Выпить с ними", (user, message) => user.RoomManager.Leave()}
-                }}
+                    TryLeave, new Dictionary<string, MessageRecived>
+                    {
+                        {"Выпить с ними", (user, message) => user.RoomManager.Leave()}
+                    }
+                }
             };
         }
-        
+
+        public override string Name => "Грузинская свадьба";
+        public override string Identifier => "room/wedding";
+
         public override void OnEnter(User user)
         {
             SwitchAction(user, null);

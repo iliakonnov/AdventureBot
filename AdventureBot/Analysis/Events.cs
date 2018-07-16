@@ -3,17 +3,18 @@ using System.Linq;
 using AdventureBot.Messenger;
 using JetBrains.Annotations;
 using Microsoft.Extensions.Logging;
+using Yandex.Metrica;
 
 namespace AdventureBot.Analysis
 {
     public class Events
     {
-        private static ILogger _logger = Logger.CreateLogger<Events>();
-        
+        private static readonly ILogger _logger = Logger.CreateLogger<Events>();
+
         private static void Report(User.User user, string eventName, IEnumerable<KeyValuePair<string, string>> dict)
         {
             _logger.LogDebug($"Sending Yandex event: {eventName}");
-            Yandex.Metrica.YandexMetrica.ReportEvent(eventName, dict
+            YandexMetrica.ReportEvent(eventName, dict
                 .Concat(new[]
                 {
                     new KeyValuePair<string, string>("user", user.Info.UserId.ToString()),
@@ -25,7 +26,7 @@ namespace AdventureBot.Analysis
 
         private static void Report(User.User user, string eventName)
         {
-            Yandex.Metrica.YandexMetrica.ReportEvent(eventName, new Dictionary<string, string>
+            YandexMetrica.ReportEvent(eventName, new Dictionary<string, string>
             {
                 {"user", user.Info.UserId.ToString()},
                 {"userIntent", Utils.CurrentIntent(user)}

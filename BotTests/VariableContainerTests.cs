@@ -6,16 +6,12 @@ namespace BotTests
     public class VariableContainerTests
     {
         [Fact]
-        public void PlainTest()
+        public void GetNotexistingTest()
         {
             var container = new VariableContainer();
             Assert.Empty(container.Keys());
 
-            container.Set("test_variable", new Serializable.Int(1));
-            Assert.Single(container.Keys(), "test_variable");
-
-            var value = container.Get<Serializable.Int>("test_variable");
-            Assert.Equal(1, (int) value);
+            Assert.Null(container.Get("key"));
         }
 
         [Fact]
@@ -52,12 +48,16 @@ namespace BotTests
         }
 
         [Fact]
-        public void GetNotexistingTest()
+        public void PlainTest()
         {
             var container = new VariableContainer();
             Assert.Empty(container.Keys());
 
-            Assert.Null(container.Get("key"));
+            container.Set("test_variable", new Serializable.Int(1));
+            Assert.Single(container.Keys(), "test_variable");
+
+            var value = container.Get<Serializable.Int>("test_variable");
+            Assert.Equal(1, (int) value);
         }
     }
 }

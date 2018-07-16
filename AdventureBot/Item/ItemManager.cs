@@ -1,5 +1,4 @@
 ﻿using AdventureBot.ObjectManager;
-using AdventureBot.Room;
 
 namespace AdventureBot.Item
 {

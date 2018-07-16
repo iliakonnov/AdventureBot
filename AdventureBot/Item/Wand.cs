@@ -1,5 +1,4 @@
-﻿using System;
-using AdventureBot.Messenger;
+﻿using AdventureBot.Messenger;
 using AdventureBot.ObjectManager;
 using AdventureBot.Room;
 using AdventureBot.User.Stats;

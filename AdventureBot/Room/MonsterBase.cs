@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using AdventureBot.Messenger;
 using AdventureBot.User.Stats;
 
@@ -14,11 +13,6 @@ namespace AdventureBot.Room
     {
         public abstract decimal Health { get; }
 
-        public abstract decimal GetDamage(User.User user);
-        public abstract void Enter(User.User user, string[][] buttons);
-        public abstract bool OnRunaway(User.User user);
-        public abstract void OnWon(User.User user);
-
         public void MakeDamage(User.User user, decimal damage)
         {
             var variables = GetRoomVariables(user);
@@ -31,7 +25,7 @@ namespace AdventureBot.Room
             var variables = GetRoomVariables(user);
             variables.Set("old_hp", new Serializable.Decimal(Health));
             variables.Set("hp", new Serializable.Decimal(Health));
-            
+
             var buttons = GetItems(user).Select(item => new[] {item}).ToArray();
             Enter(user, buttons);
         }
@@ -72,21 +66,21 @@ namespace AdventureBot.Room
             {
                 var variables = GetRoomVariables(user);
                 var hp = (decimal) (Serializable.Decimal) variables.Get("hp");
-                
+
                 var diff = hp - (decimal) (Serializable.Decimal) variables.Get("old_hp");
                 SendMessage(
                     user,
                     $"HP: {hp} _{diff:(+#);(-#);}_"
                 );
-                
+
                 variables.Set("old_hp", new Serializable.Decimal(hp));
-                
+
                 if (hp <= 0)
                 {
                     user.RoomManager.Leave();
                     return;
                 }
-                
+
                 var dmg = GetDamage(user);
                 SendMessage(
                     user,
@@ -96,5 +90,10 @@ namespace AdventureBot.Room
                 user.Info.ChangeStats(StatsProperty.Health, -dmg);
             }
         }
+
+        public abstract decimal GetDamage(User.User user);
+        public abstract void Enter(User.User user, string[][] buttons);
+        public abstract bool OnRunaway(User.User user);
+        public abstract void OnWon(User.User user);
     }
 }

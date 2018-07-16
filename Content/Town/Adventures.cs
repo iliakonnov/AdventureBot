@@ -11,7 +11,7 @@ namespace Content.Town
     {
         public override string Name => "Приключения";
         public override string Identifier => "town/adventures";
-        
+
         public override void OnEnter(User user)
         {
             var roomMgr = GetAllRooms();
@@ -23,7 +23,10 @@ namespace Content.Town
             user.RoomManager.Go(rooms[user.Random.Next(rooms.Count)]);
         }
 
-        public override bool OnLeave(User user) => true;
+        public override bool OnLeave(User user)
+        {
+            return true;
+        }
 
         public override void OnMessage(User user, RecivedMessage message)
         {
@@ -38,7 +41,7 @@ namespace Content.Town
             user.Info.ChangeStats(StatsProperty.Mana, user.Info.MaxStats.Effect[StatsProperty.Mana] * k);
             user.Info.ChangeStats(StatsProperty.Stamina, user.Info.MaxStats.Effect[StatsProperty.Mana] * k);
             user.Info.ChangeStats(StatsProperty.Health, user.Info.MaxStats.Effect[StatsProperty.Mana] * k);
-            
+
             SendMessage(user, "Вы вернулись в город, отдохнули и теперь лучше себя чувствуете.");
             user.RoomManager.Leave();
         }

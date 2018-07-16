@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using AdventureBot.Analysis;
 using AdventureBot.ObjectManager;
 using AdventureBot.User;
 using JetBrains.Annotations;
+using MessagePack;
 using Microsoft.Extensions.Logging;
+using Yandex.Metrica;
 
 namespace AdventureBot.Messenger
 {
@@ -13,12 +16,16 @@ namespace AdventureBot.Messenger
         private readonly ILogger _logger = Logger.CreateLogger<MessengerManager>();
         private readonly List<IMessenger> _messengers = new List<IMessenger>();
 
+        public void Register(GameObjectAttribute attribute, Create<IMessenger> creator)
+        {
+            if (!(attribute is MessengerAttribute)) return;
+
+            Register(creator());
+        }
+
         private void MessageHandler(RecivedMessage message)
         {
-            if (message == null)
-            {
-                return;
-            }
+            if (message == null) return;
             message.RecivedTime = DateTimeOffset.UtcNow;
 
 #if DEBUG
@@ -27,7 +34,7 @@ namespace AdventureBot.Messenger
             using (var context = new UserContext(message.UserId, message.ChatId))
             {
                 User.User user = context;
-                
+
                 // Analyzer.Chatbase.ReciveMessage(user, message);
 
                 try
@@ -44,7 +51,7 @@ namespace AdventureBot.Messenger
                         }
                         case "/debug":
                         {
-                            var serialized = MessageManager.Escape(MessagePack.MessagePackSerializer.ToJson(
+                            var serialized = MessageManager.Escape(MessagePackSerializer.ToJson(
                                 new PublicUser(user)
                             ));
                             user.MessageManager.SendImmediately(new SentMessage
@@ -81,7 +88,7 @@ namespace AdventureBot.Messenger
                 }
                 catch (Exception e)
                 {
-                    Yandex.Metrica.YandexMetrica.ReportError($"Error for user {message.UserId}@{message.ChatId}", e);
+                    YandexMetrica.ReportError($"Error for user {message.UserId}@{message.ChatId}", e);
                     _logger.LogError(e, $"Error for user {message.UserId}@{message.ChatId}");
                     var error = MessageManager.Escape(e.ToString());
                     user.MessageManager.SendImmediately(new SentMessage
@@ -103,21 +110,8 @@ namespace AdventureBot.Messenger
         public void Reply(SentMessage message, [CanBeNull] RecivedMessage recievedMessage, User.User user)
         {
             message.SentTime = DateTimeOffset.UtcNow;
-            Analysis.Events.Message(user, message, recievedMessage);
-            foreach (var messenger in _messengers)
-            {
-                messenger.Send(message, recievedMessage, user);
-            }
-        }
-
-        public void Register(GameObjectAttribute attribute, Create<IMessenger> creator)
-        {
-            if (!(attribute is MessengerAttribute))
-            {
-                return;
-            }
-
-            Register(creator());
+            Events.Message(user, message, recievedMessage);
+            foreach (var messenger in _messengers) messenger.Send(message, recievedMessage, user);
         }
     }
 }

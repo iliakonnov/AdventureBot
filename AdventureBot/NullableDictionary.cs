@@ -1,238 +1,198 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 
 namespace AdventureBot
 {
-	// https://github.com/nhibernate/nhibernate-core/blob/master/src/NHibernate/Util/NullableDictionary.cs
+    // https://github.com/nhibernate/nhibernate-core/blob/master/src/NHibernate/Util/NullableDictionary.cs
     public class NullableDictionary<TKey, TValue> : IDictionary<TKey, TValue>
-		where TKey : class
-	{
-		private TValue _nullValue;
-		private bool _gotNullValue;
-		private readonly Dictionary<TKey, TValue> _dict;
+        where TKey : class
+    {
+        private readonly Dictionary<TKey, TValue> _dict;
+        private bool _gotNullValue;
+        private TValue _nullValue;
 
-		public NullableDictionary()
-		{
-			_dict = new Dictionary<TKey, TValue>();
-		}
+        public NullableDictionary()
+        {
+            _dict = new Dictionary<TKey, TValue>();
+        }
 
-		public NullableDictionary(IEqualityComparer<TKey> comparer)
-		{
-			_dict = new Dictionary<TKey, TValue>(comparer);
-		}
+        public NullableDictionary(IEqualityComparer<TKey> comparer)
+        {
+            _dict = new Dictionary<TKey, TValue>(comparer);
+        }
 
-		public bool ContainsKey(TKey key)
-		{
-			if (key == null)
-			{
-				return _gotNullValue;
-			}
-			else
-			{
-				return _dict.ContainsKey(key);
-			}
-		}
+        public bool ContainsKey(TKey key)
+        {
+            if (key == null)
+                return _gotNullValue;
+            return _dict.ContainsKey(key);
+        }
 
-		public void Add(TKey key, TValue value)
-		{
-			if (key == null)
-			{
-				_nullValue = value;
-				_gotNullValue = true;
-			}
-			else
-			{
-				_dict[key] = value;
-			}
-		}
+        public void Add(TKey key, TValue value)
+        {
+            if (key == null)
+            {
+                _nullValue = value;
+                _gotNullValue = true;
+            }
+            else
+            {
+                _dict[key] = value;
+            }
+        }
 
-		public bool Remove(TKey key)
-		{
-			if (key == null)
-			{
-				if (_gotNullValue)
-				{
-					_nullValue = default(TValue);
-					_gotNullValue = false;
-					return true;
-				}
-				else
-				{
-					return false;
-				}
-			}
-			else
-			{
-				return _dict.Remove(key);
-			}
-		}
+        public bool Remove(TKey key)
+        {
+            if (key == null)
+            {
+                if (_gotNullValue)
+                {
+                    _nullValue = default;
+                    _gotNullValue = false;
+                    return true;
+                }
 
-		public bool TryGetValue(TKey key, out TValue value)
-		{
-			if (key == null)
-			{
-				if (_gotNullValue)
-				{
-					value = _nullValue;
-					return true;
-				}
-				else
-				{
-					value = default(TValue);
-					return false;
-				}
-			}
-			else
-			{
-				return _dict.TryGetValue(key, out value);
-			}
-		}
+                return false;
+            }
 
-		public TValue this[TKey key]
-		{
-			get
-			{
-				if (key == null)
-				{
-					return _nullValue;
-				}
-				else
-				{
-					TValue ret;
+            return _dict.Remove(key);
+        }
 
-					_dict.TryGetValue(key, out ret);
+        public bool TryGetValue(TKey key, out TValue value)
+        {
+            if (key == null)
+            {
+                if (_gotNullValue)
+                {
+                    value = _nullValue;
+                    return true;
+                }
 
-					return ret;
-				}
-			}
-			set
-			{
-				if (key == null)
-				{
-					_nullValue = value;
-					_gotNullValue = true;
-				}
-				else
-				{
-					_dict[key] = value;
-				}
-			}
-		}
+                value = default;
+                return false;
+            }
 
-		public ICollection<TKey> Keys
-		{
-			get
-			{
-				if (_gotNullValue)
-				{
-					List<TKey> keys = new List<TKey>(_dict.Keys);
-					keys.Add(null);
-					return keys;
-				}
-				else
-				{
-					return _dict.Keys;
-				}
-			}
-		}
+            return _dict.TryGetValue(key, out value);
+        }
 
-		public ICollection<TValue> Values
-		{
-			get
-			{
-				if (_gotNullValue)
-				{
-					List<TValue> values = new List<TValue>(_dict.Values);
-					values.Add(_nullValue);
-					return values;
-				}
-				else
-				{
-					return _dict.Values;
-				}
-			}
-		}
+        public TValue this[TKey key]
+        {
+            get
+            {
+                if (key == null) return _nullValue;
 
-		public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator()
-		{
-			foreach (KeyValuePair<TKey, TValue> kvp in _dict)
-			{
-				yield return kvp;
-			}
+                TValue ret;
 
-			if (_gotNullValue)
-			{
-				yield return new KeyValuePair<TKey, TValue>(null, _nullValue);
-			}
-		}
+                _dict.TryGetValue(key, out ret);
 
-		IEnumerator IEnumerable.GetEnumerator()
-		{
-			return GetEnumerator();
-		}
+                return ret;
+            }
+            set
+            {
+                if (key == null)
+                {
+                    _nullValue = value;
+                    _gotNullValue = true;
+                }
+                else
+                {
+                    _dict[key] = value;
+                }
+            }
+        }
 
-		public void Add(KeyValuePair<TKey, TValue> item)
-		{
-			if (item.Key == null)
-			{
-				_nullValue = item.Value;
-				_gotNullValue = true;
-			}
-			else
-			{
-				_dict.Add(item.Key, item.Value);
-			}
-		}
+        public ICollection<TKey> Keys
+        {
+            get
+            {
+                if (_gotNullValue)
+                {
+                    var keys = new List<TKey>(_dict.Keys);
+                    keys.Add(null);
+                    return keys;
+                }
 
-		public void Clear()
-		{
-			_dict.Clear();
-			_nullValue = default(TValue);
-			_gotNullValue = false;
-		}
+                return _dict.Keys;
+            }
+        }
 
-		public bool Contains(KeyValuePair<TKey, TValue> item)
-		{
-			TValue val;
+        public ICollection<TValue> Values
+        {
+            get
+            {
+                if (_gotNullValue)
+                {
+                    var values = new List<TValue>(_dict.Values);
+                    values.Add(_nullValue);
+                    return values;
+                }
 
-			if (TryGetValue(item.Key, out val))
-			{
-				return Equals(item.Value, val);
-			}
-			else
-			{
-				return false;
-			}
-		}
+                return _dict.Values;
+            }
+        }
 
-		public void CopyTo(KeyValuePair<TKey, TValue>[] array, int arrayIndex)
-		{
-			throw new System.NotImplementedException();
-		}
+        public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator()
+        {
+            foreach (var kvp in _dict) yield return kvp;
 
-		public bool Remove(KeyValuePair<TKey, TValue> item)
-		{
-			throw new System.NotImplementedException();
-		}
+            if (_gotNullValue) yield return new KeyValuePair<TKey, TValue>(null, _nullValue);
+        }
 
-		public int Count
-		{
-			get
-			{
-				if (_gotNullValue)
-				{
-					return _dict.Count + 1;
-				}
-				else
-				{
-					return _dict.Count;
-				}
-			}
-		}
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
 
-		public bool IsReadOnly
-		{
-			get { return false; }
-		}
-	}
+        public void Add(KeyValuePair<TKey, TValue> item)
+        {
+            if (item.Key == null)
+            {
+                _nullValue = item.Value;
+                _gotNullValue = true;
+            }
+            else
+            {
+                _dict.Add(item.Key, item.Value);
+            }
+        }
+
+        public void Clear()
+        {
+            _dict.Clear();
+            _nullValue = default;
+            _gotNullValue = false;
+        }
+
+        public bool Contains(KeyValuePair<TKey, TValue> item)
+        {
+            TValue val;
+
+            if (TryGetValue(item.Key, out val))
+                return Equals(item.Value, val);
+            return false;
+        }
+
+        public void CopyTo(KeyValuePair<TKey, TValue>[] array, int arrayIndex)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool Remove(KeyValuePair<TKey, TValue> item)
+        {
+            throw new NotImplementedException();
+        }
+
+        public int Count
+        {
+            get
+            {
+                if (_gotNullValue)
+                    return _dict.Count + 1;
+                return _dict.Count;
+            }
+        }
+
+        public bool IsReadOnly => false;
+    }
 }

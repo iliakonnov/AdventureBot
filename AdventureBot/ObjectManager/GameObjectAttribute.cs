@@ -8,14 +8,14 @@ namespace AdventureBot.ObjectManager
 
     public class IdentifiableAttribute : GameObjectAttribute
     {
-        public string Identifier { get; }
-
         public IdentifiableAttribute(string identifier)
         {
             Identifier = identifier;
         }
+
+        public string Identifier { get; }
     }
-    
+
     public class ItemAttribute : IdentifiableAttribute
     {
         public ItemAttribute(string identifier) : base(identifier)

@@ -9,9 +9,6 @@ namespace Content.Rooms
     [Available("room/kiba")]
     public class Kiba : RoomBase
     {
-        public override string Name => "Киба";
-        public override string Identifier => "room/kiba";
-
         public Kiba()
         {
             Buttons = new NullableDictionary<MessageRecived, Dictionary<string, MessageRecived>>
@@ -24,6 +21,9 @@ namespace Content.Rooms
                 }
             };
         }
+
+        public override string Name => "Киба";
+        public override string Identifier => "room/kiba";
 
         public override void OnEnter(User user)
         {

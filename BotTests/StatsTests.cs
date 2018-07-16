@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using AdventureBot;
-using AdventureBot.User;
 using AdventureBot.User.Stats;
 using Xunit;
 
@@ -17,7 +16,8 @@ namespace BotTests
                 {StatsProperty.Health, 5}
             });
             var applied = stats.Apply(effect);
-            Assert.Equal(stats.Effect[StatsProperty.Health], applied.Effect[StatsProperty.Health] - effect.Effect[StatsProperty.Health]);
+            Assert.Equal(stats.Effect[StatsProperty.Health],
+                applied.Effect[StatsProperty.Health] - effect.Effect[StatsProperty.Health]);
         }
 
         [Fact]
@@ -43,27 +43,6 @@ namespace BotTests
             });
             var applied = stats.Apply(effect);
             Assert.Equal(effect.Effect[StatsProperty.Health], applied.Effect[StatsProperty.Health]);
-        }
-
-        [Fact]
-        public void CompareSame()
-        {
-            var stats = new Stats();
-            var props = new Flag<StatsProperty>(StatsProperty.Health);
-
-            var comparer = StatsEffect.CreateComparer(props, stats);
-
-            var a = new StatsEffect(ChangeType.Add, new Dictionary<StatsProperty, decimal>
-            {
-                {StatsProperty.Health, 5}
-            });
-            var b = new StatsEffect(ChangeType.Add, new Dictionary<StatsProperty, decimal>
-            {
-                {StatsProperty.Health, 5}
-            });
-
-            Assert.Equal(0, comparer.Compare(a, b));
-            Assert.Equal(0, StatsEffect.Compare(props, stats, a, b));
         }
 
         [Fact]
@@ -124,6 +103,27 @@ namespace BotTests
 
             var intelligence = new Flag<StatsProperty>(StatsProperty.Intelligence);
             Assert.Equal(0, StatsEffect.Compare(intelligence, stats, a, b));
+        }
+
+        [Fact]
+        public void CompareSame()
+        {
+            var stats = new Stats();
+            var props = new Flag<StatsProperty>(StatsProperty.Health);
+
+            var comparer = StatsEffect.CreateComparer(props, stats);
+
+            var a = new StatsEffect(ChangeType.Add, new Dictionary<StatsProperty, decimal>
+            {
+                {StatsProperty.Health, 5}
+            });
+            var b = new StatsEffect(ChangeType.Add, new Dictionary<StatsProperty, decimal>
+            {
+                {StatsProperty.Health, 5}
+            });
+
+            Assert.Equal(0, comparer.Compare(a, b));
+            Assert.Equal(0, StatsEffect.Compare(props, stats, a, b));
         }
     }
 }

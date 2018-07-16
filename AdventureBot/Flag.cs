@@ -1,15 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using JetBrains.Annotations;
 using MessagePack;
 
 namespace AdventureBot
 {
-    [MessagePackObject(keyAsPropertyName: true)]
+    [MessagePackObject(true)]
     public class StructFlag<T> : Flag<T>, ISerializable where T : struct
     {
         public StructFlag(T value) : base(value)
@@ -23,7 +20,7 @@ namespace AdventureBot
         public StructFlag(ImmutableHashSet<T> values) : base(values)
         {
         }
-        
+
         public static StructFlag<T> operator |(StructFlag<T> a, StructFlag<T> b)
         {
             return new StructFlag<T>(a.Values.Union(b.Values));
@@ -34,8 +31,8 @@ namespace AdventureBot
             return new StructFlag<T>(a.Values.Intersect(b.Values));
         }
     }
-    
-    [MessagePackObject(keyAsPropertyName: true)]
+
+    [MessagePackObject(true)]
     public class SerializableFlag<T> : Flag<T>, ISerializable where T : ISerializable
     {
         public SerializableFlag(T value) : base(value)
@@ -49,7 +46,7 @@ namespace AdventureBot
         public SerializableFlag(ImmutableHashSet<T> values) : base(values)
         {
         }
-        
+
         public static SerializableFlag<T> operator |(SerializableFlag<T> a, SerializableFlag<T> b)
         {
             return new SerializableFlag<T>(a.Values.Union(b.Values));
@@ -60,16 +57,16 @@ namespace AdventureBot
             return new SerializableFlag<T>(a.Values.Intersect(b.Values));
         }
     }
-    
+
     /// <summary>
-    /// Please, do not use. Use <see cref="StructFlag{T}"/> or <see cref="SerializableFlag{T}"/>
+    ///     Please, do not use. Use <see cref="StructFlag{T}" /> or <see cref="SerializableFlag{T}" />
     /// </summary>
     /// <typeparam name="T">This type must be serializable!</typeparam>
-    [MessagePackObject(keyAsPropertyName: true)]
+    [MessagePackObject(true)]
     public class Flag<T>
     {
-        public ImmutableHashSet<T> Values { get; }
-        
+        private int? _hashcode;
+
         public Flag()
         {
             Values = ImmutableHashSet.Create<T>();
@@ -91,6 +88,8 @@ namespace AdventureBot
             Values = values;
         }
 
+        public ImmutableHashSet<T> Values { get; }
+
         public static Flag<T> operator |(Flag<T> a, Flag<T> b)
         {
             return new Flag<T>(a.Values.Union(b.Values));
@@ -108,10 +107,7 @@ namespace AdventureBot
 
         public override bool Equals(object obj)
         {
-            if (obj == this)
-            {
-                return true;
-            }
+            if (obj == this) return true;
 
             switch (obj)
             {
@@ -124,23 +120,14 @@ namespace AdventureBot
             return false;
         }
 
-        private int? _hashcode = null;
-
         [SuppressMessage("ReSharper", "NonReadonlyMemberInGetHashCode")]
         public override int GetHashCode()
         {
-            if (_hashcode != null)
-            {
-                // use cached hashcode
-                return (int) _hashcode;
-            }
+            if (_hashcode != null) return (int) _hashcode;
 
             // calculate hashcode and save it to cache
             _hashcode = -1138380728;
-            foreach (var value in Values)
-            {
-                _hashcode ^= value.GetHashCode();
-            }
+            foreach (var value in Values) _hashcode ^= value.GetHashCode();
 
             return (int) _hashcode;
         }

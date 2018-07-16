@@ -7,65 +7,52 @@ using AdventureBot.Item;
 using AdventureBot.Messenger;
 using AdventureBot.ObjectManager;
 using AdventureBot.Room;
-using AdventureBot.User;
-using AdventureBot.User.Stats;
 using MessagePack;
-using MessagePack.ImmutableCollection;
-using MessagePack.Resolvers;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using ItemManager = AdventureBot.Item.ItemManager;
-using RoomManager = AdventureBot.Room.RoomManager;
+using Yandex.Metrica;
 
 namespace AdventureBot
 {
-    class Program
+    internal class Program
     {
         private static readonly ILogger Logger = AdventureBot.Logger.CreateLogger<Program>();
-        
-        static void Main(string[] args)
+
+        private static void Main(string[] args)
         {
             Logger.LogInformation("Loading...");
 
             var metrika = Configuration.Config.GetSection("metrika");
-            Yandex.Metrica.YandexMetricaFolder.SetCurrent(metrika.GetValue<string>("folder"));
-            Yandex.Metrica.YandexMetrica.Config.CrashTracking = true;
-            Yandex.Metrica.YandexMetrica.Activate(metrika.GetValue<string>("token"));
-            
-            
+            YandexMetricaFolder.SetCurrent(metrika.GetValue<string>("folder"));
+            YandexMetrica.Config.CrashTracking = true;
+            YandexMetrica.Activate(metrika.GetValue<string>("token"));
+
+
             ObjectManager<IRoom>.Instance.RegisterManager<RoomManager>();
             ObjectManager<IItem>.Instance.RegisterManager<ItemManager>();
             ObjectManager<IMessenger>.Instance.RegisterManager<MessengerManager>();
 
             Logger.LogInformation("Loading objects...");
             foreach (var assembly in Configuration.Config.GetSection("assemblies").GetChildren())
-            {
                 MainManager.Instance.LoadAssembly(assembly.Value);
-            }
 
             MainManager.Instance.LoadAssembly(Assembly.GetExecutingAssembly());
 
             Logger.LogInformation("Working!");
 
-            Console.CancelKeyPress += (sender, eventArgs) =>
-            {
-                Exit();
-            };
-            
+            Console.CancelKeyPress += (sender, eventArgs) => { Exit(); };
+
             // To allow long strings
             Console.SetIn(new StreamReader(Console.OpenStandardInput(),
                 Console.InputEncoding,
                 false,
-                bufferSize: 16384));
+                16384));
 
             while (true)
             {
                 var command = Console.ReadLine();
-                if (command == null)
-                {
-                    continue;
-                }
-                
+                if (command == null) continue;
+
                 var splitted = command.Split(' ');
                 switch (splitted[0])
                 {
@@ -88,9 +75,9 @@ namespace AdventureBot
                         )
                         {
                             var userId = new UserId(messenger, uid);
-                            var user = UserManager.Instance.Get(userId, safe: false);
+                            var user = UserManager.Instance.Get(userId, false);
                             var filename = $"{userId.Id}@{userId.Messenger}.bin";
-                            System.IO.File.WriteAllBytes(filename, MessagePackSerializer.Serialize(user));
+                            File.WriteAllBytes(filename, MessagePackSerializer.Serialize(user));
                             Console.WriteLine($"Saved to {filename}");
                             break;
                         }
@@ -101,7 +88,7 @@ namespace AdventureBot
                     {
                         if (splitted.Length == 2)
                         {
-                            var bytes = System.IO.File.ReadAllBytes(splitted[1]);
+                            var bytes = File.ReadAllBytes(splitted[1]);
                             var user = MessagePackSerializer.Deserialize<User.User>(bytes);
                             UserManager.Instance.Save(user);
                             Console.WriteLine($"Loaded {user.Info.UserId}");
@@ -119,9 +106,9 @@ namespace AdventureBot
                         )
                         {
                             var userId = new UserId(messenger, uid);
-                            var user = UserManager.Instance.Get(userId, safe: false);
+                            var user = UserManager.Instance.Get(userId, false);
                             var filename = $"{userId.Id}@{userId.Messenger}.json";
-                            System.IO.File.WriteAllText(filename, MessagePackSerializer.ToJson(user));
+                            File.WriteAllText(filename, MessagePackSerializer.ToJson(user));
                             Console.WriteLine($"Saved to {filename}");
                             break;
                         }
@@ -154,6 +141,7 @@ namespace AdventureBot
                                     Console.WriteLine("Ok");
                                 }
                             }
+
                             break;
                         }
 
@@ -175,6 +163,7 @@ namespace AdventureBot
                                 user.Info.BaseStats = user.Info.MaxStats;
                                 user.Info.RecalculateStats();
                             }
+
                             break;
                         }
 
@@ -198,12 +187,12 @@ namespace AdventureBot
             }
         }
 
-        static void Exit()
+        private static void Exit()
         {
             Logger.LogInformation("Saving users...");
             UserManager.Instance.Flush();
             Logger.LogInformation("Done!");
-            Thread.Sleep(500);  // Finish logging
+            Thread.Sleep(500); // Finish logging
             Environment.Exit(0);
         }
     }

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -13,7 +12,7 @@ using MessagePack;
 namespace AdventureBot.User
 {
     /// <summary>
-    /// Характеристики, которые возможно отображать под сообщением.
+    ///     Характеристики, которые возможно отображать под сообщением.
     /// </summary>
     [Flags]
     public enum ShownStats
@@ -24,10 +23,10 @@ namespace AdventureBot.User
         Gold = 1 << 3,
         Intelligence = 1 << 4,
         Strength = 1 << 5,
-        
+
         /// <summary>
-        /// Характеристики по-умолчанию.
-        /// При переходе в новую комнату <see cref="MessageManager.ShownStats"/> сбрасывается на это значение
+        ///     Характеристики по-умолчанию.
+        ///     При переходе в новую комнату <see cref="MessageManager.ShownStats" /> сбрасывается на это значение
         /// </summary>
         Default = Health | Mana | Stamina
     }
@@ -35,34 +34,19 @@ namespace AdventureBot.User
     [MessagePackObject]
     public class MessageManager
     {
+        [Key(nameof(LastMessages))] internal readonly Queue<SentMessage> LastMessages = new Queue<SentMessage>();
+        [Key("intent")] private string _intent;
         [IgnoreMember] internal User _user;
 
-        [Key("queue")] private List<SentMessage> _queue { get; } = new List<SentMessage>();
-        [Key("buttons")] private string[][] _buttons { get; set; }
-        [Key("intent")] private string _intent;
-        [Key(nameof(LastMessages))] internal readonly Queue<SentMessage> LastMessages = new Queue<SentMessage>();
-        [Key(nameof(RecievedMessage))] internal RecivedMessage RecievedMessage { get; set; }
-
         /// <summary>
-        /// Характеристики под сообщением.
+        ///     Характеристики под сообщением.
         /// </summary>
-        [Key(nameof(ShownStats))]
-        public ShownStats ShownStats = ShownStats.Default;
-
-
-        /// <summary>
-        /// Id чата, в который будут отправляться сообщения
-        /// </summary>
-        [Key(nameof(ChatId))] public ChatId ChatId { get; internal set; }
+        [Key(nameof(ShownStats))] public ShownStats ShownStats = ShownStats.Default;
 
         public MessageManager(User user)
         {
             _user = user;
-            if (_user.MessageManager != null)
-            {
-                // Reset
-                ChatId = _user.MessageManager.ChatId;
-            }
+            if (_user.MessageManager != null) ChatId = _user.MessageManager.ChatId;
         }
 
         [Obsolete("This constructor for serializer only")]
@@ -80,29 +64,34 @@ namespace AdventureBot.User
             _intent = intent;
         }
 
+        [Key("queue")] private List<SentMessage> _queue { get; } = new List<SentMessage>();
+        [Key("buttons")] private string[][] _buttons { get; set; }
+        [Key(nameof(RecievedMessage))] internal RecivedMessage RecievedMessage { get; set; }
+
+
         /// <summary>
-        /// Добавляет сообщение в очередь.
+        ///     Id чата, в который будут отправляться сообщения
+        /// </summary>
+        [Key(nameof(ChatId))]
+        public ChatId ChatId { get; internal set; }
+
+        /// <summary>
+        ///     Добавляет сообщение в очередь.
         /// </summary>
         public void SendMessage(SentMessage message)
         {
             _queue.Add(message);
-            if (message.Buttons != null)
-            {
-                _buttons = message.Buttons;
-            }
+            if (message.Buttons != null) _buttons = message.Buttons;
 
-            if (message.Intent != null)
-            {
-                _intent = message.Intent;
-            } 
+            if (message.Intent != null) _intent = message.Intent;
         }
 
         /// <summary>
-        /// Сразу же отправляет сообщение, не добавляя его в очередь.
+        ///     Сразу же отправляет сообщение, не добавляя его в очередь.
         /// </summary>
         /// <param name="message"></param>
         internal void SendImmediately(SentMessage message)
-        {            
+        {
             ObjectManager<IMessenger>.Instance.Get<MessengerManager>().Reply(new SentMessage
             {
                 Text = message.Text,
@@ -115,8 +104,8 @@ namespace AdventureBot.User
         internal void OnRecieved(RecivedMessage message)
         {
             _user.ItemManager.OnMessage();
-            
-            var room =_user.RoomManager.GetRoom();
+
+            var room = _user.RoomManager.GetRoom();
             if (room == null)
             {
                 if (_user.RoomManager.Rooms.Count == 0)
@@ -139,7 +128,6 @@ namespace AdventureBot.User
             {
                 room.OnMessage(_user, message);
             }
-            
         }
 
         private string AddInfo(IEnumerable<string> messages)
@@ -156,9 +144,7 @@ namespace AdventureBot.User
             var stats = new StringBuilder();
 
             foreach (ShownStats shownStat in Enum.GetValues(typeof(ShownStats)))
-            {
                 if ((shownStat & ShownStats) != 0)
-                {
                     switch (shownStat)
                     {
                         case ShownStats.Health:
@@ -167,17 +153,10 @@ namespace AdventureBot.User
                             var percent = _user.Info.CurrentStats.Effect[StatsProperty.Health] /
                                           _user.Info.MaxStats.Effect[StatsProperty.Health];
                             if (percent < 1m / 3)
-                            {
                                 heart = "🖤️"; // black
-                            }
                             else if (percent < 2m / 3)
-                            {
                                 heart = "💛"; // yellow
-                            }
-                            else if (percent < 2m / 3)
-                            {
-                                heart = "❤️"; // red
-                            }
+                            else if (percent < 2m / 3) heart = "❤️"; // red
 
                             stats.Append($"{heart}{_user.Info.CurrentStats.Effect[StatsProperty.Health]:F2}");
                             break;
@@ -218,8 +197,6 @@ namespace AdventureBot.User
                             throw new ArgumentOutOfRangeException();
                         }
                     }
-                }
-            }
 
             return string.Join("\n\n", Enumerable.Empty<string>()
                 .Concat(new[] {$"_{path}_"})
@@ -230,17 +207,11 @@ namespace AdventureBot.User
 
         internal void Finish()
         {
-            if (_queue.Count == 0)
-            {
-                return;
-            }
+            if (_queue.Count == 0) return;
 
             var totalText = AddInfo(_queue.Select(m => m.Text));
 
-            if (string.IsNullOrWhiteSpace(totalText))
-            {
-                return;
-            }
+            if (string.IsNullOrWhiteSpace(totalText)) return;
 
             var message = new SentMessage
             {
@@ -251,16 +222,10 @@ namespace AdventureBot.User
             };
 
             var room = _user.RoomManager.Rooms.FirstOrDefault();
-            if (room != null)
-            {
-                room.LastMessage = LastMessages.LastOrDefault();
-            }
+            if (room != null) room.LastMessage = LastMessages.LastOrDefault();
 
             ObjectManager<IMessenger>.Instance.Get<MessengerManager>().Reply(message, RecievedMessage, _user);
-            while (LastMessages.Count > 10)
-            {
-                LastMessages.Dequeue();
-            }
+            while (LastMessages.Count > 10) LastMessages.Dequeue();
 
             LastMessages.Enqueue(message);
 
@@ -270,7 +235,7 @@ namespace AdventureBot.User
         }
 
         /// <summary>
-        /// Экранирует сообщение так, чтобы в нём не было симолов форматирования markdown'а
+        ///     Экранирует сообщение так, чтобы в нём не было симолов форматирования markdown'а
         /// </summary>
         public static string Escape(string message)
         {

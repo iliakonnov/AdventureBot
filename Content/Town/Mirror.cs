@@ -13,13 +13,10 @@ namespace Content.Town
     [Room("town/mirror")]
     public class Mirror : RoomBase
     {
-        public override string Name => "Зеркало";
-        public override string Identifier => "town/mirror";
-
         public Mirror()
         {
             Routes = new MessageRecived[] {EditStats};
-            Buttons = new NullableDictionary<MessageRecived, Dictionary<string, MessageRecived>>()
+            Buttons = new NullableDictionary<MessageRecived, Dictionary<string, MessageRecived>>
             {
                 {
                     null, new Dictionary<string, MessageRecived>
@@ -40,21 +37,24 @@ namespace Content.Town
             };
         }
 
+        public override string Name => "Зеркало";
+        public override string Identifier => "town/mirror";
+
         public override void OnEnter(User user)
         {
             SendMessage(user, "Вы смотрите в зеркало и узнаете о себе много нового.", GetButtons(user));
-            
+
             ShowStats(user);
         }
 
-        public override bool OnLeave(User user) => true;
+        public override bool OnLeave(User user)
+        {
+            return true;
+        }
 
         public override void OnMessage(User user, RecivedMessage message)
         {
-            if (!HandleAction(user, message))
-            {
-                HandleButtonAlways(user, message);
-            }
+            if (!HandleAction(user, message)) HandleButtonAlways(user, message);
         }
 
         private void ShowStats(User user)
@@ -87,6 +87,7 @@ namespace Content.Town
 
                 stats.Append(": ").Append(stat.Value).AppendLine();
             }
+
             SendMessage(user, stats.ToString());
         }
 
@@ -96,9 +97,9 @@ namespace Content.Town
             var numbers = new[] {-5, -3, -1, +1, +3, +5};
             var buttons = new List<string[]>
             {
-                new []{"Закончить"}
+                new[] {"Закончить"}
             };
-            
+
             foreach (var proportion in user.ActiveItemsManager.ActiveProportions)
             {
                 var emoji = string.Join(",", proportion.Key.Values.Select(k => Stats.Emojis[k]));
@@ -131,12 +132,8 @@ namespace Content.Town
 
             var flag = new Flag<StatsProperty>();
             foreach (var propEmoji in splitted[0].Split(','))
-            {
                 if (reverse.TryGetValue(propEmoji, out var prop))
-                {
                     flag |= new Flag<StatsProperty>(prop);
-                }
-            }
 
             var count = 0;
             if (!flag.Values.IsEmpty && int.TryParse(splitted[1], out count))
@@ -144,7 +141,7 @@ namespace Content.Town
                 user.ActiveItemsManager.ChangeProportion(flag, count);
                 changed = true;
             }
-            
+
             // Show current stats
             ShowStats(user);
 
@@ -154,15 +151,12 @@ namespace Content.Town
             {
                 var emoji = string.Join(",", proportion.Key.Values.Select(k => Stats.Emojis[k]));
                 current.Append(emoji).Append(": ").Append(proportion.Value);
-                if (changed && flag.Equals(proportion.Key))
-                {
-                    current.Append($" _({count:+#:-#:0})_");
-                }
+                if (changed && flag.Equals(proportion.Key)) current.Append($" _({count:+#:-#:0})_");
                 current.AppendLine();
             }
-            
+
             SendMessage(user, current.ToString(), EditButtons(user));
-            
+
             // Show how many available
             var used = user.ActiveItemsManager.ActiveProportions.Select(kv => kv.Value).Sum();
             var total = user.ActiveItemsManager.ActiveLimit;

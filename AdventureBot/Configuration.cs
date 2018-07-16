@@ -5,8 +5,6 @@ namespace AdventureBot
 {
     public class Configuration
     {
-        public static IConfigurationRoot Config { get; }
-        
         static Configuration()
         {
             var builder = new ConfigurationBuilder()
@@ -14,5 +12,7 @@ namespace AdventureBot
                 .AddJsonFile("config.json");
             Config = builder.Build();
         }
+
+        public static IConfigurationRoot Config { get; }
     }
 }

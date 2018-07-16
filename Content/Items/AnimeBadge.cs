@@ -15,10 +15,15 @@ namespace Content.Items
         public override string Description => "";
         public override decimal? Price => null;
         public override string Identifier => "anime/badge";
-        public override StatsEffect Effect => new StatsEffect(ChangeType.Set, new Dictionary<StatsProperty, decimal>()
+
+        public override StatsEffect Effect => new StatsEffect(ChangeType.Set, new Dictionary<StatsProperty, decimal>
         {
             {StatsProperty.Intelligence, 1}
         });
-        public override bool CanUse(User user, ItemInfo info) => false;
+
+        public override bool CanUse(User user, ItemInfo info)
+        {
+            return false;
+        }
     }
 }

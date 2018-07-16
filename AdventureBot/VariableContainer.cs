@@ -24,15 +24,30 @@ namespace AdventureBot
         }
 
         [CanBeNull]
-        public ISerializable Get(string key) => _variables.GetValueOrDefault(key, null);
-        
+        public ISerializable Get(string key)
+        {
+            return _variables.GetValueOrDefault(key, null);
+        }
+
         [CanBeNull]
-        public T Get<T>(string key) where T : class => _variables.GetValueOrDefault(key, null) as T;
+        public T Get<T>(string key) where T : class
+        {
+            return _variables.GetValueOrDefault(key, null) as T;
+        }
 
-        public IEnumerable<string> Keys() => _variables.Keys;
+        public IEnumerable<string> Keys()
+        {
+            return _variables.Keys;
+        }
 
-        public void Set(string key, ISerializable value) => _variables[key] = value;
+        public void Set(string key, ISerializable value)
+        {
+            _variables[key] = value;
+        }
 
-        public void Remove(string key) => _variables.Remove(key);
+        public void Remove(string key)
+        {
+            _variables.Remove(key);
+        }
     }
 }

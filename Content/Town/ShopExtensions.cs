@@ -7,14 +7,10 @@ namespace Content.Town
     {
         public static bool BuyItem(this User user, ItemInfo item)
         {
-            if (item.Item.Price == null)
-            {
-                // Unsellable
-                return false;
-            }
-            
-            var price = (decimal)item.Item.Price * item.Count;
-            
+            if (item.Item.Price == null) return false;
+
+            var price = (decimal) item.Item.Price * item.Count;
+
             if (user.Info.TryDecreaseGold(price))
             {
                 user.ItemManager.Add(item);
@@ -23,17 +19,13 @@ namespace Content.Town
 
             return false;
         }
-        
+
         public static bool SellItem(this User user, ItemInfo item)
         {
-            if (item.Item.Price == null)
-            {
-                // Unbuyable
-                return false;
-            }
-            
-            var price = (decimal)item.Item.Price * item.Count * user.Info.SellMultiplier;
-            
+            if (item.Item.Price == null) return false;
+
+            var price = (decimal) item.Item.Price * item.Count * user.Info.SellMultiplier;
+
             if (user.ItemManager.Remove(item))
             {
                 user.Info.Gold += price;

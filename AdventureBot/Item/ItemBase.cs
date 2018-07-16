@@ -1,5 +1,4 @@
-﻿using AdventureBot.User;
-using AdventureBot.User.Stats;
+﻿using AdventureBot.User.Stats;
 using JetBrains.Annotations;
 using MessagePack;
 
@@ -41,7 +40,7 @@ namespace AdventureBot.Item
         public abstract StatsEffect Effect { get; }
 
         public abstract bool CanUse(User.User user, ItemInfo info);
-        
+
         public virtual void OnUse(User.User user, ItemInfo info)
         {
         }

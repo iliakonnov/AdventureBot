@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using AdventureBot.Messenger;
-using AdventureBot.ObjectManager;
-using AdventureBot.User;
 
 namespace AdventureBot.Room
 {
@@ -20,10 +17,8 @@ namespace AdventureBot.Room
                     ConfirmRestart, new Dictionary<string, MessageRecived>
                     {
                         {"Да", (user, message) => NewGame(user, "Ну раз вы так хотите, то ладно.")},
-                        {"Нет", (user, message) =>
-                            {
-                                user.RoomManager.Leave(false);
-                            }
+                        {
+                            "Нет", (user, message) => { user.RoomManager.Leave(false); }
                         }
                     }
                 }
@@ -37,22 +32,15 @@ namespace AdventureBot.Room
         {
             SwitchAction(user, ConfirmRestart);
             if (!user.Info.Dead)
-            {
                 SendMessage(user, "Неужели хотите начать новую игру?", GetButtons(user));
-            }
             else
-            {
                 SendMessage(user, "Вы оказались в мире мертвых. Хотите играть?", GetButtons(user));
-            }
         }
 
         private void NewGame(User.User user, string message = null)
         {
             user.Reset();
-            if (message != null)
-            {
-                SendMessage(user, message);
-            }
+            if (message != null) SendMessage(user, message);
 
             user.Info.Dead = false;
             user.RoomManager.Go("town");
@@ -67,12 +55,9 @@ namespace AdventureBot.Room
             }
 
             var buttons = new string[0][];
-            
+
             var prevRoom = user.RoomManager.Rooms.Peek();
-            if (prevRoom?.LastMessage != null)
-            {
-                buttons = prevRoom.LastMessage.Buttons;
-            }
+            if (prevRoom?.LastMessage != null) buttons = prevRoom.LastMessage.Buttons;
             SendMessage(user, "Вы покидаете мир мертвых и отправляетесь путешествовать.", buttons);
             return true;
         }
