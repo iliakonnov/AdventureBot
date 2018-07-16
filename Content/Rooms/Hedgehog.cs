@@ -1,8 +1,7 @@
-﻿using AdventureBot.ObjectManager;
-using AdventureBot.Room;
+﻿using AdventureBot.Room;
 using AdventureBot.User;
 
-namespace Content
+namespace Content.Rooms
 {
     [Available("monster/hedgehog")]
     public class Hedgehog : MonsterBase
@@ -24,6 +23,10 @@ namespace Content
         public override bool OnRunaway(User user)
         {
             return true;
+        }
+
+        public override void OnWon(User user)
+        {
         }
     }
 }

@@ -7,43 +7,28 @@ using AdventureBot.User.Stats;
 namespace AdventureBot.Item
 {
     [Item("hand")]
-    public class Hand : ItemBase<Hand>
+    public class Hand : ItemBase
     {
-        public override void OnLeave(User.User user, ItemInfo info)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override string Name { get; set; } = "Рука";
-        public override string Description { get; set; } =
+        public override string Name => "Рука";
+        public override string Description =>
             "Самая обычная рука. У каждого такая есть, а у некторых даже не одна.";
 
-        public override decimal? Price { get; set; } = null;
-        public override Flag<BuyGroup> Group { get; set; } = new Flag<BuyGroup>(new BuyGroup[0]);
+        public override decimal? Price => null;
+        public override Flag<BuyGroup> Group => new Flag<BuyGroup>(new BuyGroup[0]);
 
-        public override string Identifier { get; set; } = "hand";
-        public override StatsEffect Effect { get; set; } = null;
+        public override string Identifier => "hand";
+        public override StatsEffect Effect => null;
 
         public override void OnUse(User.User user, ItemInfo info)
         {
             var room = user.RoomManager.GetRoom();
             if (room is IMonster monsterRoom)
             {
-                if (user.Info.ChangeStats(StatsProperty.Mana, -5))
+                user.MessageManager.SendMessage(new SentMessage
                 {
-                    user.MessageManager.SendMessage(new SentMessage
-                    {
-                        Text = $"Ты бьешь ужасного монстра, известного как {monsterRoom.Name} своей рукой!"
-                    });
-                    monsterRoom.MakeDamage(user, user.Info.CurrentStats.Effect[StatsProperty.Strength]);
-                }
-                else
-                {
-                    user.MessageManager.SendMessage(new SentMessage
-                    {
-                        Text = "Ты настолько устал, что монстр не заметил твоего удара"
-                    });
-                }
+                    Text = $"Ты бьешь ужасного монстра, известного как {monsterRoom.Name} своей рукой!"
+                });
+                monsterRoom.MakeDamage(user, user.Info.CurrentStats.Effect[StatsProperty.Strength]);
             }
             else
             {
@@ -57,14 +42,6 @@ namespace AdventureBot.Item
         public override bool CanUse(User.User user, ItemInfo info)
         {
             return user.RoomManager.GetRoom() is IMonster;
-        }
-
-        public override void OnMessage(User.User user, ItemInfo info)
-        {
-        }
-
-        public override void OnEnter(User.User user, ItemInfo info)
-        {
         }
     }
 }

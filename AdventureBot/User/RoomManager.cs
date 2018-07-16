@@ -29,7 +29,7 @@ namespace AdventureBot.User
                 ShownStats = shownStats;
                 LastMessage = lastMessage;
             }
-            
+
             public StackedRoom(string identifier)
             {
                 Identifier = identifier;
@@ -37,7 +37,7 @@ namespace AdventureBot.User
                 LastMessage = null;
             }
         }
-        
+
         [IgnoreMember] internal User _user;
         [CanBeNull] internal StackedRoom CurrentRoom { get; set; }
         internal Stack<StackedRoom> Rooms { get; } = new Stack<StackedRoom>();
@@ -76,10 +76,12 @@ namespace AdventureBot.User
             {
                 Rooms.Push(CurrentRoom);
             }
+
             CurrentRoom = new StackedRoom(roomIdentifier);
             _user.MessageManager.ShownStats = ShownStats.Default;
             Events.Go(_user, roomIdentifier);
             GetRoom()?.OnEnter(_user);
+            _user.ItemManager.OnEnter();
         }
 
         /// <summary>
@@ -90,7 +92,7 @@ namespace AdventureBot.User
         {
             Go(roomIdentifier, true);
         }
-        
+
         internal void Leave(bool doReturn = true)
         {
             var allowLeave = GetRoom()?.OnLeave(_user);
@@ -98,9 +100,11 @@ namespace AdventureBot.User
             {
                 return;
             }
-            
+
             CurrentRoom = Rooms.Pop();
-            _user.MessageManager.ShownStats = CurrentRoom.ShownStats;
+            _user.MessageManager.ShownStats = CurrentRoom?.ShownStats ?? ShownStats.Default;
+
+            _user.ItemManager.OnLeave();
 
             if (doReturn)
             {
@@ -118,7 +122,7 @@ namespace AdventureBot.User
             {
                 return;
             }
-            
+
             CurrentRoom = Rooms.Pop();
             _user.MessageManager.ShownStats = CurrentRoom.ShownStats;
             GetRoom()?.OnReturn(_user);

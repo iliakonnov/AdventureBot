@@ -17,12 +17,12 @@ namespace AdventureBot.Room
         public abstract decimal GetDamage(User.User user);
         public abstract void Enter(User.User user, string[][] buttons);
         public abstract bool OnRunaway(User.User user);
+        public abstract void OnWon(User.User user);
 
         public void MakeDamage(User.User user, decimal damage)
         {
             var variables = GetRoomVariables(user);
             var hp = (decimal) (Serializable.Decimal) GetRoomVariables(user).Get("hp");
-            variables.Set("old_hp", new Serializable.Decimal(hp));
             variables.Set("hp", new Serializable.Decimal(hp - damage));
         }
 
@@ -51,6 +51,7 @@ namespace AdventureBot.Room
                 return false;
             }
 
+            OnWon(user);
             SendMessage(user, "Вы победили монстра!");
             return true;
         }
@@ -77,6 +78,8 @@ namespace AdventureBot.Room
                     user,
                     $"HP: {hp} _{diff:(+#);(-#);}_"
                 );
+                
+                variables.Set("old_hp", new Serializable.Decimal(hp));
                 
                 if (hp <= 0)
                 {

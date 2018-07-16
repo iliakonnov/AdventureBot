@@ -25,9 +25,9 @@ namespace BotTests
             // Adds item
             user.ItemManager.Add(
                 new ItemInfo(new TestItem
-                {
-                    Identifier = "test_health",
-                    Effect = new StatsEffect(
+                (
+                    "test_health",
+                    new StatsEffect(
                         ChangeType.Add,
                         new ReadOnlyDictionary<StatsProperty, decimal>(
                             new Dictionary<StatsProperty, decimal>
@@ -36,7 +36,7 @@ namespace BotTests
                             }
                         )
                     )
-                }, 3)
+                ), 3)
             );
 
             var item = Assert.Single(user.ActiveItemsManager.ActiveItems);
@@ -55,9 +55,9 @@ namespace BotTests
             // Adds item (x3)
             user.ItemManager.Add(
                 new ItemInfo(new TestItem
-                {
-                    Identifier = "test_health",
-                    Effect = new StatsEffect(
+                (
+                    "test_health",
+                    new StatsEffect(
                         ChangeType.Add,
                         new ReadOnlyDictionary<StatsProperty, decimal>(
                             new Dictionary<StatsProperty, decimal>
@@ -66,15 +66,15 @@ namespace BotTests
                             }
                         )
                     )
-                }, 3)
+                ), 3)
             );
 
             // Then adds better item (x2)
             user.ItemManager.Add(
                 new ItemInfo(new TestItem
-                {
-                    Identifier = "better_health",
-                    Effect = new StatsEffect(
+                (
+                    "better_health",
+                    new StatsEffect(
                         ChangeType.Add,
                         new ReadOnlyDictionary<StatsProperty, decimal>(
                             new Dictionary<StatsProperty, decimal>
@@ -83,7 +83,7 @@ namespace BotTests
                             }
                         )
                     )
-                }, 2)
+                ), 2)
             );
 
             user.ActiveItemsManager.RecalculateActive();
@@ -112,9 +112,9 @@ namespace BotTests
             // Adds item (x3)
             user.ItemManager.Add(
                 new ItemInfo(new TestItem
-                {
-                    Identifier = "test_health",
-                    Effect = new StatsEffect(
+                (
+                    "test_health",
+                    new StatsEffect(
                         ChangeType.Add,
                         new ReadOnlyDictionary<StatsProperty, decimal>(
                             new Dictionary<StatsProperty, decimal>
@@ -123,15 +123,15 @@ namespace BotTests
                             }
                         )
                     )
-                }, 3)
+                ), 3)
             );
 
             // Then adds worse item (x2)
             user.ItemManager.Add(
                 new ItemInfo(new TestItem
-                {
-                    Identifier = "worse_health",
-                    Effect = new StatsEffect(
+                (
+                    "worse_health",
+                    new StatsEffect(
                         ChangeType.Add,
                         new ReadOnlyDictionary<StatsProperty, decimal>(
                             new Dictionary<StatsProperty, decimal>
@@ -140,7 +140,7 @@ namespace BotTests
                             }
                         )
                     )
-                }, 2)
+                ), 2)
             );
 
             // Simple item

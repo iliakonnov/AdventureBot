@@ -8,6 +8,7 @@ using AdventureBot.Messenger;
 using AdventureBot.ObjectManager;
 using AdventureBot.Room;
 using AdventureBot.User;
+using AdventureBot.User.Stats;
 using MessagePack;
 using MessagePack.ImmutableCollection;
 using MessagePack.Resolvers;
@@ -158,6 +159,27 @@ namespace AdventureBot
 
                         goto default;
                     }
+                    case "cheat":
+                    {
+                        if (
+                            splitted.Length == 3
+                            && int.TryParse(splitted[1], out var messenger)
+                            && long.TryParse(splitted[2], out var uid)
+                        )
+                        {
+                            var userId = new UserId(messenger, uid);
+
+                            using (var ctx = new UserContext(userId))
+                            {
+                                User.User user = ctx;
+                                user.Info.BaseStats = user.Info.MaxStats;
+                                user.Info.RecalculateStats();
+                            }
+                            break;
+                        }
+
+                        goto default;
+                    }
                     default:
                     {
                         Console.WriteLine("Unknown command. ");
@@ -166,7 +188,8 @@ namespace AdventureBot
                         Console.WriteLine("    json <messenger_id> <user_id> -- dumps user to json");
                         Console.WriteLine("    dump <messenger_id> <user_id> -- dumps user to binary");
                         Console.WriteLine("Locking commands:");
-                        Console.WriteLine("    send <messenger_id> <user_id> <message -- Sends message to user");
+                        Console.WriteLine("    send <messenger_id> <user_id> <message> -- Sends message to user");
+                        Console.WriteLine("    cheat <messenger_id> <user_id> -- All stats to maximum");
                         Console.WriteLine("Unsafe commands:");
                         Console.WriteLine("    load <path.bin> -- loads user from binary");
                         break;

@@ -25,7 +25,7 @@ namespace AdventureBot.User
         /// <summary>
         /// Характеристики без эффектов от предметов
         /// </summary>
-        public Stats.Stats BaseStats { get; private set; }
+        public Stats.Stats BaseStats { get; internal set; }
 
         /// <summary>
         /// Характеристики с учетом эффектов от активных вещей
@@ -108,7 +108,7 @@ namespace AdventureBot.User
             return true;
         }
 
-        private bool ChangeStats(ChangeType changeType, StatsProperty property, decimal value)
+        private bool ChangeStats(ChangeType changeType, StatsProperty property, decimal value, bool allowLess = false, bool allowMore = false)
         {
             var changed = BaseStats.Apply(
                 new StatsEffect(changeType, new Dictionary<StatsProperty, decimal>
@@ -117,7 +117,9 @@ namespace AdventureBot.User
                 })
             );
             var newValue = changed.Effect[property];
-            if (newValue < 0 || newValue > MaxStats.Effect[property])
+            if (
+                (!allowLess && newValue < 0)
+                || (!allowMore && newValue > MaxStats.Effect[property]))
             {
                 return false;
             }
@@ -140,7 +142,7 @@ namespace AdventureBot.User
             if (property == StatsProperty.Health)
             {
                 // Special case
-                var result = ChangeStats(changeType, StatsProperty.Health, value);
+                var result = ChangeStats(changeType, StatsProperty.Health, value, allowLess: true);
                 if (BaseStats.Effect[StatsProperty.Health] <= 0)
                 {
                     Kill();
