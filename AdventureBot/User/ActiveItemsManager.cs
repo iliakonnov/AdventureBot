@@ -21,7 +21,7 @@ namespace AdventureBot.User
             int activeLimit)
         {
             _activeItems = activeItems;
-            ActiveProportions = activeProportions;
+            _activeProportions = activeProportions;
             ActiveLimit = activeLimit;
         }
 
@@ -36,12 +36,14 @@ namespace AdventureBot.User
         [IgnoreMember]
         public IReadOnlyList<ItemInfo> ActiveItems => _activeItems;
 
-        // TODO: Сделать его internal, в Public -- Только IReadOnly
-        [Key(nameof(ActiveProportions))]
-        public Dictionary<Flag<StatsProperty>, int> ActiveProportions { get; internal set; } =
+
+        [IgnoreMember] public IReadOnlyDictionary<Flag<StatsProperty>, int> ActiveProportions => _activeProportions;
+
+        [Key("ActiveProportions")]
+        internal Dictionary<Flag<StatsProperty>, int> _activeProportions { get; set; } =
             new Dictionary<Flag<StatsProperty>, int>();
 
-        [Key(nameof(ActiveLimit))] public int ActiveLimit { get; internal set; }
+        [Key(nameof(ActiveLimit))] public int ActiveLimit { get; internal set; } = 3;
 
         public void ChangeProportion(Flag<StatsProperty> property, int count)
         {
@@ -53,11 +55,20 @@ namespace AdventureBot.User
 
             var newValue = currentValue + toAdd;
             if (newValue <= 0)
-                ActiveProportions.Remove(property);
+                _activeProportions.Remove(property);
             else
-                ActiveProportions[property] = newValue;
+                _activeProportions[property] = newValue;
 
             RecalculateActive();
+        }
+
+        public List<Flag<StatsProperty>> GetAvailableProportions()
+        {
+            return _user.ItemManager.Items
+                .Select(item => item.Item.Effect)
+                .Where(effect => effect != null)
+                .Select(effect => new Flag<StatsProperty>(effect.Effect.Keys))
+                .ToList();
         }
 
         internal void RecalculateActive()
@@ -81,7 +92,7 @@ namespace AdventureBot.User
                         .Select(i => i.Item) // Anonymous class not needed anymore
                 });
 
-            var remains = new Dictionary<Flag<StatsProperty>, int>(ActiveProportions);
+            var remains = new Dictionary<Flag<StatsProperty>, int>(_activeProportions);
 
             var result = new List<ItemInfo>();
             foreach (var group in items)

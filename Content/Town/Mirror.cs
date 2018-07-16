@@ -30,6 +30,44 @@ namespace Content.Town
                             }
                         },
                         {
+                            "Инвентарь", (user, message) =>
+                            {
+                                SendMessage(user, "У тебя в карманах можно найти:", GetButtons(user));
+                                foreach (var info in user.ItemManager.Items)
+                                {
+                                    var active = user.ActiveItemsManager.ActiveItems
+                                        .FirstOrDefault(item => item.Identifier == info.Identifier);
+                                    var description = new StringBuilder($"*{info.Item.Name}* (x{info.Count})");
+
+                                    if (active != null)
+                                    {
+                                        description.Append($" ({active.Count} активно)");
+                                    }
+
+                                    if (!string.IsNullOrWhiteSpace(info.Item.Description))
+                                    {
+                                        description.AppendLine().Append(info.Item.Description);
+                                    }
+
+                                    if (info.Item.Effect != null && info.Item.Effect.Effect.Count != 0)
+                                    {
+                                        description.AppendLine();
+
+                                        foreach (var effect in info.Item.Effect.Effect)
+                                        {
+                                            description.Append($"{Stats.Emojis[effect.Key]}: {effect.Value:F2} ");
+                                            if (active != null)
+                                            {
+                                                description.Append($" (*{effect.Value * active.Count:+#.##;-#.##;0}*) ");
+                                            }
+                                        }
+                                    }
+
+                                    SendMessage(user, description.ToString());
+                                }
+                            }
+                        },
+                        {
                             "Уйти", (user, message) => user.RoomManager.Leave()
                         }
                     }
@@ -81,6 +119,9 @@ namespace Content.Town
                     case StatsProperty.Stamina:
                         stats.Append(" Остаток сил");
                         break;
+                    case StatsProperty.Defence:
+                        stats.Append(" Защита");
+                        break;
                     default:
                         throw new ArgumentOutOfRangeException();
                 }
@@ -100,14 +141,14 @@ namespace Content.Town
                 new[] {"Закончить"}
             };
 
-            foreach (var proportion in user.ActiveItemsManager.ActiveProportions)
+            foreach (var proportion in user.ActiveItemsManager.GetAvailableProportions())
             {
-                var emoji = string.Join(",", proportion.Key.Values.Select(k => Stats.Emojis[k]));
+                var emoji = string.Join(",", proportion.Values.Select(k => Stats.Emojis[k]));
                 var row = new string[numbers.Length];
                 for (var i = 0; i < numbers.Length; i++)
                 {
                     var number = numbers[i];
-                    row[i] = $"{emoji} {number:+#:-#:0}";
+                    row[i] = $"{emoji} {number:+#.##;-#.##;0}";
                 }
 
                 buttons.Add(row);
@@ -151,7 +192,7 @@ namespace Content.Town
             {
                 var emoji = string.Join(",", proportion.Key.Values.Select(k => Stats.Emojis[k]));
                 current.Append(emoji).Append(": ").Append(proportion.Value);
-                if (changed && flag.Equals(proportion.Key)) current.Append($" _({count:+#:-#:0})_");
+                if (changed && flag.Equals(proportion.Key)) current.Append($" _({count:+#.##;-#.##;0})_");
                 current.AppendLine();
             }
 
