@@ -16,19 +16,22 @@ namespace AdventureBot.User.Stats
                 {StatsProperty.Mana, 100},
                 {StatsProperty.Stamina, 100},
                 {StatsProperty.Intelligence, 1},
-                {StatsProperty.Strength, 1}
+                {StatsProperty.Strength, 1},
+                {StatsProperty.Defence, 1}
             };
 
-        public static IReadOnlyDictionary<StatsProperty, string> Emojis = new ReadOnlyDictionary<StatsProperty, string>(
-            new Dictionary<StatsProperty, string>
-            {
-                {StatsProperty.Health, "♥️"},
-                {StatsProperty.Intelligence, "👓"},
-                {StatsProperty.Mana, "🌀"},
-                {StatsProperty.Stamina, "⚡️"},
-                {StatsProperty.Strength, "💪"}
-            }
-        );
+        public static readonly IReadOnlyDictionary<StatsProperty, string> Emojis =
+            new ReadOnlyDictionary<StatsProperty, string>(
+                new Dictionary<StatsProperty, string>
+                {
+                    {StatsProperty.Health, "♥️"},
+                    {StatsProperty.Intelligence, "👓"},
+                    {StatsProperty.Mana, "🌀"},
+                    {StatsProperty.Stamina, "⚡️"},
+                    {StatsProperty.Strength, "💪"},
+                    {StatsProperty.Defence, "🛡️"}
+                }
+            );
 
         [SerializationConstructor]
         public Stats(IReadOnlyDictionary<StatsProperty, decimal> effect) : base(

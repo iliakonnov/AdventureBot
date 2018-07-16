@@ -23,6 +23,7 @@ namespace AdventureBot.User
         Gold = 1 << 3,
         Intelligence = 1 << 4,
         Strength = 1 << 5,
+        Defence = 1 << 6,
 
         /// <summary>
         ///     Характеристики по-умолчанию.
@@ -182,6 +183,12 @@ namespace AdventureBot.User
                         case ShownStats.Stamina:
                         {
                             const StatsProperty prop = StatsProperty.Stamina;
+                            stats.Append($" {Stats.Stats.Emojis[prop]}{_user.Info.CurrentStats.Effect[prop]:F2}");
+                            break;
+                        }
+                        case ShownStats.Defence:
+                        {
+                            const StatsProperty prop = StatsProperty.Defence;
                             stats.Append($" {Stats.Stats.Emojis[prop]}{_user.Info.CurrentStats.Effect[prop]:F2}");
                             break;
                         }

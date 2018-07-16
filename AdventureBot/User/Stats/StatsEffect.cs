@@ -17,7 +17,8 @@ namespace AdventureBot.User.Stats
         Intelligence,
         Strength,
         Mana,
-        Stamina
+        Stamina,
+        Defence
     }
 
     [MessagePackObject(true)]
@@ -42,8 +43,6 @@ namespace AdventureBot.User.Stats
             foreach (var property in props.Values)
                 result += otherAffected.Effect.GetValueOrDefault(property, 0) -
                           selfAffected.Effect.GetValueOrDefault(property, 0);
-
-            if (result == 0) return 0;
 
             return Math.Sign(result);
         }
