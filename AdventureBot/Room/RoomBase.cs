@@ -85,8 +85,6 @@ namespace AdventureBot.Room
         protected NullableDictionary<MessageRecived, Dictionary<string, MessageRecived>> Buttons { get; set; } =
             new NullableDictionary<MessageRecived, Dictionary<string, MessageRecived>>();
 
-        // protected Dictionary<string, MessageRecived> _defaultButtons { get; set; } = null;
-
         private Dictionary<string, MessageRecived> GetCurrentButtons(User.User user)
         {
             Dictionary<string, MessageRecived> buttons;

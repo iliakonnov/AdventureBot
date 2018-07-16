@@ -208,7 +208,7 @@ namespace AdventureBot.User
                         }
                         case ShownStats.Gold:
                         {
-                            stats.Append($" 💰{_user.Info.Gold}");
+                            stats.Append($" 💰{_user.Info.Gold:F2}");
                             break;
                         }
                         case ShownStats.Default:
