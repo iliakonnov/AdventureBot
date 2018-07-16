@@ -4,7 +4,7 @@ using AdventureBot.User;
 
 namespace Content.Rooms
 {
-    [Available("monster/anime")]
+    [Available("monster/anime", Difficulity.Medium)]
     public class Anime : MonsterBase
     {
         public override string Name => "Анимешник";

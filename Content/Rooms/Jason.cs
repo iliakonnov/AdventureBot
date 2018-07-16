@@ -5,8 +5,7 @@ using AdventureBot.User;
 
 namespace Content.Rooms
 {
-    // Disabled
-    [Room("monster/jason")]
+    [Available("monster/jason", Difficulity.Hard)]
     public class Jason : MonsterBase
     {
         public override string Name => "Джейсон Вурхиз";

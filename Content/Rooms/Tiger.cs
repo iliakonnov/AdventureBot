@@ -4,7 +4,7 @@ using AdventureBot.User;
 
 namespace Content.Rooms
 {
-    [Available("monster/tiger")]
+    [Available("monster/tiger", Difficulity.Medium)]
     public class Tiger : MonsterBase
     {
         public override string Name => "Саблезубый тигр";

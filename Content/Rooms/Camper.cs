@@ -4,7 +4,7 @@ using AdventureBot.User;
 
 namespace Content.Rooms
 {
-    [Available("monster/camper")]
+    [Available("monster/camper", Difficulity.Medium)]
     public class Camper : MonsterBase
     {
         public override string Name => "Кэмпер";

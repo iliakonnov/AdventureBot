@@ -3,7 +3,7 @@ using AdventureBot.User;
 
 namespace Content.Rooms
 {
-    [Available("monster/hedgehog")]
+    [Available("monster/hedgehog", Difficulity.Easy)]
     public class Hedgehog : MonsterBase
     {
         public override string Name => "Злой ёж";

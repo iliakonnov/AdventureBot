@@ -8,8 +8,7 @@ using AdventureBot.User.Stats;
 
 namespace Content.Rooms
 {
-    // Disabled
-    [Room("monster/vader")]
+    [Available("monster/vader", Difficulity.Hard)]
     public class DarthVader : RoomBase, IMonster
     {
         private readonly IMonster _battleRoom = new BattleRoom();

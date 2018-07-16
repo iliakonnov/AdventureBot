@@ -9,7 +9,7 @@ using Content.Town;
 
 namespace Content.Rooms
 {
-    [Available("room/merchants")]
+    [Available("room/merchants", Difficulity.Any)]
     public class Merchants : RoomBase
     {
         private const int ItemCount = 3;

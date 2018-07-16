@@ -4,8 +4,7 @@ using AdventureBot.User;
 
 namespace Content.Rooms
 {
-    // Disabled
-    [Room("monster/SpaceMarine")]
+    [Available("monster/SpaceMarine", Difficulity.Hard)]
     public class SpaceMarine : MonsterBase
     {
         public override string Name => "Космодесантник";

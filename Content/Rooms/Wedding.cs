@@ -6,7 +6,7 @@ using AdventureBot.User;
 
 namespace Content.Rooms
 {
-    [Available("room/wedding")]
+    [Available("room/wedding", Difficulity.Any)]
     public class Wedding : RoomBase
     {
         public Wedding()

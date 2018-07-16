@@ -11,8 +11,11 @@ namespace AdventureBot.Room
 
     public class AvailableAttribute : RoomAttribute
     {
-        public AvailableAttribute(string identifier) : base(identifier)
+        public Difficulity Difficulity { get; }
+        
+        public AvailableAttribute(string identifier, Difficulity difficulity) : base(identifier)
         {
+            Difficulity = difficulity;
         }
     }
 }

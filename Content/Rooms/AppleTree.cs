@@ -8,7 +8,7 @@ using AdventureBot.User;
 
 namespace Content.Rooms
 {
-    [Available("room/appletree")]
+    [Available("room/appletree", Difficulity.Any)]
     public class AppleTree : RoomBase
     {
         public AppleTree()
