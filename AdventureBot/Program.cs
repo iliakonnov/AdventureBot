@@ -169,6 +169,49 @@ namespace AdventureBot
 
                         goto default;
                     }
+                    case "give":
+                    {
+                        if (
+                            splitted.Length == 5
+                            && int.TryParse(splitted[1], out var messenger)
+                            && long.TryParse(splitted[2], out var uid)
+                            && int.TryParse(splitted[4], out var count)
+                        )
+                        {
+                            var userId = new UserId(messenger, uid);
+
+                            using (var ctx = new UserContext(userId))
+                            {
+                                User.User user = ctx;
+                                user.ItemManager.Add(new ItemInfo(splitted[3], count));
+                            }
+
+                            break;
+                        }
+
+                        goto default;
+                    }
+                    case "room":
+                    {
+                        if (
+                            splitted.Length == 4
+                            && int.TryParse(splitted[1], out var messenger)
+                            && long.TryParse(splitted[2], out var uid)
+                        )
+                        {
+                            var userId = new UserId(messenger, uid);
+
+                            using (var ctx = new UserContext(userId))
+                            {
+                                User.User user = ctx;
+                                user.RoomManager.Go(splitted[3]);
+                            }
+
+                            break;
+                        }
+
+                        goto default;
+                    }
                     default:
                     {
                         Console.WriteLine("Unknown command. ");
@@ -179,6 +222,8 @@ namespace AdventureBot
                         Console.WriteLine("Locking commands:");
                         Console.WriteLine("    send <messenger_id> <user_id> <message> -- Sends message to user");
                         Console.WriteLine("    cheat <messenger_id> <user_id> -- All stats to maximum");
+                        Console.WriteLine("    give <messenger_id> <user_id> <item_id> <count> -- Gives item to user");
+                        Console.WriteLine("    room <messenger_id> <user_id> <room_id> -- Travles user to room");
                         Console.WriteLine("Unsafe commands:");
                         Console.WriteLine("    load <path.bin> -- loads user from binary");
                         break;
