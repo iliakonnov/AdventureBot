@@ -71,6 +71,12 @@ namespace AdventureBot.Room
 
             GetRoomVariables(user).Set("action", new Serializable.Int(idx));
         }
+        
+        protected void SwitchAndHandle(User.User user, MessageRecived handler, RecivedMessage message)
+        {
+            SwitchAction(user, handler);
+            handler?.Invoke(user, message);
+        }
 
         #endregion
 

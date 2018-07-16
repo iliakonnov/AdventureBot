@@ -330,12 +330,6 @@ namespace AdventureBot
             {
                 _logger.LogInformation($"Flushed {cnt} users in {DateTime.Now - beginTime}");
             }
-#if DEBUG
-            else
-            {
-                _logger.LogDebug("No useres have been flushed");
-            }
-#endif
         }
 
         /// <summary>
