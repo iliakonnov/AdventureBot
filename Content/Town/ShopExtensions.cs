@@ -1,5 +1,9 @@
-﻿using AdventureBot.Item;
+﻿using System.Collections.Generic;
+using System.Linq;
+using AdventureBot;
+using AdventureBot.Item;
 using AdventureBot.User;
+using ItemManager = AdventureBot.Item.ItemManager;
 
 namespace Content.Town
 {
@@ -33,6 +37,21 @@ namespace Content.Town
             }
 
             return false;
+        }
+
+        public static List<IItem> AvailableToBuy(this ItemManager manager, Flag<BuyGroup> filter)
+        {
+            return manager.Keys()
+                .Select(manager.Get)
+                .Where(item => item?.Price != null && item.Group.Intersects(filter))
+                .ToList();
+        }
+
+        public static List<ItemInfo> AvailableToSell(this IEnumerable<ItemInfo> items, Flag<BuyGroup> filter)
+        {
+            return items
+                .Where(item => item.Item.Price != null && item.Item.Group.Intersects(filter))
+                .ToList();
         }
     }
 }

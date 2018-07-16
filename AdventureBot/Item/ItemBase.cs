@@ -8,7 +8,8 @@ namespace AdventureBot.Item
     {
         Market,
         Guild,
-        Gym
+        Gym,
+        Merchant
     }
 
     [Union(0, typeof(ItemInfo))]

@@ -43,6 +43,7 @@ namespace Content.Town
 
         public override void OnEnter(User user)
         {
+            SwitchAction(user, null);
             user.MessageManager.ShownStats = ShownStats.Gold;
             SendMessage(user, "Вы пришли на рынок. Тут есть много всего.", GetButtons(user));
         }
@@ -59,19 +60,9 @@ namespace Content.Town
             if (!HandleAction(user, message)) HandleButtonAlways(user, message);
         }
 
-        private List<IItem> AvailableToBuy(User user)
-        {
-            var items = GetAllItems();
-            var group = new Flag<BuyGroup>(BuyGroup.Market);
-            return items.Keys()
-                .Select(id => items.Get(id))
-                .Where(item => item != null && item.Group.Intersects(group))
-                .ToList();
-        }
-
         private void Buy(User user, RecivedMessage message)
         {
-            var loaded = AvailableToBuy(user);
+            var loaded = GetAllItems().AvailableToBuy(new Flag<BuyGroup>(BuyGroup.Market));
             var buttons = loaded
                 .Select(item => new[] {item.Name})
                 .Concat(new[] {new[] {"Ничего"}})
@@ -89,40 +80,32 @@ namespace Content.Town
             {
                 SwitchAction(user, null);
                 SendMessage(user, "Ну ладно тогда", GetButtons(user));
+                return;
             }
-            else
+
+            var dict = GetAllItems().AvailableToBuy(new Flag<BuyGroup>(BuyGroup.Market))
+                .ToDictionary(i => i.Name, i => i);
+            if (dict.TryGetValue(message.Text, out var item))
             {
-                var dict = AvailableToBuy(user).ToDictionary(i => i.Name, i => i);
-                if (dict.TryGetValue(message.Text, out var item))
+                if (user.BuyItem(new ItemInfo(item, 1)))
                 {
-                    if (user.BuyItem(new ItemInfo(item, 1)))
-                    {
-                        SwitchAction(user, null);
-                        SendMessage(user, "Отлично!", GetButtons(user));
-                    }
-                    else
-                    {
-                        SendMessage(user, "С вашими деньгами **этот** предмет купить не выйдет.");
-                    }
+                    SwitchAction(user, null);
+                    SendMessage(user, "Отлично!", GetButtons(user));
                 }
                 else
                 {
-                    SendMessage(user, "У меня такого нет, но обязательно придите ещё раз.");
+                    SendMessage(user, "С вашими деньгами *этот* предмет купить не выйдет.");
                 }
             }
-        }
-
-        private List<ItemInfo> AvailableToSell(User user)
-        {
-            var items = user.ItemManager.Items;
-            return items
-                .Where(item => item.Item.Price != null)
-                .ToList();
+            else
+            {
+                SendMessage(user, "У меня такого нет, но обязательно придите ещё раз.");
+            }
         }
 
         private void Sell(User user, RecivedMessage message)
         {
-            var items = AvailableToSell(user);
+            var items = user.ItemManager.Items.AvailableToSell(new Flag<BuyGroup>(BuyGroup.Market));
             var buttons = items
                 .Select(item => new[] {item.Item.Name})
                 .Concat(new[] {new[] {"Ничего"}})
@@ -145,7 +128,7 @@ namespace Content.Town
             }
             else
             {
-                var items = AvailableToSell(user);
+                var items = user.ItemManager.Items.AvailableToSell(new Flag<BuyGroup>(BuyGroup.Market));
                 var dict = items.ToDictionary(i => i.Item.Name, i => new ItemInfo(i.Identifier, 1));
 
                 if (dict.TryGetValue(message.Text, out var item))

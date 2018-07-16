@@ -82,6 +82,11 @@ namespace AdventureBot
             Values = ImmutableHashSet.Create(values.ToArray());
         }
 
+        public Flag(params T[] values)
+        {
+            Values = ImmutableHashSet.Create(values);
+        }
+
         [SerializationConstructor]
         public Flag(ImmutableHashSet<T> values)
         {
