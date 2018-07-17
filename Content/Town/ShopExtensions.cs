@@ -11,7 +11,10 @@ namespace Content.Town
     {
         public static bool BuyItem(this User user, ItemInfo item)
         {
-            if (item.Item.Price == null) return false;
+            if (item.Item.Price == null)
+            {
+                return false;
+            }
 
             var price = (decimal) item.Item.Price * item.Count;
 
@@ -26,7 +29,10 @@ namespace Content.Town
 
         public static bool SellItem(this User user, ItemInfo item)
         {
-            if (item.Item.Price == null) return false;
+            if (item.Item.Price == null)
+            {
+                return false;
+            }
 
             var price = (decimal) item.Item.Price * item.Count * user.Info.SellMultiplier;
 

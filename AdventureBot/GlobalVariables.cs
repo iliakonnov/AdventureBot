@@ -22,10 +22,14 @@ namespace AdventureBot
             FlushTimer.Start();
 
             if (File.Exists(Filename))
+            {
                 Variables = MessagePackSerializer.Deserialize<VariableContainer>(
                     File.ReadAllBytes(Filename));
+            }
             else
+            {
                 Variables = new VariableContainer();
+            }
         }
 
         public static VariableContainer Variables { get; }

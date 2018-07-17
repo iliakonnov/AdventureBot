@@ -10,12 +10,12 @@ namespace AdventureBot.Room
         Easy = 1 << 0,
         Medium = 1 << 1,
         Hard = 1 << 2,
-        
+
         Lower = Easy | Medium,
         Upper = Medium | Hard,
         Any = Easy | Medium | Hard
     }
-    
+
     public class RoomManager : StorageManager<IRoom, RoomAttribute>
     {
     }

@@ -72,7 +72,10 @@ namespace AdventureBot
 
         private void FlushUsers()
         {
-            if (_loadedUsers.Count != 0) return;
+            if (_loadedUsers.Count != 0)
+            {
+                return;
+            }
 
             if (_toFlush || DateTime.Now - _lastFlushed > new TimeSpan(0, 0, 15)) // Every 15 seconds
             {
@@ -95,7 +98,10 @@ namespace AdventureBot
                 throw new TimeoutException("Timeout waiting for user");
             }
 
-            if (user.User == null) return null;
+            if (user.User == null)
+            {
+                return null;
+            }
 
             var result = MessagePackSerializer.Deserialize<User.User>(MessagePackSerializer.SerializeUnsafe(user.User));
             result.Unsafe = true;
@@ -104,7 +110,10 @@ namespace AdventureBot
 
         private CachedUser AllocateUser(UserId userId, bool safe = true)
         {
-            if (!safe) return new CachedUser();
+            if (!safe)
+            {
+                return new CachedUser();
+            }
 
             const int cacheSize = 500;
             const int maxTries = 3;
@@ -161,7 +170,10 @@ namespace AdventureBot
                         {
                             while (reader.Read())
                             {
-                                if (reader["data"] == null || Convert.IsDBNull(reader["data"])) continue;
+                                if (reader["data"] == null || Convert.IsDBNull(reader["data"]))
+                                {
+                                    continue;
+                                }
 
                                 // Loads user from database and saves it to cache
                                 var userdata = (byte[]) reader["data"];
@@ -187,7 +199,10 @@ namespace AdventureBot
         /// </summary>
         public void Save(User.User user)
         {
-            if (user.Unsafe) throw new ArgumentException("This user is not safe!");
+            if (user.Unsafe)
+            {
+                throw new ArgumentException("This user is not safe!");
+            }
 
             _loadedUsers.Decrease();
 
@@ -197,9 +212,13 @@ namespace AdventureBot
                 cachedUser.User = user;
                 cachedUser.Changed = true;
                 if (cachedUser.Lock.CurrentCount != 0)
+                {
                     _logger.LogWarning($"CachedUser was not locked. {user.Info.UserId}");
+                }
                 else
+                {
                     cachedUser.Lock.Release();
+                }
             }
             else
             {
@@ -213,7 +232,10 @@ namespace AdventureBot
         /// </summary>
         private void Flush(CachedUser user)
         {
-            if (user.Lock.CurrentCount == 0) return;
+            if (user.Lock.CurrentCount == 0)
+            {
+                return;
+            }
 
             Flush(new[] {user});
             _cache.TryRemove(user.User.Info.UserId, out _);
@@ -242,7 +264,10 @@ namespace AdventureBot
 
                         foreach (var user in users)
                         {
-                            if (!user.Changed) continue;
+                            if (!user.Changed)
+                            {
+                                continue;
+                            }
 
                             cnt++;
 
@@ -258,7 +283,10 @@ namespace AdventureBot
                 }
             }
 
-            if (cnt != 0) _logger.LogInformation($"Flushed {cnt} users in {DateTime.Now - beginTime}");
+            if (cnt != 0)
+            {
+                _logger.LogInformation($"Flushed {cnt} users in {DateTime.Now - beginTime}");
+            }
         }
 
         /// <summary>

@@ -31,7 +31,9 @@ namespace AdventureBot.User
             _user = user;
 
             if (_user.Info.UserId.Messenger == -1) // Testing messenger, empty initial _items
+            {
                 _items.Clear();
+            }
         }
 
         [IgnoreMember] public IReadOnlyList<ItemInfo> Items => _items;
@@ -44,9 +46,13 @@ namespace AdventureBot.User
         {
             var found = _items.FirstOrDefault(x => x.Identifier == item.Identifier);
             if (found != null)
+            {
                 found.Count += item.Count;
+            }
             else
+            {
                 _items.Add(item);
+            }
 
             _user.ActiveItemsManager.RecalculateActive();
         }
@@ -59,12 +65,21 @@ namespace AdventureBot.User
         public bool Remove(ItemInfo item)
         {
             var found = _items.FirstOrDefault(x => x.Identifier == item.Identifier);
-            if (found == null) return false;
+            if (found == null)
+            {
+                return false;
+            }
 
-            if (found.Count < item.Count) return false;
+            if (found.Count < item.Count)
+            {
+                return false;
+            }
 
             found.Count -= item.Count;
-            if (found.Count == 0) _items.Remove(found);
+            if (found.Count == 0)
+            {
+                _items.Remove(found);
+            }
 
             _user.ActiveItemsManager.RecalculateActive();
 

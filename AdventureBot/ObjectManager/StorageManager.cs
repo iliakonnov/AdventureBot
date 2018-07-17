@@ -11,7 +11,10 @@ namespace AdventureBot.ObjectManager
 
         public void Register(GameObjectAttribute attribute, Create<T> creator)
         {
-            if (!(attribute is TAttribute identifiableAttribute)) return;
+            if (!(attribute is TAttribute identifiableAttribute))
+            {
+                return;
+            }
 
             var identifier = identifiableAttribute.Identifier;
 
@@ -26,7 +29,10 @@ namespace AdventureBot.ObjectManager
         [CanBeNull]
         public T Get([CanBeNull] string identifier)
         {
-            if (_cache.TryGetValue(identifier, out var result)) return result;
+            if (_cache.TryGetValue(identifier, out var result))
+            {
+                return result;
+            }
 
             if (_items.TryGetValue(identifier, out var item))
             {

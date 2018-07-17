@@ -59,7 +59,10 @@ namespace Telegram
 
         public async Task Send(SentMessage message, RecivedMessage recivedMessage)
         {
-            if (message.ChatId.Messenger != MessengerId) return;
+            if (message.ChatId.Messenger != MessengerId)
+            {
+                return;
+            }
 
             LastMessageSent = DateTime.Now;
 
@@ -85,9 +88,13 @@ namespace Telegram
                 }
 
                 if (keyboard)
+                {
                     replyMarkup = new ReplyKeyboardMarkup(markup);
+                }
                 else
+                {
                     replyMarkup = new ReplyKeyboardRemove();
+                }
             }
 
             var parseMode = message.Formatted ? ParseMode.Markdown : ParseMode.Default;
@@ -124,9 +131,13 @@ namespace Telegram
             {
                 IWebProxy proxy;
                 if (ProxyUser != null && ProxyPassword != null)
+                {
                     proxy = new HttpToSocks5Proxy(ProxyHost, ProxyPort, ProxyUser, ProxyPassword);
+                }
                 else
+                {
                     proxy = new HttpToSocks5Proxy(ProxyHost, ProxyPort);
+                }
 
                 _bot = new TelegramBotClient(Token, proxy);
             }
@@ -159,6 +170,7 @@ namespace Telegram
                 case MessageType.Text:
                 {
                     if (args.Message.Text == "/bots")
+                    {
                         message = new RecivedMessage
                         {
                             ChatId = new ChatId(MessengerId, args.Message.Chat.Id),
@@ -167,7 +179,9 @@ namespace Telegram
                             Action = (msg, user) => Messenger.ListBots(user),
                             ReplyId = replyId
                         };
+                    }
                     else
+                    {
                         message = new RecivedMessage
                         {
                             ChatId = new ChatId(MessengerId, args.Message.Chat.Id),
@@ -175,15 +189,18 @@ namespace Telegram
                             Text = args.Message.Text,
                             ReplyId = replyId
                         };
+                    }
 
                     break;
                 }
                 case MessageType.ChatMembersAdded:
                 {
                     foreach (var member in args.Message.NewChatMembers)
+                    {
                         if (member.IsBot)
                         {
                             if (Messenger.MessengerIds.Contains(member.Id))
+                            {
                                 message = new RecivedMessage
                                 {
                                     ChatId = new ChatId(MessengerId, args.Message.Chat.Id),
@@ -192,6 +209,7 @@ namespace Telegram
                                     ReplyId = replyId,
                                     Action = (msg, user) => Messenger.NewBot(member.Id, args.Message.Chat.Id, user)
                                 };
+                            }
                         }
                         else
                         {
@@ -205,6 +223,7 @@ namespace Telegram
                                 Action = (msg, user) => Messenger.NewUser(args.Message.Chat.Id, user)
                             };
                         }
+                    }
 
                     break;
                 }
@@ -212,6 +231,7 @@ namespace Telegram
                 {
                     var member = args.Message.LeftChatMember;
                     if (member.IsBot && Messenger.MessengerIds.Contains(member.Id))
+                    {
                         message = new RecivedMessage
                         {
                             ChatId = new ChatId(MessengerId, args.Message.Chat.Id),
@@ -220,6 +240,7 @@ namespace Telegram
                             ReplyId = replyId,
                             Action = (msg, user) => Messenger.RemoveBot(member.Id, args.Message.Chat.Id, user)
                         };
+                    }
 
                     break;
                 }
@@ -227,7 +248,10 @@ namespace Telegram
                     return;
             }
 
-            if (message != null) MessageRecieved?.Invoke(message);
+            if (message != null)
+            {
+                MessageRecieved?.Invoke(message);
+            }
         }
     }
 }

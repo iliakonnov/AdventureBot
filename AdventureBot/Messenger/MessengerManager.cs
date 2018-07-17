@@ -18,14 +18,21 @@ namespace AdventureBot.Messenger
 
         public void Register(GameObjectAttribute attribute, Create<IMessenger> creator)
         {
-            if (!(attribute is MessengerAttribute)) return;
+            if (!(attribute is MessengerAttribute))
+            {
+                return;
+            }
 
             Register(creator());
         }
 
         private void MessageHandler(RecivedMessage message)
         {
-            if (message == null) return;
+            if (message == null)
+            {
+                return;
+            }
+
             message.RecivedTime = DateTimeOffset.UtcNow;
 
 #if DEBUG
@@ -111,7 +118,10 @@ namespace AdventureBot.Messenger
         {
             message.SentTime = DateTimeOffset.UtcNow;
             Events.Message(user, message, recievedMessage);
-            foreach (var messenger in _messengers) messenger.Send(message, recievedMessage, user);
+            foreach (var messenger in _messengers)
+            {
+                messenger.Send(message, recievedMessage, user);
+            }
         }
     }
 }

@@ -80,9 +80,13 @@ namespace AdventureBot.User
             MessageManager = new MessageManager(this);
 
             if (VariableManager != null)
+            {
                 VariableManager.Reset();
+            }
             else
+            {
                 VariableManager = new VariableManager();
+            }
 
             Events.Reset(this);
         }

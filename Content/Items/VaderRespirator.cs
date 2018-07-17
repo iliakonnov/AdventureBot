@@ -1,9 +1,7 @@
 ﻿using System.Collections.Generic;
 using AdventureBot;
 using AdventureBot.Item;
-using AdventureBot.Messenger;
 using AdventureBot.ObjectManager;
-using AdventureBot.Room;
 using AdventureBot.User;
 using AdventureBot.User.Stats;
 

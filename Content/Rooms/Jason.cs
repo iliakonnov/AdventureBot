@@ -15,7 +15,10 @@ namespace Content.Rooms
         {
             get
             {
-                if (IsFriday()) return 1500 * 2;
+                if (IsFriday())
+                {
+                    return 1500 * 2;
+                }
 
                 return 1500;
             }
@@ -29,7 +32,10 @@ namespace Content.Rooms
 
         public override decimal GetDamage(User user)
         {
-            if (IsFriday()) return 45 * 2;
+            if (IsFriday())
+            {
+                return 45 * 2;
+            }
 
             return 45;
         }

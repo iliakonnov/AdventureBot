@@ -47,7 +47,10 @@ namespace AdventureBot.User
         public MessageManager(User user)
         {
             _user = user;
-            if (_user.MessageManager != null) ChatId = _user.MessageManager.ChatId;
+            if (_user.MessageManager != null)
+            {
+                ChatId = _user.MessageManager.ChatId;
+            }
         }
 
         [Obsolete("This constructor for serializer only")]
@@ -82,9 +85,15 @@ namespace AdventureBot.User
         public void SendMessage(SentMessage message)
         {
             _queue.Add(message);
-            if (message.Buttons != null) _buttons = message.Buttons;
+            if (message.Buttons != null)
+            {
+                _buttons = message.Buttons;
+            }
 
-            if (message.Intent != null) _intent = message.Intent;
+            if (message.Intent != null)
+            {
+                _intent = message.Intent;
+            }
         }
 
         /// <summary>
@@ -145,7 +154,9 @@ namespace AdventureBot.User
             var stats = new StringBuilder();
 
             foreach (ShownStats shownStat in Enum.GetValues(typeof(ShownStats)))
+            {
                 if ((shownStat & ShownStats) != 0)
+                {
                     switch (shownStat)
                     {
                         case ShownStats.Health:
@@ -154,10 +165,17 @@ namespace AdventureBot.User
                             var percent = _user.Info.CurrentStats.Effect[StatsProperty.Health] /
                                           _user.Info.MaxStats.Effect[StatsProperty.Health];
                             if (percent < 1m / 3)
+                            {
                                 heart = "🖤️"; // black
+                            }
                             else if (percent < 2m / 3)
+                            {
                                 heart = "💛"; // yellow
-                            else if (percent < 2m / 3) heart = "❤️"; // red
+                            }
+                            else if (percent < 2m / 3)
+                            {
+                                heart = "❤️"; // red
+                            }
 
                             stats.Append($"{heart}{_user.Info.CurrentStats.Effect[StatsProperty.Health]:F2}");
                             break;
@@ -204,6 +222,8 @@ namespace AdventureBot.User
                             throw new ArgumentOutOfRangeException();
                         }
                     }
+                }
+            }
 
             return string.Join("\n\n", Enumerable.Empty<string>()
                 .Concat(new[] {$"_{path}_"})
@@ -214,11 +234,17 @@ namespace AdventureBot.User
 
         internal void Finish()
         {
-            if (_queue.Count == 0) return;
+            if (_queue.Count == 0)
+            {
+                return;
+            }
 
             var totalText = AddInfo(_queue.Select(m => m.Text));
 
-            if (string.IsNullOrWhiteSpace(totalText)) return;
+            if (string.IsNullOrWhiteSpace(totalText))
+            {
+                return;
+            }
 
             var message = new SentMessage
             {
@@ -229,10 +255,16 @@ namespace AdventureBot.User
             };
 
             var room = _user.RoomManager.Rooms.FirstOrDefault();
-            if (room != null) room.LastMessage = LastMessages.LastOrDefault();
+            if (room != null)
+            {
+                room.LastMessage = LastMessages.LastOrDefault();
+            }
 
             ObjectManager<IMessenger>.Instance.Get<MessengerManager>().Reply(message, RecievedMessage, _user);
-            while (LastMessages.Count > 10) LastMessages.Dequeue();
+            while (LastMessages.Count > 10)
+            {
+                LastMessages.Dequeue();
+            }
 
             LastMessages.Enqueue(message);
 

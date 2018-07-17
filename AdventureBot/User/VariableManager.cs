@@ -46,14 +46,20 @@ namespace AdventureBot.User
 
         internal VariableContainer GetRoomVariables(string identifier)
         {
-            if (!_roomVariables.ContainsKey(identifier)) _roomVariables[identifier] = new VariableContainer();
+            if (!_roomVariables.ContainsKey(identifier))
+            {
+                _roomVariables[identifier] = new VariableContainer();
+            }
 
             return _roomVariables[identifier];
         }
 
         internal VariableContainer GetItemVariables(string identifier)
         {
-            if (!_itemVariables.ContainsKey(identifier)) _itemVariables[identifier] = new VariableContainer();
+            if (!_itemVariables.ContainsKey(identifier))
+            {
+                _itemVariables[identifier] = new VariableContainer();
+            }
 
             return _itemVariables[identifier];
         }

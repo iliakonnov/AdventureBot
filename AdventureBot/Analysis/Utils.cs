@@ -37,8 +37,13 @@ namespace AdventureBot.Analysis
                 if (action != null)
                 {
                     if (action is Serializable.Int integer)
+                    {
                         intent += $"-{(int) integer}";
-                    else if (action is Serializable.String str) intent += $"-{(string) str}";
+                    }
+                    else if (action is Serializable.String str)
+                    {
+                        intent += $"-{(string) str}";
+                    }
                 }
 
                 return intent;

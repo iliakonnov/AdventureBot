@@ -25,7 +25,10 @@ namespace Content.Items
 
         public override void OnUse(User user, ItemInfo info)
         {
-            if (!(user.RoomManager.GetRoom() is IMonster monster)) return;
+            if (!(user.RoomManager.GetRoom() is IMonster monster))
+            {
+                return;
+            }
 
             monster.MakeDamage(user, user.Info.CurrentStats.Effect[StatsProperty.Strength] + 50);
             user.MessageManager.SendMessage(new SentMessage

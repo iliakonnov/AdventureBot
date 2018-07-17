@@ -21,9 +21,15 @@ namespace AdventureBot.ObjectManager
         internal void LoadAssembly(Assembly assembly)
         {
             foreach (var type in assembly.GetTypes())
+            {
                 if (type.GetCustomAttribute(typeof(GameObjectAttribute)) is GameObjectAttribute attr)
+                {
                     foreach (var manager in _managers)
+                    {
                         manager.LoadType(attr, type);
+                    }
+                }
+            }
         }
 
         internal void LoadAssembly(string path)

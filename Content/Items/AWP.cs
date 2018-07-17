@@ -25,7 +25,10 @@ namespace Content.Items
 
         public override void OnUse(User user, ItemInfo info)
         {
-            if (!(user.RoomManager.GetRoom() is IMonster monster)) return;
+            if (!(user.RoomManager.GetRoom() is IMonster monster))
+            {
+                return;
+            }
 
             var bullets = user.ItemManager.Get("bullet")?.Count;
             if (bullets == null)

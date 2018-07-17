@@ -25,7 +25,10 @@ namespace AdventureBot
         public bool ContainsKey(TKey key)
         {
             if (key == null)
+            {
                 return _gotNullValue;
+            }
+
             return _dict.ContainsKey(key);
         }
 
@@ -80,7 +83,10 @@ namespace AdventureBot
         {
             get
             {
-                if (key == null) return _nullValue;
+                if (key == null)
+                {
+                    return _nullValue;
+                }
 
                 TValue ret;
 
@@ -134,9 +140,15 @@ namespace AdventureBot
 
         public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator()
         {
-            foreach (var kvp in _dict) yield return kvp;
+            foreach (var kvp in _dict)
+            {
+                yield return kvp;
+            }
 
-            if (_gotNullValue) yield return new KeyValuePair<TKey, TValue>(null, _nullValue);
+            if (_gotNullValue)
+            {
+                yield return new KeyValuePair<TKey, TValue>(null, _nullValue);
+            }
         }
 
         IEnumerator IEnumerable.GetEnumerator()
@@ -169,7 +181,10 @@ namespace AdventureBot
             TValue val;
 
             if (TryGetValue(item.Key, out val))
+            {
                 return Equals(item.Value, val);
+            }
+
             return false;
         }
 
@@ -188,7 +203,10 @@ namespace AdventureBot
             get
             {
                 if (_gotNullValue)
+                {
                     return _dict.Count + 1;
+                }
+
                 return _dict.Count;
             }
         }

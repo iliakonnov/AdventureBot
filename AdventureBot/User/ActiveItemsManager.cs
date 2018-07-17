@@ -55,9 +55,13 @@ namespace AdventureBot.User
 
             var newValue = currentValue + toAdd;
             if (newValue <= 0)
+            {
                 _activeProportions.Remove(property);
+            }
             else
+            {
                 _activeProportions[property] = newValue;
+            }
 
             RecalculateActive();
         }
@@ -99,7 +103,10 @@ namespace AdventureBot.User
             foreach (var item in group.Items)
             {
                 var taken = Math.Min(remains[group.Key], item.Count);
-                if (taken == 0) continue;
+                if (taken == 0)
+                {
+                    continue;
+                }
 
                 remains[group.Key] -= taken;
                 var added = item.Clone();

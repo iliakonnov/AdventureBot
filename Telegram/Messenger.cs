@@ -39,7 +39,10 @@ namespace Telegram
 
         internal Messenger(List<TelegramBot> messengers)
         {
-            foreach (var messenger in messengers) messenger.Messenger = this;
+            foreach (var messenger in messengers)
+            {
+                messenger.Messenger = this;
+            }
 
             _messengers = messengers;
             MessengerIds = _messengers.Select(m => m.Id).ToImmutableHashSet();
@@ -80,7 +83,10 @@ namespace Telegram
 
             if (messengers.Count == 0)
             {
-                foreach (var availableId in availableIds) RemoveBot(availableId, null, user);
+                foreach (var availableId in availableIds)
+                {
+                    RemoveBot(availableId, null, user);
+                }
 
                 NewBot(_defaultMessenger.Id, null, user);
                 await _defaultMessenger.Send(message, recievedMessage);
@@ -119,21 +125,33 @@ namespace Telegram
             var globalMessengers = DefaultMessengers(GlobalVariables.Variables, new ChatId(1, chatId));
             var userMessengers =
                 DefaultMessengers(user.VariableManager.PersistentVariables, user.MessageManager.ChatId);
-            foreach (var key in globalMessengers.Keys()) userMessengers.Set(key, new Serializable.Bool(true));
+            foreach (var key in globalMessengers.Keys())
+            {
+                userMessengers.Set(key, new Serializable.Bool(true));
+            }
         }
 
         internal void ListBots(User user)
         {
             var messengers =
                 DefaultMessengers(user.VariableManager.PersistentVariables, user.MessageManager.ChatId);
-            foreach (var key in messengers.Keys()) user.MessageManager.SendMessage(new SentMessage {Text = key});
+            foreach (var key in messengers.Keys())
+            {
+                user.MessageManager.SendMessage(new SentMessage {Text = key});
+            }
         }
 
         internal void NewBot(int id, long? chatId, User user, bool quiet = false)
         {
-            if (!MessengerIds.Contains(id)) throw new ArgumentException($"Unknown bot id: {id}");
+            if (!MessengerIds.Contains(id))
+            {
+                throw new ArgumentException($"Unknown bot id: {id}");
+            }
 
-            if (!quiet) user.MessageManager.SendMessage(new SentMessage {Text = "Ура! Новый бот!"});
+            if (!quiet)
+            {
+                user.MessageManager.SendMessage(new SentMessage {Text = "Ура! Новый бот!"});
+            }
 
             if (chatId != null)
             {
@@ -148,7 +166,10 @@ namespace Telegram
 
         internal void RemoveBot(int id, long? chatId, User user, bool quiet = false)
         {
-            if (!quiet) user.MessageManager.SendMessage(new SentMessage {Text = "Прощай, бот"});
+            if (!quiet)
+            {
+                user.MessageManager.SendMessage(new SentMessage {Text = "Прощай, бот"});
+            }
 
             if (chatId != null)
             {
@@ -170,7 +191,10 @@ namespace Telegram
             var chat = chatId.Id.ToString();
 
             var availableMessengers = availableChats.Get<VariableContainer>(chat);
-            if (availableMessengers != null) return availableMessengers;
+            if (availableMessengers != null)
+            {
+                return availableMessengers;
+            }
 
             availableMessengers = new VariableContainer();
 
@@ -189,7 +213,10 @@ namespace Telegram
         private VariableContainer DefaultMessengers(VariableContainer variables, ChatId chatId)
         {
             var availableChats = variables.Get<VariableContainer>(RootVariable);
-            if (availableChats != null) return DefaultMessengersInner(availableChats, chatId);
+            if (availableChats != null)
+            {
+                return DefaultMessengersInner(availableChats, chatId);
+            }
 
             var container = new VariableContainer();
             variables.Set(RootVariable, container);

@@ -58,7 +58,8 @@ namespace Content.Town
                                             description.Append($"{Stats.Emojis[effect.Key]}: {effect.Value:F2} ");
                                             if (active != null)
                                             {
-                                                description.Append($" (*{effect.Value * active.Count:+#.##;-#.##;0}*) ");
+                                                description.Append(
+                                                    $" (*{effect.Value * active.Count:+#.##;-#.##;0}*) ");
                                             }
                                         }
                                     }
@@ -92,7 +93,10 @@ namespace Content.Town
 
         public override void OnMessage(User user, RecivedMessage message)
         {
-            if (!HandleAction(user, message)) HandleButtonAlways(user, message);
+            if (!HandleAction(user, message))
+            {
+                HandleButtonAlways(user, message);
+            }
         }
 
         private void ShowStats(User user)
@@ -173,8 +177,12 @@ namespace Content.Town
 
             var flag = new Flag<StatsProperty>();
             foreach (var propEmoji in splitted[0].Split(','))
+            {
                 if (reverse.TryGetValue(propEmoji, out var prop))
+                {
                     flag |= new Flag<StatsProperty>(prop);
+                }
+            }
 
             var count = 0;
             if (!flag.Values.IsEmpty && int.TryParse(splitted[1], out count))
@@ -192,7 +200,11 @@ namespace Content.Town
             {
                 var emoji = string.Join(",", proportion.Key.Values.Select(k => Stats.Emojis[k]));
                 current.Append(emoji).Append(": ").Append(proportion.Value);
-                if (changed && flag.Equals(proportion.Key)) current.Append($" _({count:+#.##;-#.##;0})_");
+                if (changed && flag.Equals(proportion.Key))
+                {
+                    current.Append($" _({count:+#.##;-#.##;0})_");
+                }
+
                 current.AppendLine();
             }
 

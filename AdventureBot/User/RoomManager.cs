@@ -34,15 +34,23 @@ namespace AdventureBot.User
         internal void Go(string roomIdentifier, bool leave = true)
         {
             if (!ObjectManager<IRoom>.Instance.Get<Room.RoomManager>().Contains(roomIdentifier))
+            {
                 throw new ArgumentException($"Unknown room: {roomIdentifier}");
+            }
 
             if (leave)
             {
                 var allowLeave = GetRoom()?.OnLeave(_user);
-                if (allowLeave == false) return;
+                if (allowLeave == false)
+                {
+                    return;
+                }
             }
 
-            if (CurrentRoom != null) Rooms.Push(CurrentRoom);
+            if (CurrentRoom != null)
+            {
+                Rooms.Push(CurrentRoom);
+            }
 
             CurrentRoom = new StackedRoom(roomIdentifier);
             _user.MessageManager.ShownStats = ShownStats.Default;
@@ -63,14 +71,20 @@ namespace AdventureBot.User
         internal void Leave(bool doReturn = true)
         {
             var allowLeave = GetRoom()?.OnLeave(_user);
-            if (allowLeave == false) return;
+            if (allowLeave == false)
+            {
+                return;
+            }
 
             CurrentRoom = Rooms.Pop();
             _user.MessageManager.ShownStats = CurrentRoom?.ShownStats ?? ShownStats.Default;
 
             _user.ItemManager.OnLeave();
 
-            if (doReturn) GetRoom()?.OnReturn(_user);
+            if (doReturn)
+            {
+                GetRoom()?.OnReturn(_user);
+            }
         }
 
         /// <summary>
@@ -79,7 +93,10 @@ namespace AdventureBot.User
         public void Leave()
         {
             var allowLeave = GetRoom()?.OnLeave(_user);
-            if (allowLeave == false) return;
+            if (allowLeave == false)
+            {
+                return;
+            }
 
             CurrentRoom = Rooms.Pop();
             _user.MessageManager.ShownStats = CurrentRoom.ShownStats;
@@ -93,7 +110,10 @@ namespace AdventureBot.User
         [CanBeNull]
         public IRoom GetRoom()
         {
-            if (CurrentRoom == null) return null;
+            if (CurrentRoom == null)
+            {
+                return null;
+            }
 
             return ObjectManager<IRoom>.Instance.Get<Room.RoomManager>().Get(CurrentRoom.Identifier);
         }

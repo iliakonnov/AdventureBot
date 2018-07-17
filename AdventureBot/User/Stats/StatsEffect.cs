@@ -41,8 +41,10 @@ namespace AdventureBot.User.Stats
             var selfAffected = userStats.Apply(self);
             var otherAffected = userStats.Apply(other);
             foreach (var property in props.Values)
+            {
                 result += otherAffected.Effect.GetValueOrDefault(property, 0) -
                           selfAffected.Effect.GetValueOrDefault(property, 0);
+            }
 
             return Math.Sign(result);
         }

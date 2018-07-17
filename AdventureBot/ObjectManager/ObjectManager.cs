@@ -22,10 +22,12 @@ namespace AdventureBot.ObjectManager
         public void LoadType(GameObjectAttribute attribute, Type type)
         {
             if (typeof(TObj).IsAssignableFrom(type))
+            {
                 Register(
                     attribute,
                     () => (TObj) type.GetConstructor(Type.EmptyTypes).Invoke(new object[] { })
                 );
+            }
         }
 
         public void RegisterManager<TMgr>(TMgr manager) where TMgr : IManager<TObj>
@@ -50,7 +52,10 @@ namespace AdventureBot.ObjectManager
 
         public void Register(GameObjectAttribute attribute, Create<TObj> creator)
         {
-            foreach (var manager in _managers.Values) manager.Register(attribute, creator);
+            foreach (var manager in _managers.Values)
+            {
+                manager.Register(attribute, creator);
+            }
         }
     }
 }

@@ -79,7 +79,10 @@ namespace AdventureBot.User
             CurrentStats = new Stats.Stats(BaseStats.Effect);
             foreach (var item in _user.ActiveItemsManager.ActiveItems)
             {
-                if (item.Item.Effect == null) continue;
+                if (item.Item.Effect == null)
+                {
+                    continue;
+                }
 
                 CurrentStats = CurrentStats.Apply(item.Item.Effect);
             }
@@ -93,7 +96,10 @@ namespace AdventureBot.User
         /// <returns>Достаточно ли золота было у игрока.</returns>
         public bool TryDecreaseGold(decimal value)
         {
-            if (Gold < value) return false;
+            if (Gold < value)
+            {
+                return false;
+            }
 
             Gold -= value;
             return true;
@@ -112,7 +118,9 @@ namespace AdventureBot.User
             if (
                 !allowLess && newValue < 0
                 || !allowMore && newValue > MaxStats.Effect[property])
+            {
                 return false;
+            }
 
             BaseStats = changed;
             RecalculateStats();
@@ -133,7 +141,10 @@ namespace AdventureBot.User
             {
                 // Special case
                 var result = ChangeStats(changeType, StatsProperty.Health, value, true);
-                if (BaseStats.Effect[StatsProperty.Health] <= 0) Kill();
+                if (BaseStats.Effect[StatsProperty.Health] <= 0)
+                {
+                    Kill();
+                }
 
                 return result;
             }

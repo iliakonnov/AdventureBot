@@ -57,7 +57,10 @@ namespace Content.Town
 
         public override void OnMessage(User user, RecivedMessage message)
         {
-            if (!HandleAction(user, message)) HandleButtonAlways(user, message);
+            if (!HandleAction(user, message))
+            {
+                HandleButtonAlways(user, message);
+            }
         }
 
         private void Buy(User user, RecivedMessage message)
@@ -69,7 +72,10 @@ namespace Content.Town
                 .ToArray();
             SendMessage(user, "Что же вы хотите купить?", buttons);
 
-            foreach (var item in loaded) SendMessage(user, $"*{item.Name}* [{item.Price}]\n{item.Description}");
+            foreach (var item in loaded)
+            {
+                SendMessage(user, $"*{item.Name}* [{item.Price}]\n{item.Description}");
+            }
 
             SwitchAction(user, Buy2);
         }
@@ -113,8 +119,10 @@ namespace Content.Town
             SendMessage(user, "Что же вы хотите продать?", buttons);
 
             foreach (var item in items)
+            {
                 SendMessage(user,
                     $"*{item.Item.Name}* (x{item.Count}) [{item.Item.Price * user.Info.SellMultiplier}]\n{item.Item.Description}");
+            }
 
             SwitchAction(user, Sell2);
         }

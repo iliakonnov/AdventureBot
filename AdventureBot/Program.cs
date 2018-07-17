@@ -34,7 +34,9 @@ namespace AdventureBot
 
             Logger.LogInformation("Loading objects...");
             foreach (var assembly in Configuration.Config.GetSection("assemblies").GetChildren())
+            {
                 MainManager.Instance.LoadAssembly(assembly.Value);
+            }
 
             MainManager.Instance.LoadAssembly(Assembly.GetExecutingAssembly());
 
@@ -51,7 +53,10 @@ namespace AdventureBot
             while (true)
             {
                 var command = Console.ReadLine();
-                if (command == null) continue;
+                if (command == null)
+                {
+                    continue;
+                }
 
                 var splitted = command.Split(' ');
                 switch (splitted[0])

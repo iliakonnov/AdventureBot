@@ -112,7 +112,10 @@ namespace AdventureBot
 
         public override bool Equals(object obj)
         {
-            if (obj == this) return true;
+            if (obj == this)
+            {
+                return true;
+            }
 
             switch (obj)
             {
@@ -128,11 +131,17 @@ namespace AdventureBot
         [SuppressMessage("ReSharper", "NonReadonlyMemberInGetHashCode")]
         public override int GetHashCode()
         {
-            if (_hashcode != null) return (int) _hashcode;
+            if (_hashcode != null)
+            {
+                return (int) _hashcode;
+            }
 
             // calculate hashcode and save it to cache
             _hashcode = -1138380728;
-            foreach (var value in Values) _hashcode ^= value.GetHashCode();
+            foreach (var value in Values)
+            {
+                _hashcode ^= value.GetHashCode();
+            }
 
             return (int) _hashcode;
         }

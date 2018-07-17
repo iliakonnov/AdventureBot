@@ -69,7 +69,10 @@ namespace Content.Town
 
         public override void OnMessage(User user, RecivedMessage message)
         {
-            if (!HandleAction(user, message)) HandleButtonAlways(user, message);
+            if (!HandleAction(user, message))
+            {
+                HandleButtonAlways(user, message);
+            }
         }
     }
 }

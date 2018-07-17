@@ -46,7 +46,10 @@ namespace AdventureBot.Room
         {
             var route = GetRouteIdx(user);
 
-            if (route == null) return false;
+            if (route == null)
+            {
+                return false;
+            }
 
             Routes[(int) route](user, message);
             return true;
@@ -62,7 +65,9 @@ namespace AdventureBot.Room
 
             var idx = Array.IndexOf(Routes, handler);
             if (idx == -1)
+            {
                 throw new ArgumentException("Unregistered handler! Every handler must be defined in _routes");
+            }
 
             GetRoomVariables(user).Set("action", new Serializable.Int(idx));
         }
@@ -85,9 +90,13 @@ namespace AdventureBot.Room
             Dictionary<string, MessageRecived> buttons;
             var route = GetRouteIdx(user);
             if (route == null)
+            {
                 buttons = Buttons[null];
+            }
             else
+            {
                 Buttons.TryGetValue(Routes[(int) route], out buttons);
+            }
 
             return buttons;
         }
@@ -96,19 +105,29 @@ namespace AdventureBot.Room
         {
             var buttons = GetCurrentButtons(user);
 
-            if (buttons == null) throw new Exception("Cannot handle buttons. Cannot find buttons for current action.");
+            if (buttons == null)
+            {
+                throw new Exception("Cannot handle buttons. Cannot find buttons for current action.");
+            }
 
             if (buttons.TryGetValue(message.Text, out var handler))
+            {
                 handler(user, message);
+            }
             else
+            {
                 SendMessage(user, "Ты говоришь что-то непонятное", GetButtons(user), "unknown_button");
+            }
         }
 
         protected string[][] GetButtons(User.User user)
         {
             var buttons = GetCurrentButtons(user);
 
-            if (buttons == null) return null;
+            if (buttons == null)
+            {
+                return null;
+            }
 
             var result = new string[buttons.Count][];
 
@@ -126,7 +145,10 @@ namespace AdventureBot.Room
         {
             var buttons = GetCurrentButtons(user);
 
-            if (buttons == null) return false;
+            if (buttons == null)
+            {
+                return false;
+            }
 
             if (buttons.TryGetValue(message.Text, out var handler))
             {
@@ -154,7 +176,10 @@ namespace AdventureBot.Room
             var item = user.ItemManager.Items.SingleOrDefault(i =>
                 i.CanUse(user) && message.Text.StartsWith(i.Item.Name)
             );
-            if (item == null) return false;
+            if (item == null)
+            {
+                return false;
+            }
 
             item.OnUse(user);
             return true;
@@ -170,7 +195,10 @@ namespace AdventureBot.Room
             {
                 intent = $"room/{Identifier}";
                 var route = GetRouteIdx(user);
-                if (route != null) intent += $"/{route}";
+                if (route != null)
+                {
+                    intent += $"/{route}";
+                }
             }
 
             user.MessageManager.SendMessage(new SentMessage
