@@ -37,6 +37,9 @@ namespace Content.Rooms
                                 user.Info.Gold += user.Random.Next(500, 850);
                                 user.RoomManager.Leave();
                             }
+                        },
+                        {
+                            "Уйти", (user, message) => user.RoomManager.Leave()
                         }
                     }
                 }
