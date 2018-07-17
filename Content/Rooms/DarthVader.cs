@@ -4,7 +4,6 @@ using AdventureBot.Item;
 using AdventureBot.Messenger;
 using AdventureBot.Room;
 using AdventureBot.User;
-using AdventureBot.User.Stats;
 
 namespace Content.Rooms
 {
@@ -25,7 +24,7 @@ namespace Content.Rooms
                             "— НЕЕЕЕЕЕЕЕЕЕЕЕЕЕЕЕЕТ!", (user, message) =>
                             {
                                 SwitchAction(user, PreBattle);
-                                user.Info.ChangeStats(StatsProperty.Health, 15);
+                                user.Info.MakeDamage(15);
                                 SendMessage(user, "Тебе отрубили руку. А теперь хорош рыдать и в бой.",
                                     GetButtons(user));
                             }

@@ -22,7 +22,7 @@ namespace Content.Town
                             "Потренироваться", (user, message) =>
                             {
                                 SendMessage(user, "Вы не успели договорить, а уже отлетелии в дальний угол.");
-                                user.Info.ChangeStats(StatsProperty.Health, -30);
+                                user.Info.MakeDamage(30);
                             }
                         },
                         {

@@ -1,6 +1,5 @@
 ﻿using System.Linq;
 using AdventureBot.Messenger;
-using AdventureBot.User.Stats;
 
 namespace AdventureBot.Room
 {
@@ -92,7 +91,7 @@ namespace AdventureBot.Room
                 $"Монстр бьет вас и вам становится нехоршо. Аж на {dmg} единиц здоровья хуже.",
                 GetActions(user)
             );
-            user.Info.ChangeStats(StatsProperty.Health, -dmg);
+            user.Info.MakeDamage(dmg);
         }
 
         protected virtual string[][] GetActions(User.User user)
