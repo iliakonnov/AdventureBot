@@ -26,7 +26,7 @@ namespace AdventureBot.Room
             variables.Set("old_hp", new Serializable.Decimal(Health));
             variables.Set("hp", new Serializable.Decimal(Health));
 
-            var buttons = GetItems(user).Select(item => new[] {item}).ToArray();
+            var buttons = GetActions(user);
             Enter(user, buttons);
         }
 
@@ -52,7 +52,7 @@ namespace AdventureBot.Room
 
         public override void OnMessage(User.User user, RecivedMessage message)
         {
-            var buttons = GetItems(user).Select(item => new[] {item}).ToArray();
+            var buttons = GetActions(user);
             if (!UseItem(user, message))
             {
                 SendMessage(
@@ -89,6 +89,11 @@ namespace AdventureBot.Room
                 );
                 user.Info.ChangeStats(StatsProperty.Health, -dmg);
             }
+        }
+
+        protected static string[][] GetActions(User.User user)
+        {
+            return GetItems(user).Select(item => new[] {item}).ToArray();
         }
 
         public abstract decimal GetDamage(User.User user);
