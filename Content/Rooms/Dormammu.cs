@@ -42,6 +42,8 @@ namespace Content.Rooms
                     SendMessage(user, "— Аааа, иди нахрен, Кэмбербетч", buttons);
                     user.RoomManager.Leave();
                 }
+
+                FinishTurn(user);
             }
             else
             {

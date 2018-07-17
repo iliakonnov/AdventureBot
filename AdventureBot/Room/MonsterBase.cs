@@ -52,46 +52,50 @@ namespace AdventureBot.Room
 
         public override void OnMessage(User.User user, RecivedMessage message)
         {
-            var buttons = GetActions(user);
             if (!UseItem(user, message))
             {
                 SendMessage(
                     user,
                     "Вы поискали в карманах необходимый предмет, но ничего не нашли",
-                    buttons,
+                    GetActions(user),
                     "unknown_item"
                 );
             }
             else
             {
-                var variables = GetRoomVariables(user);
-                var hp = (decimal) (Serializable.Decimal) variables.Get("hp");
-
-                var diff = hp - (decimal) (Serializable.Decimal) variables.Get("old_hp");
-                SendMessage(
-                    user,
-                    $"HP: {hp} _{diff:(+#);(-#);}_"
-                );
-
-                variables.Set("old_hp", new Serializable.Decimal(hp));
-
-                if (hp <= 0)
-                {
-                    user.RoomManager.Leave();
-                    return;
-                }
-
-                var dmg = GetDamage(user);
-                SendMessage(
-                    user,
-                    $"Монстр бьет вас и вам становится нехоршо. Аж на {dmg} единиц здоровья хуже.",
-                    buttons
-                );
-                user.Info.ChangeStats(StatsProperty.Health, -dmg);
+                FinishTurn(user);
             }
         }
 
-        protected static string[][] GetActions(User.User user)
+        protected void FinishTurn(User.User user)
+        {
+            var variables = GetRoomVariables(user);
+            var hp = (decimal) (Serializable.Decimal) variables.Get("hp");
+
+            var diff = hp - (decimal) (Serializable.Decimal) variables.Get("old_hp");
+            SendMessage(
+                user,
+                $"HP: {hp} _{diff:(+#);(-#);}_"
+            );
+
+            variables.Set("old_hp", new Serializable.Decimal(hp));
+
+            if (hp <= 0)
+            {
+                user.RoomManager.Leave();
+                return;
+            }
+
+            var dmg = GetDamage(user);
+            SendMessage(
+                user,
+                $"Монстр бьет вас и вам становится нехоршо. Аж на {dmg} единиц здоровья хуже.",
+                GetActions(user)
+            );
+            user.Info.ChangeStats(StatsProperty.Health, -dmg);
+        }
+
+        protected virtual string[][] GetActions(User.User user)
         {
             return GetItems(user).Select(item => new[] {item}).ToArray();
         }
