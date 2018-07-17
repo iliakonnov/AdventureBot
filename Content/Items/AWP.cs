@@ -30,7 +30,7 @@ namespace Content.Items
                 return;
             }
 
-            var bullets = user.ItemManager.Get("bullet")?.Count;
+            var bullets = user.ItemManager.Get("item/bullet")?.Count;
             if (bullets == null)
             {
                 user.MessageManager.SendMessage(new SentMessage
@@ -40,7 +40,7 @@ namespace Content.Items
                 return;
             }
 
-            if (!user.ItemManager.Remove(new ItemInfo("bullet", 1)))
+            if (!user.ItemManager.Remove(new ItemInfo("item/bullet", 1)))
             {
                 user.MessageManager.SendMessage(new SentMessage
                 {
