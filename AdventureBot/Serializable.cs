@@ -16,6 +16,7 @@ namespace AdventureBot
     [Union(8, typeof(SentMessage))]
     [Union(9, typeof(SerializableFlag<ISerializable>))]
     [Union(10, typeof(StatsProperty))]
+    [Union(11, typeof(Serializable.Long))]
     public interface ISerializable
     {
     }
@@ -61,6 +62,28 @@ namespace AdventureBot
             }
 
             public static implicit operator int?(Int i)
+            {
+                return i?._value;
+            }
+        }
+
+        [MessagePackObject]
+        public class Long : ISerializable
+        {
+            [Key(0)] private readonly long _value;
+
+            [SerializationConstructor]
+            public Long(long value)
+            {
+                _value = value;
+            }
+
+            public static implicit operator long(Long i)
+            {
+                return i?._value ?? default;
+            }
+
+            public static implicit operator long?(Long i)
             {
                 return i?._value;
             }
