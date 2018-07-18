@@ -2,7 +2,7 @@
 {
     public interface IAdventureItem : IItem
     {
-        void OnAdventureEnter();
-        void OnAdventureLeave();
+        void OnAdventureEnter(User.User user, ItemInfo info);
+        void OnAdventureLeave(User.User user, ItemInfo info);
     }
 }

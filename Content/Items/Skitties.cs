@@ -1,5 +1,6 @@
 ﻿using AdventureBot;
 using AdventureBot.Item;
+using AdventureBot.Messenger;
 using AdventureBot.ObjectManager;
 using AdventureBot.User;
 using AdventureBot.User.Stats;
@@ -7,7 +8,7 @@ using AdventureBot.User.Stats;
 namespace Content.Items
 {
     [Item("skitties/candy")]
-    public class Skitties : ItemBase
+    public class Skitties : ItemBase, IAdventureItem
     {
         public override Flag<BuyGroup> Group => new Flag<BuyGroup>();
         public override string Name => "Конфета \"Skitties\"";
@@ -27,6 +28,27 @@ namespace Content.Items
             {
                 user.Info.ChangeStats(StatsProperty.Health, 25);
             }
+        }
+
+        public void OnAdventureEnter(User user, ItemInfo info)
+        {
+            var cnt = user.VariableManager.UserVariables.Get<Serializable.Int>("skitties_diabetes") ?? 10;
+            if (cnt == 1)
+            {
+                return;
+            }
+
+            user.MessageManager.SendMessage(new SentMessage
+            {
+                Text = "Диабет мучает тебя..."
+            });
+            cnt--;
+            user.VariableManager.UserVariables.Set("skitties_diabetes", new Serializable.Int(cnt));
+            user.Info.ChangeStats(StatsProperty.Health, -5);
+        }
+
+        public void OnAdventureLeave(User user, ItemInfo info)
+        {
         }
     }
 }

@@ -22,6 +22,7 @@ namespace Content.Rooms
                             {
                                 SendMessage(user,
                                     "Вполне себе обычные вкусненькие конфеты. Правда, ты не заметил, как съел полведра и теперь чувствуешь, как содержание глюкозы в твоей крови достигло критической отметки. Кажется, у тебя диабет. Но есть и плюсы: отойдя на метров двести, ты обнаружил у себя в кармане конфеты \"Skitties\". Да-да, те самые.");
+                                user.VariableManager.UserVariables.Set("skitties_diabetes", new Serializable.Int(10));
                                 user.ItemManager.Add(new ItemInfo("skitties/candy", 10));
                                 user.RoomManager.Leave();
                             }

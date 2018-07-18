@@ -63,7 +63,7 @@ namespace Content.Town
             {
                 if (info.Item is IAdventureItem adventureItem)
                 {
-                    adventureItem.OnAdventureLeave();
+                    adventureItem.OnAdventureLeave(user, info);
                 }
             }
 
@@ -89,7 +89,7 @@ namespace Content.Town
                 {
                     if (info.Item is IAdventureItem adventureItem)
                     {
-                        adventureItem.OnAdventureEnter();
+                        adventureItem.OnAdventureEnter(user, info);
                     }
                 }
             }
