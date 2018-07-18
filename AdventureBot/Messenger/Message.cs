@@ -12,7 +12,7 @@ namespace AdventureBot.Messenger
         [IgnoreMember] [CanBeNull] public Handler Action;
         public ChatId ChatId;
         public DateTimeOffset RecivedTime;
-        public int? ReplyId;
+        public int? ReplyUserId;
         public string Text;
         public UserId UserId;
     }

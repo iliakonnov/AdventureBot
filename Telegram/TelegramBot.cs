@@ -89,21 +89,27 @@ namespace Telegram
 
                 if (keyboard)
                 {
-                    replyMarkup = new ReplyKeyboardMarkup(markup);
+                    replyMarkup = new ReplyKeyboardMarkup(markup) {Selective = true};
                 }
                 else
                 {
-                    replyMarkup = new ReplyKeyboardRemove();
+                    replyMarkup = new ReplyKeyboardRemove {Selective = true};
                 }
             }
 
             var parseMode = message.Formatted ? ParseMode.Markdown : ParseMode.Default;
 
+            var text = message.Text;
+            if (recivedMessage != null && recivedMessage.ReplyUserId != 0)
+            {
+                text += $"\n[@](tg://user?id={recivedMessage.ReplyUserId})";
+            }
+
             try
             {
                 await _bot.SendTextMessageAsync(
                     message.ChatId.Id,
-                    message.Text,
+                    text,
                     parseMode,
                     replyMarkup: replyMarkup
                     //replyToMessageId: recivedMessage?.ReplyId ?? 0  // Not working, because MessageId is different for each bot
@@ -163,7 +169,7 @@ namespace Telegram
         {
             RecivedMessage message = null;
 
-            var replyId = args.Message.Chat.Type != ChatType.Private ? (int?) args.Message.MessageId : null;
+            var replyId = args.Message.Chat.Type != ChatType.Private ? (int?) args.Message.From.Id : null;
 
             switch (args.Message.Type)
             {
@@ -177,7 +183,7 @@ namespace Telegram
                             UserId = new UserId(MessengerId, args.Message.From.Id),
                             Text = "Available bots:",
                             Action = (msg, user) => Messenger.ListBots(user),
-                            ReplyId = replyId
+                            ReplyUserId = replyId
                         };
                     }
                     else
@@ -187,7 +193,7 @@ namespace Telegram
                             ChatId = new ChatId(MessengerId, args.Message.Chat.Id),
                             UserId = new UserId(MessengerId, args.Message.From.Id),
                             Text = args.Message.Text,
-                            ReplyId = replyId
+                            ReplyUserId = replyId
                         };
                     }
 
@@ -206,7 +212,7 @@ namespace Telegram
                                     ChatId = new ChatId(MessengerId, args.Message.Chat.Id),
                                     UserId = new UserId(MessengerId, args.Message.From.Id),
                                     Text = $"Hello, bot {member.Username}",
-                                    ReplyId = replyId,
+                                    ReplyUserId = replyId,
                                     Action = (msg, user) => Messenger.NewBot(member.Id, args.Message.Chat.Id, user)
                                 };
                             }
@@ -219,7 +225,7 @@ namespace Telegram
                                 ChatId = new ChatId(MessengerId, args.Message.Chat.Id),
                                 UserId = new UserId(MessengerId, args.Message.From.Id),
                                 Text = $"Hello, player {member.Username}",
-                                ReplyId = replyId,
+                                ReplyUserId = replyId,
                                 Action = (msg, user) => Messenger.NewUser(args.Message.Chat.Id, user)
                             };
                         }
@@ -237,7 +243,7 @@ namespace Telegram
                             ChatId = new ChatId(MessengerId, args.Message.Chat.Id),
                             UserId = new UserId(MessengerId, args.Message.From.Id),
                             Text = $"Goodbye, {member.Username}",
-                            ReplyId = replyId,
+                            ReplyUserId = replyId,
                             Action = (msg, user) => Messenger.RemoveBot(member.Id, args.Message.Chat.Id, user)
                         };
                     }

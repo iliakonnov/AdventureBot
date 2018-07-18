@@ -50,6 +50,7 @@ namespace AdventureBot.User
             if (_user.MessageManager != null)
             {
                 ChatId = _user.MessageManager.ChatId;
+                RecievedMessage = _user.MessageManager.RecievedMessage;
             }
         }
 
