@@ -234,14 +234,15 @@ namespace Content.Town
                         break;
                     }
                 }
-                
+
                 SwitchAction(user, null);
+                SendMessage(user, string.Empty, GetButtons(user));
                 return;
             }
 
             var buttons = new List<string[]>();
-            SendMessage(user, $"Страница {currentPage+1} из {pageCount+1}");
-            
+            SendMessage(user, $"Страница {currentPage + 1} из {pageCount + 1}");
+
             foreach (var info in items)
             {
                 var active = user.ActiveItemsManager.ActiveItems
@@ -286,11 +287,13 @@ namespace Content.Town
             {
                 endingButtons.Add("Назад");
             }
+
             endingButtons.Add("Выйти");
             if (currentPage < pageCount)
             {
                 endingButtons.Add("Вперед");
             }
+
             buttons.Add(endingButtons.ToArray());
 
             SendMessage(user, string.Empty, buttons.ToArray());

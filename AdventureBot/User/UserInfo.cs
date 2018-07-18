@@ -28,7 +28,8 @@ namespace AdventureBot.User
                     {StatsProperty.Mana, 100},
                     {StatsProperty.Stamina, 100},
                     {StatsProperty.Intelligence, 100},
-                    {StatsProperty.Strength, 100}
+                    {StatsProperty.Strength, 100},
+                    {StatsProperty.Defence, 100}
                 }
             ));
             BaseStats = new Stats.Stats(new ReadOnlyDictionary<StatsProperty, decimal>(
@@ -36,9 +37,7 @@ namespace AdventureBot.User
                 {
                     {StatsProperty.Health, MaxStats.Effect[StatsProperty.Health]},
                     {StatsProperty.Mana, MaxStats.Effect[StatsProperty.Mana]},
-                    {StatsProperty.Stamina, MaxStats.Effect[StatsProperty.Stamina]},
-                    {StatsProperty.Intelligence, 1},
-                    {StatsProperty.Strength, 1}
+                    {StatsProperty.Stamina, MaxStats.Effect[StatsProperty.Stamina]}
                 }
             ));
             UserId = userId;
