@@ -50,7 +50,7 @@ namespace AdventureBot.User
 
         public bool Dead { get; internal set; }
 
-        public decimal Gold { get; set; }
+        public decimal Gold { get; set; } = 100;
 
         public decimal SellMultiplier { get; } = 0.75m;
 
