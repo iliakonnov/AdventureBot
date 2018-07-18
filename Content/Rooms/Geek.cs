@@ -55,7 +55,7 @@ namespace Content.Rooms
 
         public override void OnWon(User user)
         {
-            user.ItemManager.Add(new ItemInfo("geek/D&D", 1));
+            user.ItemManager.Add(new ItemInfo("geek/d&d", 1));
         }
     }
 }

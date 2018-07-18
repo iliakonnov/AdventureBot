@@ -112,8 +112,7 @@ namespace AdventureBot.User
             return true;
         }
 
-        private bool ChangeStats(ChangeType changeType, StatsProperty property, decimal value, bool allowLess = false,
-            bool allowMore = false)
+        private bool ChangeStats(ChangeType changeType, StatsProperty property, decimal value, bool allowLess = false)
         {
             var changedBase = BaseStats.Apply(
                 new StatsEffect(changeType, new Dictionary<StatsProperty, decimal>
@@ -137,9 +136,16 @@ namespace AdventureBot.User
                 // При повышении статов, нужно проверять без учета предметов.
                 // (базовое здоровье не может быть больше максимума, но предметы могут повысить за пределы максимума)
                 var newValue = changedBase.Effect[property];
-                if (!allowMore && newValue > MaxStats.Effect[property])
+                var maxValue = MaxStats.Effect[property];
+                if (newValue > maxValue)
                 {
-                    return false;
+                    // Если результат получился больше мсаксимума, то устанавливается максимум
+                    changedBase = BaseStats.Apply(
+                        new StatsEffect(ChangeType.Set, new Dictionary<StatsProperty, decimal>
+                        {
+                            {property, maxValue}
+                        })
+                    );
                 }
             }
 

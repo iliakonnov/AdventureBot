@@ -1,4 +1,6 @@
-﻿using AdventureBot.ObjectManager;
+﻿using System;
+using AdventureBot.ObjectManager;
+using JetBrains.Annotations;
 using MessagePack;
 
 namespace AdventureBot.Item
@@ -18,7 +20,9 @@ namespace AdventureBot.Item
         {
             Identifier = identifier;
             Count = count;
-            Item = ObjectManager<IItem>.Instance.Get<ItemManager>().Get(identifier);
+            var item = ObjectManager<IItem>.Instance.Get<ItemManager>().Get(identifier);
+
+            Item = item ?? throw new ArgumentException($"Item with identifier '{identifier}' not found!");
         }
 
         public ItemInfo(IItem item, int count)
@@ -30,7 +34,7 @@ namespace AdventureBot.Item
 
         public int Count { get; internal set; }
         public string Identifier { get; }
-        [IgnoreMember] public IItem Item { get; }
+        [IgnoreMember] [NotNull] public IItem Item { get; }
 
         public bool CanUse(User.User user)
         {

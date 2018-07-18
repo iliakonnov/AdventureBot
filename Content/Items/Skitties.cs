@@ -15,7 +15,7 @@ namespace Content.Items
         public override decimal? Price => 50;
         public override string Identifier => "skitties/candy";
         public override StatsEffect Effect => null;
-        
+
         public override bool CanUse(User user, ItemInfo info)
         {
             return true;
@@ -23,7 +23,10 @@ namespace Content.Items
 
         public override void OnUse(User user, ItemInfo info)
         {
-            user.Info.ChangeStats(StatsProperty.Health, 25);
+            if (user.ItemManager.Remove(new ItemInfo(Identifier, 1)))
+            {
+                user.Info.ChangeStats(StatsProperty.Health, 25);
+            }
         }
     }
 }
