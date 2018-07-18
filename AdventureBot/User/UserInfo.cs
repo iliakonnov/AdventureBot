@@ -122,16 +122,29 @@ namespace AdventureBot.User
                     {property, value}
                 })
             );
-            var changed = ApplyItems(changedBase);
-            var newValue = changed.Effect[property];
-            if (
-                !allowLess && newValue < 0
-                || !allowMore && newValue > MaxStats.Effect[property])
+            if (value < 0)
             {
-                return false;
+                // При понижении статов, нужно проверять с учетом предметов.
+                // (базовое здоровье может быть меньше нуля, т.к. предметы тебя спасут)
+                var changed = ApplyItems(changedBase);
+                var newValue = changed.Effect[property];
+                if (!allowLess && newValue < 0)
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                // При повышении статов, нужно проверять без учета предметов.
+                // (базовое здоровье не может быть больше максимума, но предметы могут повысить за пределы максимума)
+                var newValue = changedBase.Effect[property];
+                if (!allowMore && newValue > MaxStats.Effect[property])
+                {
+                    return false;
+                }
             }
 
-            BaseStats = changed;
+            BaseStats = changedBase;
             RecalculateStats();
             return true;
         }
