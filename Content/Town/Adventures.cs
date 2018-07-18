@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using AdventureBot;
+using AdventureBot.Item;
 using AdventureBot.Messenger;
 using AdventureBot.Room;
 using AdventureBot.User;
@@ -57,6 +58,15 @@ namespace Content.Town
             user.Info.ChangeStats(StatsProperty.Health, user.Info.MaxStats.Effect[StatsProperty.Mana] * k);
 
             SendMessage(user, "Вы вернулись в город, отдохнули и теперь лучше себя чувствуете.");
+
+            foreach (var info in user.ItemManager.Items)
+            {
+                if (info.Item is IAdventureItem adventureItem)
+                {
+                    adventureItem.OnAdventureLeave();
+                }
+            }
+
             user.RoomManager.Leave();
         }
 
@@ -75,6 +85,13 @@ namespace Content.Town
             else
             {
                 user.RoomManager.Go(rooms[user.Random.Next(rooms.Count)]);
+                foreach (var info in user.ItemManager.Items)
+                {
+                    if (info.Item is IAdventureItem adventureItem)
+                    {
+                        adventureItem.OnAdventureEnter();
+                    }
+                }
             }
         }
     }

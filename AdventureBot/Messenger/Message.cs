@@ -5,7 +5,7 @@ using MessagePack;
 namespace AdventureBot.Messenger
 {
     [MessagePackObject(true)]
-    public class RecivedMessage : ISerializable
+    public class RecivedMessage
     {
         public delegate void Handler(RecivedMessage message, User.User user);
 
@@ -18,7 +18,7 @@ namespace AdventureBot.Messenger
     }
 
     [MessagePackObject(true)]
-    public class SentMessage : ISerializable
+    public class SentMessage
     {
         [CanBeNull] public string[][] Buttons = null;
         public ChatId ChatId = new ChatId(int.MinValue, long.MinValue);

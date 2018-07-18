@@ -33,6 +33,10 @@ namespace AdventureBot.Item
         void OnEnter(User.User user, ItemInfo info);
 
         void OnLeave(User.User user, ItemInfo info);
+
+        void OnAdd(User.User user, ItemInfo info, int count);
+
+        void OnRemove(User.User user, ItemInfo info, int count);
     }
 
     public abstract class ItemBase : IItem
@@ -57,6 +61,15 @@ namespace AdventureBot.Item
         public virtual void OnLeave(User.User user, ItemInfo info)
         {
         }
+
+        public virtual void OnAdd(User.User user, ItemInfo info, int count)
+        {
+        }
+
+        public virtual void OnRemove(User.User user, ItemInfo info, int count)
+        {
+        }
+
 
         public abstract string Name { get; }
         public abstract string Description { get; }

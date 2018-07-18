@@ -23,7 +23,7 @@ namespace AdventureBot.User
         [SerializationConstructor]
         public ItemManager(List<ItemInfo> items)
         {
-            _items = items;
+            _items = items.Where(info => info.Count != 0).ToList();
         }
 
         public ItemManager(User user)
@@ -36,7 +36,7 @@ namespace AdventureBot.User
             }
         }
 
-        [IgnoreMember] public IReadOnlyList<ItemInfo> Items => _items;
+        [IgnoreMember] public IReadOnlyList<ItemInfo> Items => _items.Where(info => info.Count != 0).ToList();
 
         /// <summary>
         ///     Добавляет предмет в инвентарь пользователя.
@@ -47,10 +47,12 @@ namespace AdventureBot.User
             var found = _items.FirstOrDefault(x => x.Identifier == item.Identifier);
             if (found != null)
             {
+                found.Item.OnAdd(_user, found, item.Count);
                 found.Count += item.Count;
             }
             else
             {
+                item.Item.OnAdd(_user, item, item.Count);
                 _items.Add(item);
             }
 
@@ -75,11 +77,8 @@ namespace AdventureBot.User
                 return false;
             }
 
+            found.Item.OnRemove(_user, found, item.Count);
             found.Count -= item.Count;
-            if (found.Count == 0)
-            {
-                _items.Remove(found);
-            }
 
             _user.ActiveItemsManager.RecalculateActive();
 

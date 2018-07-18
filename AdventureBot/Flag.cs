@@ -7,7 +7,7 @@ using MessagePack;
 namespace AdventureBot
 {
     [MessagePackObject(true)]
-    public class StructFlag<T> : Flag<T>, ISerializable where T : struct
+    public class StructFlag<T> : Flag<T> where T : struct
     {
         public StructFlag(T value) : base(value)
         {

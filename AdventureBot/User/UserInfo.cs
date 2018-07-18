@@ -2,7 +2,6 @@
 using System.Collections.ObjectModel;
 using AdventureBot.Analysis;
 using AdventureBot.User.Stats;
-using JetBrains.Annotations;
 using MessagePack;
 
 namespace AdventureBot.User
@@ -90,7 +89,7 @@ namespace AdventureBot.User
                     continue;
                 }
 
-                result = CurrentStats.Apply(item.Item.Effect);
+                result = result.Apply(item.Item.Effect);
             }
 
             return result;
@@ -196,7 +195,7 @@ namespace AdventureBot.User
 
             value *= -(19m / (CurrentStats.Effect[StatsProperty.Defence] + 19m) + 0.05m);
             ChangeStats(ChangeType.Add, StatsProperty.Health, value, true);
-            if (BaseStats.Effect[StatsProperty.Health] <= 0)
+            if (CurrentStats.Effect[StatsProperty.Health] <= 0)
             {
                 Kill();
             }
