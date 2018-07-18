@@ -2,6 +2,7 @@
 using System.Collections.ObjectModel;
 using AdventureBot.Analysis;
 using AdventureBot.User.Stats;
+using JetBrains.Annotations;
 using MessagePack;
 
 namespace AdventureBot.User
@@ -76,7 +77,12 @@ namespace AdventureBot.User
         /// </summary>
         internal void RecalculateStats()
         {
-            CurrentStats = new Stats.Stats(BaseStats.Effect);
+            CurrentStats = ApplyItems(new Stats.Stats(BaseStats.Effect));
+        }
+
+        private Stats.Stats ApplyItems(StatsEffect stats)
+        {
+            var result = new Stats.Stats(stats.Effect);
             foreach (var item in _user.ActiveItemsManager.ActiveItems)
             {
                 if (item.Item.Effect == null)
@@ -84,8 +90,10 @@ namespace AdventureBot.User
                     continue;
                 }
 
-                CurrentStats = CurrentStats.Apply(item.Item.Effect);
+                result = CurrentStats.Apply(item.Item.Effect);
             }
+
+            return result;
         }
 
         /// <summary>
@@ -108,12 +116,13 @@ namespace AdventureBot.User
         private bool ChangeStats(ChangeType changeType, StatsProperty property, decimal value, bool allowLess = false,
             bool allowMore = false)
         {
-            var changed = BaseStats.Apply(
+            var changedBase = BaseStats.Apply(
                 new StatsEffect(changeType, new Dictionary<StatsProperty, decimal>
                 {
                     {property, value}
                 })
             );
+            var changed = ApplyItems(changedBase);
             var newValue = changed.Effect[property];
             if (
                 !allowLess && newValue < 0
