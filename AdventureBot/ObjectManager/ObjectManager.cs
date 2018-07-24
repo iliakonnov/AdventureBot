@@ -19,14 +19,11 @@ namespace AdventureBot.ObjectManager
             MainManager.Instance.Register(this);
         }
 
-        public void LoadType(GameObjectAttribute attribute, Type type)
+        public void Register(GameObjectAttribute attribute, Create<object> creator)
         {
-            if (typeof(TObj).IsAssignableFrom(type))
+            foreach (var manager in _managers.Values)
             {
-                Register(
-                    attribute,
-                    () => (TObj) type.GetConstructor(Type.EmptyTypes).Invoke(new object[] { })
-                );
+                manager.Register(attribute, () => (TObj) creator());
             }
         }
 
@@ -48,14 +45,6 @@ namespace AdventureBot.ObjectManager
         public void Register<T>(GameObjectAttribute attribute) where T : TObj, new()
         {
             Register(attribute, () => new T());
-        }
-
-        public void Register(GameObjectAttribute attribute, Create<TObj> creator)
-        {
-            foreach (var manager in _managers.Values)
-            {
-                manager.Register(attribute, creator);
-            }
         }
     }
 }

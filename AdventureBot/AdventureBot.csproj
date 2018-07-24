@@ -19,6 +19,8 @@
     <FileVersion>0.0.0.0</FileVersion>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="IronPython" Version="2.7.8.1" />
+    <PackageReference Include="IronPython.StdLib" Version="2.7.8.1" />
     <PackageReference Include="JetBrains.Annotations" Version="11.1.0" />
     <PackageReference Include="MessagePack" Version="1.7.3.4" />
     <PackageReference Include="MessagePack.ImmutableCollection" Version="1.7.3.4" />
@@ -33,5 +35,8 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <CopyToPublishDirectory>Always</CopyToPublishDirectory>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
 </Project>

@@ -24,6 +24,7 @@ namespace AdventureBot.ObjectManager
                 Creator = creator,
                 Attribute = identifiableAttribute
             };
+            creator.Invoke();
         }
 
         [CanBeNull]
