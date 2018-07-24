@@ -2,18 +2,18 @@
 using System.Linq;
 using AdventureBot.Messenger;
 using JetBrains.Annotations;
-using Microsoft.Extensions.Logging;
+using NLog;
 using Yandex.Metrica;
 
 namespace AdventureBot.Analysis
 {
     public class Events
     {
-        private static readonly ILogger _logger = Logger.CreateLogger<Events>();
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
         private static void Report(User.User user, string eventName, IEnumerable<KeyValuePair<string, string>> dict)
         {
-            _logger.LogDebug($"Sending Yandex event: {eventName}");
+            Logger.Debug($"Sending Yandex event: {eventName}");
             YandexMetrica.ReportEvent(eventName, dict
                 .Concat(new[]
                 {

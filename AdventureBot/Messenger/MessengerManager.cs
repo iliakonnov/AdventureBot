@@ -6,14 +6,14 @@ using AdventureBot.ObjectManager;
 using AdventureBot.User;
 using JetBrains.Annotations;
 using MessagePack;
-using Microsoft.Extensions.Logging;
+using NLog;
 using Yandex.Metrica;
 
 namespace AdventureBot.Messenger
 {
     public class MessengerManager : IManager<IMessenger>
     {
-        private readonly ILogger _logger = Logger.CreateLogger<MessengerManager>();
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
         private readonly List<IMessenger> _messengers = new List<IMessenger>();
 
         public void Register(GameObjectAttribute attribute, Create<IMessenger> creator)
@@ -36,7 +36,7 @@ namespace AdventureBot.Messenger
             message.RecivedTime = DateTimeOffset.UtcNow;
 
 #if DEBUG
-            _logger.LogDebug($"Message from {message.UserId}@{message.ChatId}");
+            Logger.Debug($"Message from {message.UserId}@{message.ChatId}");
 #endif
             using (var context = new UserContext(message.UserId, message.ChatId))
             {
@@ -96,7 +96,7 @@ namespace AdventureBot.Messenger
                 catch (Exception e)
                 {
                     YandexMetrica.ReportError($"Error for user {message.UserId}@{message.ChatId}", e);
-                    _logger.LogError(e, $"Error for user {message.UserId}@{message.ChatId}");
+                    Logger.Error(e, $"Error for user {message.UserId}@{message.ChatId}");
                     var error = MessageManager.Escape(e.ToString());
                     user.MessageManager.SendImmediately(new SentMessage
                     {

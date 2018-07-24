@@ -8,19 +8,19 @@ using AdventureBot.ObjectManager;
 using AdventureBot.Room;
 using IronPython.Hosting;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
 using Microsoft.Scripting.Hosting.Shell;
+using NLog;
 using Yandex.Metrica;
 
 namespace AdventureBot
 {
     internal class Program
     {
-        private static readonly ILogger Logger = AdventureBot.Logger.CreateLogger<Program>();
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
         private static void Main(string[] args)
         {
-            Logger.LogInformation("Loading...");
+            Logger.Debug("Loading...");
 
             var metrika = Configuration.Config.GetSection("metrika");
             YandexMetricaFolder.SetCurrent(metrika.GetValue<string>("folder"));
@@ -32,7 +32,7 @@ namespace AdventureBot
             ObjectManager<IItem>.Instance.RegisterManager<ItemManager>();
             ObjectManager<IMessenger>.Instance.RegisterManager<MessengerManager>();
 
-            Logger.LogInformation("Loading objects...");
+            Logger.Debug("Loading objects...");
             foreach (var assembly in Configuration.Config.GetSection("assemblies").GetChildren())
             {
                 MainManager.Instance.LoadAssembly(assembly.Value);
@@ -46,9 +46,7 @@ namespace AdventureBot
             MainManager.Instance.LoadAssembly(Assembly.GetExecutingAssembly());
 
 
-            Logger.LogInformation("Working!");
-
-            Console.CancelKeyPress += (sender, eventArgs) => { Exit(); };
+            Logger.Info("Working!");
 
             // To allow long strings
             Console.SetIn(new StreamReader(Console.OpenStandardInput(),
@@ -65,13 +63,10 @@ namespace AdventureBot
                 ColorfulConsole = true,
                 TabCompletion = true
             });
-        }
 
-        private static void Exit()
-        {
-            Logger.LogInformation("Saving users...");
+            Logger.Info("Saving users...");
             UserManager.Instance.Flush();
-            Logger.LogInformation("Done!");
+            Logger.Debug("Done!");
             Thread.Sleep(500); // Finish logging
             Environment.Exit(0);
         }

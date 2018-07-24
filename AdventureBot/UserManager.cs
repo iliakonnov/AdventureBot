@@ -7,8 +7,8 @@ using System.Threading;
 using MessagePack;
 using MessagePack.ImmutableCollection;
 using MessagePack.Resolvers;
-using Microsoft.Extensions.Logging;
 using Mono.Data.Sqlite;
+using NLog;
 using Timer = System.Timers.Timer;
 
 namespace AdventureBot
@@ -25,7 +25,7 @@ namespace AdventureBot
         private readonly Timer _flushTimer;
 
         private readonly DecreaseCounter _loadedUsers = new DecreaseCounter();
-        private readonly ILogger _logger = Logger.CreateLogger<UserManager>();
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
         private DateTime _lastFlushed = DateTime.Now;
         private bool _toFlush;
 
@@ -132,7 +132,7 @@ namespace AdventureBot
             }
 
             // Something wrong and cache is always full, so return uncached user
-            _logger.LogWarning("Cache is always full. Maybe bot overloaded?");
+            Logger.Warn("Cache is always full. Maybe bot overloaded?");
             return new CachedUser();
         }
 
@@ -213,7 +213,7 @@ namespace AdventureBot
                 cachedUser.Changed = true;
                 if (cachedUser.Lock.CurrentCount != 0)
                 {
-                    _logger.LogWarning($"CachedUser was not locked. {user.Info.UserId}");
+                    Logger.Warn($"CachedUser was not locked. {user.Info.UserId}");
                 }
                 else
                 {
@@ -285,7 +285,7 @@ namespace AdventureBot
 
             if (cnt != 0)
             {
-                _logger.LogInformation($"Flushed {cnt} users in {DateTime.Now - beginTime}");
+                Logger.Info($"Flushed {cnt} users in {DateTime.Now - beginTime}");
             }
         }
 

@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Timers;
-using Microsoft.Extensions.Logging;
+using NLog;
 
 namespace AdventureBot
 {
     public class UserContext : IDisposable
     {
-        private readonly ILogger _logger = Logger.CreateLogger<UserContext>();
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
         private readonly User.User _user;
         private DateTime _opened;
         private Timer _timer;
@@ -19,7 +19,7 @@ namespace AdventureBot
 
         public UserContext(UserId userId, ChatId chatId)
         {
-            _logger.LogDebug($"Opening user {userId}@{chatId}");
+            Logger.Debug($"Opening user {userId}@{chatId}");
             _user = UserManager.Instance.Get(userId);
             _user.MessageManager.ChatId = chatId;
             InitializeTimer();
@@ -27,7 +27,7 @@ namespace AdventureBot
 
         public void Dispose()
         {
-            _logger.LogDebug($"User closed in {DateTime.Now - _opened}");
+            Logger.Debug($"User closed in {DateTime.Now - _opened}");
             _timer.Stop();
             UserManager.Instance.Save(_user);
             _timer.Dispose();

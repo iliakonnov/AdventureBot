@@ -6,6 +6,7 @@ using AdventureBot.Messenger;
 using AdventureBot.ObjectManager;
 using Microsoft.Extensions.Logging;
 using MihaZupan;
+using NLog;
 using Telegram.Bot;
 using Telegram.Bot.Args;
 using Telegram.Bot.Exceptions;
@@ -19,7 +20,7 @@ namespace Telegram
     internal class TelegramBot
     {
         private const int MessengerId = 1;
-        private readonly ILogger _logger;
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
         private TelegramBotClient _bot;
 
@@ -28,7 +29,6 @@ namespace Telegram
             Token = token;
             ReciveMessages = reciveMessages;
             Id = int.Parse(Token.Split(':')[0]);
-            _logger = Logger.CreateLogger<TelegramBot>();
         }
 
         public TelegramBot(string token, bool reciveMessages, string proxyHost, int proxyPort)
@@ -124,7 +124,7 @@ namespace Telegram
                 else
                 {
                     YandexMetrica.ReportError("Error while sending message", e);
-                    _logger.LogError(e, "Error while sending message");
+                    Logger.Error(e, "Error while sending message");
                 }
             }
         }
@@ -157,11 +157,11 @@ namespace Telegram
             {
                 _bot.OnMessage += MessageRecivedHandler;
                 _bot.StartReceiving(Array.Empty<UpdateType>());
-                _logger.LogInformation($"Start receiving for @{me.Username}");
+                Logger.Info($"Start receiving for @{me.Username}");
             }
             else
             {
-                _logger.LogInformation($"Start only sending for @{me.Username}");
+                Logger.Info($"Start only sending for @{me.Username}");
             }
         }
 
