@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using AdventureBot;
 using AdventureBot.Messenger;
 using AdventureBot.ObjectManager;
-using Microsoft.Extensions.Logging;
 using MihaZupan;
 using NLog;
 using Telegram.Bot;
@@ -100,7 +99,7 @@ namespace Telegram
             var parseMode = message.Formatted ? ParseMode.Markdown : ParseMode.Default;
 
             var text = message.Text;
-            if (recivedMessage != null && recivedMessage.ReplyUserId != 0)
+            if (recivedMessage?.ReplyUserId != null)
             {
                 text += $"\n[@](tg://user?id={recivedMessage.ReplyUserId})";
             }
