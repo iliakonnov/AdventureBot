@@ -108,7 +108,13 @@ namespace Content.Rooms
             var dict = GetAllItems()
                 .AvailableToBuy(new Flag<BuyGroup>(BuyGroup.Merchant, BuyGroup.Market))
                 .ToDictionary(i => i.Name, i => i);
-            if (dict.TryGetValue(message.Text, out var item))
+
+            if (message.Text == "Ничего")
+            {
+                SwitchAction(user, null);
+                SendMessage(user, "— Жаль, что не смогли предложить ничего подходящего.", GetButtons(user));
+            }
+            else if (dict.TryGetValue(message.Text, out var item))
             {
                 SwitchAction(user, null);
                 if (user.BuyItem(new ItemInfo(item, ItemCount)))
