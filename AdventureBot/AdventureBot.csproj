@@ -42,8 +42,5 @@
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="Microsoft.Extensions.Configuration.Binder, Version=2.1.1.0, Culture=neutral, PublicKeyToken=adb9793829ddae60">
-      <HintPath>..\..\..\.nuget\packages\microsoft.extensions.configuration.binder\2.1.1\lib\netstandard2.0\Microsoft.Extensions.Configuration.Binder.dll</HintPath>
-    </Reference>
   </ItemGroup>
 </Project>

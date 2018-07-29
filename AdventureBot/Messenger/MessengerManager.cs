@@ -33,8 +33,6 @@ namespace AdventureBot.Messenger
                 return;
             }
 
-            message.RecivedTime = DateTimeOffset.UtcNow;
-
 #if DEBUG
             Logger.Debug($"Message from {message.UserId}@{message.ChatId}");
 #endif
