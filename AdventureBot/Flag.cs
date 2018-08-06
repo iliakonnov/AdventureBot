@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
@@ -9,6 +10,10 @@ namespace AdventureBot
     [MessagePackObject(true)]
     public class StructFlag<T> : Flag<T> where T : struct
     {
+        public StructFlag()
+        {
+        }
+
         public StructFlag(T value) : base(value)
         {
         }
@@ -35,6 +40,10 @@ namespace AdventureBot
     [MessagePackObject(true)]
     public class SerializableFlag<T> : Flag<T>, ISerializable where T : ISerializable
     {
+        public SerializableFlag()
+        {
+        }
+
         public SerializableFlag(T value) : base(value)
         {
         }
@@ -62,6 +71,7 @@ namespace AdventureBot
     ///     Please, do not use. Use <see cref="StructFlag{T}" /> or <see cref="SerializableFlag{T}" />
     /// </summary>
     /// <typeparam name="T">This type must be serializable!</typeparam>
+    [Obsolete]
     [MessagePackObject(true)]
     public class Flag<T>
     {

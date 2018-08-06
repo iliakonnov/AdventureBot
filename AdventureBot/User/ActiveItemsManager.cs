@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using AdventureBot.Item;
@@ -17,7 +18,8 @@ namespace AdventureBot.User
         [Obsolete("This constructor for serializer only")]
         [UsedImplicitly]
         [SerializationConstructor]
-        public ActiveItemsManager(List<ItemInfo> activeItems, Dictionary<Flag<StatsProperty>, int> activeProportions,
+        public ActiveItemsManager(List<ItemInfo> activeItems,
+            Dictionary<StructFlag<StatsProperty>, int> activeProportions,
             int activeLimit)
         {
             _activeItems = activeItems;
@@ -37,15 +39,16 @@ namespace AdventureBot.User
         public IReadOnlyList<ItemInfo> ActiveItems => _activeItems;
 
 
-        [IgnoreMember] public IReadOnlyDictionary<Flag<StatsProperty>, int> ActiveProportions => _activeProportions;
+        [IgnoreMember]
+        public IReadOnlyDictionary<StructFlag<StatsProperty>, int> ActiveProportions => _activeProportions;
 
         [Key("ActiveProportions")]
-        internal Dictionary<Flag<StatsProperty>, int> _activeProportions { get; set; } =
-            new Dictionary<Flag<StatsProperty>, int>();
+        internal Dictionary<StructFlag<StatsProperty>, int> _activeProportions { get; set; } =
+            new Dictionary<StructFlag<StatsProperty>, int>();
 
         [Key(nameof(ActiveLimit))] public int ActiveLimit { get; internal set; } = 3;
 
-        public void ChangeProportion(Flag<StatsProperty> property, int count)
+        public void ChangeProportion(StructFlag<StatsProperty> property, int count)
         {
             var currentSum = ActiveProportions.Values.Sum();
             var available = ActiveLimit - currentSum;
@@ -66,56 +69,265 @@ namespace AdventureBot.User
             RecalculateActive();
         }
 
-        public List<Flag<StatsProperty>> GetAvailableProportions()
+        public List<StructFlag<StatsProperty>> GetAvailableProportions()
         {
             return _user.ItemManager.Items
                 .Select(item => item.Item.Effect)
                 .Where(effect => effect != null)
-                .Select(effect => new Flag<StatsProperty>(effect.Effect.Keys))
+                .Select(effect => new StructFlag<StatsProperty>(effect.Effect.Keys))
                 .ToList();
+        }
+
+        private IEnumerable<ItemInfo> FindAvailableItems()
+        {
+            return _user.ItemManager.Items
+                .Where(i =>
+                    i.Item.Effect != null
+                    && i.Item.Effect.Effect.Count != 0
+                );
+        }
+
+        private IReadOnlyDictionary<StructFlag<StatsProperty>, MustBeOrderedList<ItemInfo>> GroupByStats(
+            IEnumerable<ItemInfo> items)
+        {
+            var result = new Dictionary<StructFlag<StatsProperty>, List<ItemInfo>>();
+            foreach (var item in items)
+            {
+                var combined = new StructFlag<StatsProperty>();
+                foreach (var effectKey in item.Item.Effect.Effect.Keys)
+                {
+                    combined = new StructFlag<StatsProperty>(combined.Values.Add(effectKey));
+                }
+
+                if (result.TryGetValue(combined, out var list))
+                {
+                    list.Add(item);
+                }
+                else
+                {
+                    result[combined] = new List<ItemInfo> {item};
+                }
+            }
+
+            return result.ToDictionary(
+                kv => kv.Key,
+                kv => new MustBeOrderedList<ItemInfo>(kv.Value
+                    .OrderBy(i => i.Item.Effect, StatsEffect.CreateComparer(kv.Key)))
+            );
+        }
+
+        private IDictionary<ChangeType, MustBeOrderedList<ItemInfo>> GroupByChangeType(
+            MustBeOrderedList<ItemInfo> items)
+        {
+            var result = new Dictionary<ChangeType, MustBeOrderedList<ItemInfo>>();
+
+            foreach (var item in items)
+            {
+                if (result.TryGetValue(item.Item.Effect.ChangeType, out var list))
+                {
+                    list.Add(item);
+                }
+                else
+                {
+                    result[item.Item.Effect.ChangeType] = new MustBeOrderedList<ItemInfo> {item};
+                }
+            }
+
+            return result;
+        }
+
+        private MustBeOrderedList<ItemInfo> TakeBest(int count, MustBeOrderedList<ItemInfo> items)
+        {
+            var result = new MustBeOrderedList<ItemInfo>();
+            foreach (var item in items)
+            {
+                if (item.Count >= count)
+                {
+                    result.Add(new ItemInfo(item.Item, count));
+                    break;
+                }
+
+                result.Add(item);
+                count -= item.Count;
+            }
+
+            return result;
+        }
+
+        private bool DetectUseSet(StructFlag<StatsProperty> prop,
+            IDictionary<ChangeType, MustBeOrderedList<ItemInfo>> items)
+        {
+            if (items.TryGetValue(ChangeType.Set, out var setItems))
+            {
+                // Returns is best "set" item better than BaseStats
+                return StatsEffect.Compare(prop, _user.Info.BaseStats, TakeBest(1, setItems).First().Item.Effect) == 1;
+            }
+
+            return false;
+        }
+
+        private List<ItemInfo> ActivateItems(StructFlag<StatsProperty> prop, MustBeOrderedList<ItemInfo> items)
+        {
+            var limit = ActiveProportions[prop];
+            var groups = GroupByChangeType(items);
+            var useSet = DetectUseSet(prop, groups);
+
+            var max = limit;
+            if (useSet)
+            {
+                max--;
+            }
+
+            var selectedItems = new List<ItemInfo>();
+            if (useSet)
+            {
+                selectedItems.AddRange(TakeBest(1, groups[ChangeType.Set]));
+            }
+
+            if (!groups.ContainsKey(ChangeType.Add) && !groups.ContainsKey(ChangeType.Multiply))
+            {
+                // No multiplication and addition. Only set, maybe.
+                // So just do nothing, because DetectUseSet() will handle set.
+                return selectedItems;
+            }
+
+            if (!groups.ContainsKey(ChangeType.Add))
+            {
+                // Only multiplication (and set, maybe)
+                selectedItems.AddRange(TakeBest(max, groups[ChangeType.Multiply]));
+                return selectedItems;
+            }
+
+            if (!groups.ContainsKey(ChangeType.Multiply))
+            {
+                // Only addition (and set, maybe)
+                selectedItems.AddRange(TakeBest(max, groups[ChangeType.Add]));
+                return selectedItems;
+            }
+
+            // Both multiplication and addition (and set, maybe)
+            /*
+             * Наилучшая комбинация будет если сначала складывать, а потом умножать, т.к. (x + a) * b > (x * b) + a
+             * Этот алгоритм сначала пробует взять максимальное количество умножения,
+             * потом в каждой итерации добавляет одно сложение. В конце концов пробует только сложения.
+             * Работает за O(N^2), где N -- max (ActiveProportions[prop])
+             */
+            var selectedItemsBase = selectedItems.ToList();
+            var bestStats = _user.Info.BaseStats;
+            var bestItems = new List<ItemInfo>();
+            for (var addCount = 0; addCount < max; addCount++)
+            {
+                selectedItems = selectedItemsBase.ToList();
+
+                var mulCount = max - addCount;
+                selectedItems.AddRange(TakeBest(addCount, groups[ChangeType.Add]));
+                selectedItems.AddRange(TakeBest(mulCount, groups[ChangeType.Multiply]));
+
+                var currentStats = UserInfo.ApplyItems(_user.Info.BaseStats, selectedItems);
+
+                if (StatsEffect.Compare(prop, bestStats, currentStats) == 1)
+                {
+                    bestStats = currentStats;
+                    bestItems = selectedItems.ToList();
+                }
+            }
+
+            return bestItems;
         }
 
         internal void RecalculateActive()
         {
-            var items = _user.ItemManager.Items
-                .Where(i => i.Item.Effect != null) // Only items that have any effect
-                .Select(i => new
-                {
-                    Item = i,
-                    Affects =
-                        new StructFlag<StatsProperty>(i.Item.Effect.Effect.Keys) // See what stats this item affects
-                })
-                .Where(i => ActiveProportions.ContainsKey(i.Affects)) // Only effects that needed
-                .GroupBy(i => i.Affects) // Group so we can sort each group by corresponding stats
-                .Select(g => new
-                {
-                    g.Key,
-                    Items = g
-                        .OrderBy(i => i.Item.Item.Effect,
-                            StatsEffect.CreateComparer(g.Key, _user.Info.BaseStats)) // Order items
-                        .Select(i => i.Item) // Anonymous class not needed anymore
-                });
-
-            var remains = new Dictionary<Flag<StatsProperty>, int>(_activeProportions);
-
-            var result = new List<ItemInfo>();
-            foreach (var group in items)
-            foreach (var item in group.Items)
+            var items = FindAvailableItems();
+            var byStats = GroupByStats(items);
+            foreach (var keyValuePair in byStats)
             {
-                var taken = Math.Min(remains[group.Key], item.Count);
-                if (taken == 0)
-                {
-                    continue;
-                }
-
-                remains[group.Key] -= taken;
-                var added = item.Clone();
-                added.Count = taken;
-                result.Add(added);
+                _activeItems = ActivateItems(keyValuePair.Key, keyValuePair.Value);
             }
 
-            _activeItems = result;
             _user.Info.RecalculateStats();
+        }
+
+        private class MustBeOrderedList<T> : IOrderedEnumerable<T>, IList<T>
+        {
+            private readonly IList<T> _listImplementation;
+
+            public MustBeOrderedList(IOrderedEnumerable<T> enumerable)
+            {
+                _listImplementation = enumerable.ToList();
+            }
+
+            public MustBeOrderedList()
+            {
+                _listImplementation = new List<T>();
+            }
+
+            public void Add(T item)
+            {
+                _listImplementation.Add(item);
+            }
+
+            public void Clear()
+            {
+                _listImplementation.Clear();
+            }
+
+            public bool Contains(T item)
+            {
+                return _listImplementation.Contains(item);
+            }
+
+            public void CopyTo(T[] array, int arrayIndex)
+            {
+                _listImplementation.CopyTo(array, arrayIndex);
+            }
+
+            public bool Remove(T item)
+            {
+                return _listImplementation.Remove(item);
+            }
+
+            public int Count => _listImplementation.Count;
+
+            public bool IsReadOnly => _listImplementation.IsReadOnly;
+
+            public int IndexOf(T item)
+            {
+                return _listImplementation.IndexOf(item);
+            }
+
+            public void Insert(int index, T item)
+            {
+                _listImplementation.Insert(index, item);
+            }
+
+            public void RemoveAt(int index)
+            {
+                _listImplementation.RemoveAt(index);
+            }
+
+            public T this[int index]
+            {
+                get => _listImplementation[index];
+                set => _listImplementation[index] = value;
+            }
+
+            public IOrderedEnumerable<T> CreateOrderedEnumerable<TKey>(Func<T, TKey> keySelector,
+                IComparer<TKey> comparer, bool descending)
+            {
+                return descending
+                    ? _listImplementation.OrderByDescending(keySelector, comparer)
+                    : _listImplementation.OrderBy(keySelector, comparer);
+            }
+
+            public IEnumerator<T> GetEnumerator()
+            {
+                return _listImplementation.GetEnumerator();
+            }
+
+            IEnumerator IEnumerable.GetEnumerator()
+            {
+                return ((IEnumerable) _listImplementation).GetEnumerator();
+            }
         }
     }
 }

@@ -48,10 +48,9 @@ namespace BotTests
         [Fact]
         public void CompareDifferent()
         {
-            var stats = new Stats();
-            var props = new Flag<StatsProperty>(StatsProperty.Health);
+            var props = new StructFlag<StatsProperty>(StatsProperty.Health);
 
-            var comparer = StatsEffect.CreateComparer(props, stats);
+            var comparer = StatsEffect.CreateComparer(props);
 
             // Bigger
             var a = new StatsEffect(ChangeType.Add, new Dictionary<StatsProperty, decimal>
@@ -67,18 +66,16 @@ namespace BotTests
 
             // Bigger first
             Assert.Equal(-1, comparer.Compare(a, b));
-            Assert.Equal(-1, StatsEffect.Compare(props, stats, a, b));
+            Assert.Equal(-1, StatsEffect.Compare(props, a, b));
 
             // Smaller first
             Assert.Equal(1, comparer.Compare(b, a));
-            Assert.Equal(1, StatsEffect.Compare(props, stats, b, a));
+            Assert.Equal(1, StatsEffect.Compare(props, b, a));
         }
 
         [Fact]
         public void CompareDifferentProperties()
         {
-            var stats = new Stats();
-
             // Bigger by health, smaller by mana, equal by intelligence
             var a = new StatsEffect(ChangeType.Add, new Dictionary<StatsProperty, decimal>
             {
@@ -95,23 +92,23 @@ namespace BotTests
                 {StatsProperty.Intelligence, 1}
             });
 
-            var health = new Flag<StatsProperty>(StatsProperty.Health);
-            Assert.Equal(-1, StatsEffect.Compare(health, stats, a, b));
+            var health = new StructFlag<StatsProperty>(StatsProperty.Health);
+            Assert.Equal(-1, StatsEffect.Compare(health, a, b));
 
-            var mana = new Flag<StatsProperty>(StatsProperty.Mana);
-            Assert.Equal(1, StatsEffect.Compare(mana, stats, a, b));
+            var mana = new StructFlag<StatsProperty>(StatsProperty.Mana);
+            Assert.Equal(1, StatsEffect.Compare(mana, a, b));
 
-            var intelligence = new Flag<StatsProperty>(StatsProperty.Intelligence);
-            Assert.Equal(0, StatsEffect.Compare(intelligence, stats, a, b));
+            var intelligence = new StructFlag<StatsProperty>(StatsProperty.Intelligence);
+            Assert.Equal(0, StatsEffect.Compare(intelligence, a, b));
         }
 
         [Fact]
         public void CompareSame()
         {
             var stats = new Stats();
-            var props = new Flag<StatsProperty>(StatsProperty.Health);
+            var props = new StructFlag<StatsProperty>(StatsProperty.Health);
 
-            var comparer = StatsEffect.CreateComparer(props, stats);
+            var comparer = StatsEffect.CreateComparer(props);
 
             var a = new StatsEffect(ChangeType.Add, new Dictionary<StatsProperty, decimal>
             {
@@ -123,7 +120,7 @@ namespace BotTests
             });
 
             Assert.Equal(0, comparer.Compare(a, b));
-            Assert.Equal(0, StatsEffect.Compare(props, stats, a, b));
+            Assert.Equal(0, StatsEffect.Compare(props, a, b));
         }
     }
 }

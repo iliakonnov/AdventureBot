@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using AdventureBot.Analysis;
+using AdventureBot.Item;
 using AdventureBot.User.Stats;
 using MessagePack;
 
@@ -75,20 +76,23 @@ namespace AdventureBot.User
         /// </summary>
         internal void RecalculateStats()
         {
-            CurrentStats = ApplyItems(new Stats.Stats(BaseStats.Effect));
+            CurrentStats = ApplyItems(new Stats.Stats(BaseStats.Effect), _user.ActiveItemsManager.ActiveItems);
         }
 
-        private Stats.Stats ApplyItems(StatsEffect stats)
+        internal static Stats.Stats ApplyItems(StatsEffect stats, IEnumerable<ItemInfo> activeItems)
         {
             var result = new Stats.Stats(stats.Effect);
-            foreach (var item in _user.ActiveItemsManager.ActiveItems)
+            foreach (var item in activeItems)
             {
                 if (item.Item.Effect == null)
                 {
                     continue;
                 }
 
-                result = result.Apply(item.Item.Effect);
+                for (var i = 0; i < item.Count; i++)
+                {
+                    result = result.Apply(item.Item.Effect);
+                }
             }
 
             return result;
@@ -123,7 +127,7 @@ namespace AdventureBot.User
             {
                 // При понижении статов, нужно проверять с учетом предметов.
                 // (базовое здоровье может быть меньше нуля, т.к. предметы тебя спасут)
-                var changed = ApplyItems(changedBase);
+                var changed = ApplyItems(changedBase, _user.ActiveItemsManager.ActiveItems);
                 var newValue = changed.Effect[property];
                 if (!allowLess && newValue < 0)
                 {

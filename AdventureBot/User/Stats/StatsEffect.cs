@@ -35,23 +35,20 @@ namespace AdventureBot.User.Stats
 
         public IReadOnlyDictionary<StatsProperty, decimal> Effect { get; }
 
-        public static int Compare(Flag<StatsProperty> props, Stats userStats, StatsEffect self, StatsEffect other)
+        public static int Compare(StructFlag<StatsProperty> props, StatsEffect self, StatsEffect other)
         {
             var result = 0m;
-            var selfAffected = userStats.Apply(self);
-            var otherAffected = userStats.Apply(other);
             foreach (var property in props.Values)
             {
-                result += otherAffected.Effect.GetValueOrDefault(property, 0) -
-                          selfAffected.Effect.GetValueOrDefault(property, 0);
+                result += other.Effect.GetValueOrDefault(property) - self.Effect.GetValueOrDefault(property);
             }
 
             return Math.Sign(result);
         }
 
-        public static IComparer<StatsEffect> CreateComparer(Flag<StatsProperty> props, Stats userStats)
+        public static IComparer<StatsEffect> CreateComparer(StructFlag<StatsProperty> props)
         {
-            return Comparer<StatsEffect>.Create((a, b) => Compare(props, userStats, a, b));
+            return Comparer<StatsEffect>.Create((a, b) => Compare(props, a, b));
         }
     }
 }

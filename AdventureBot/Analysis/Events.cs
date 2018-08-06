@@ -2,6 +2,7 @@
 using System.Linq;
 using AdventureBot.Messenger;
 using JetBrains.Annotations;
+using Microsoft.Extensions.Configuration;
 using NLog;
 using Yandex.Metrica;
 
@@ -10,6 +11,14 @@ namespace AdventureBot.Analysis
     public class Events
     {
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
+
+        static Events()
+        {
+            var metrika = Configuration.Config.GetSection("metrika");
+            YandexMetricaFolder.SetCurrent(metrika.GetValue<string>("folder"));
+            YandexMetrica.Config.CrashTracking = true;
+            YandexMetrica.Activate(metrika.GetValue<string>("token"));
+        }
 
         private static void Report(User.User user, string eventName, IEnumerable<KeyValuePair<string, string>> dict)
         {

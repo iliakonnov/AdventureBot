@@ -34,7 +34,7 @@ namespace AdventureBot.ObjectManager
             var scope = engine.CreateScope();
             engine.Runtime.LoadAssembly(Assembly.GetExecutingAssembly());
 
-            engine.Execute($"import os\nos.chdir(r'{path}')");
+            engine.SetSearchPaths(new[] {path});
 
             engine.ExecuteFile(Path.Combine(path, "module_loader.py"), scope);
             var loaded =

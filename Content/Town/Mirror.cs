@@ -144,12 +144,12 @@ namespace Content.Town
             var reverse = Stats.Emojis.ToDictionary(kv => kv.Value, kv => kv.Key);
             var changed = false;
 
-            var flag = new Flag<StatsProperty>();
+            var flag = new StructFlag<StatsProperty>();
             foreach (var propEmoji in splitted[0].Split(','))
             {
                 if (reverse.TryGetValue(propEmoji, out var prop))
                 {
-                    flag |= new Flag<StatsProperty>(prop);
+                    flag |= new StructFlag<StatsProperty>(prop);
                 }
             }
 

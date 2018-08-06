@@ -1,12 +1,7 @@
-﻿using Microsoft.Extensions.Configuration;
-
-namespace AdventureBot.Analysis
+﻿namespace AdventureBot.Analysis
 {
     internal static class Utils
     {
-        public static string
-            Token = Configuration.Config.GetValue<string>("chatbase_token"); // "f39a97d0-6e29-441c-b24d-607ca86eedb8"
-
         public static string GetPlatform(int messengerId)
         {
             string platform;

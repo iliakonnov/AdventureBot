@@ -7,10 +7,8 @@ using AdventureBot.Messenger;
 using AdventureBot.ObjectManager;
 using AdventureBot.Room;
 using IronPython.Hosting;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Scripting.Hosting.Shell;
 using NLog;
-using Yandex.Metrica;
 
 namespace AdventureBot
 {
@@ -21,12 +19,6 @@ namespace AdventureBot
         private static void Main(string[] args)
         {
             Logger.Debug("Loading...");
-
-            var metrika = Configuration.Config.GetSection("metrika");
-            YandexMetricaFolder.SetCurrent(metrika.GetValue<string>("folder"));
-            YandexMetrica.Config.CrashTracking = true;
-            YandexMetrica.Activate(metrika.GetValue<string>("token"));
-
 
             ObjectManager<IRoom>.Instance.RegisterManager<RoomManager>();
             ObjectManager<IItem>.Instance.RegisterManager<ItemManager>();
