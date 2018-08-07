@@ -3,7 +3,6 @@ using System.Net;
 using System.Threading.Tasks;
 using AdventureBot;
 using AdventureBot.Messenger;
-using AdventureBot.ObjectManager;
 using MihaZupan;
 using NLog;
 using Telegram.Bot;
@@ -12,10 +11,10 @@ using Telegram.Bot.Exceptions;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
 using Yandex.Metrica;
+using ChatId = Telegram.Bot.Types.ChatId;
 
 namespace Telegram
 {
-    [GameObject]
     internal class TelegramBot
     {
         private const int MessengerId = 1;
@@ -164,11 +163,20 @@ namespace Telegram
             }
         }
 
-        private void MessageRecivedHandler(object sender, MessageEventArgs args)
+        private async void MessageRecivedHandler(object sender, MessageEventArgs args)
         {
             RecivedMessage message = null;
 
-            var replyId = args.Message.Chat.Type != ChatType.Private ? (int?) args.Message.From.Id : null;
+            int? replyId;
+            if (args.Message.Chat.Type != ChatType.Private)
+            {
+                replyId = args.Message.From.Id;
+            }
+            else
+            {
+                await _bot.SendChatActionAsync(new ChatId(args.Message.Chat.Id), ChatAction.Typing);
+                replyId = null;
+            }
 
             switch (args.Message.Type)
             {
@@ -178,7 +186,7 @@ namespace Telegram
                     {
                         message = new RecivedMessage
                         {
-                            ChatId = new ChatId(MessengerId, args.Message.Chat.Id),
+                            ChatId = new AdventureBot.ChatId(MessengerId, args.Message.Chat.Id),
                             UserId = new UserId(MessengerId, args.Message.From.Id),
                             Text = "Available bots:",
                             Action = (msg, user) => Messenger.ListBots(user),
@@ -189,7 +197,7 @@ namespace Telegram
                     {
                         message = new RecivedMessage
                         {
-                            ChatId = new ChatId(MessengerId, args.Message.Chat.Id),
+                            ChatId = new AdventureBot.ChatId(MessengerId, args.Message.Chat.Id),
                             UserId = new UserId(MessengerId, args.Message.From.Id),
                             Text = args.Message.Text,
                             ReplyUserId = replyId
@@ -208,7 +216,7 @@ namespace Telegram
                             {
                                 message = new RecivedMessage
                                 {
-                                    ChatId = new ChatId(MessengerId, args.Message.Chat.Id),
+                                    ChatId = new AdventureBot.ChatId(MessengerId, args.Message.Chat.Id),
                                     UserId = new UserId(MessengerId, args.Message.From.Id),
                                     Text = $"Hello, bot {member.Username}",
                                     ReplyUserId = replyId,
@@ -221,7 +229,7 @@ namespace Telegram
                             // Looks like new player
                             message = new RecivedMessage
                             {
-                                ChatId = new ChatId(MessengerId, args.Message.Chat.Id),
+                                ChatId = new AdventureBot.ChatId(MessengerId, args.Message.Chat.Id),
                                 UserId = new UserId(MessengerId, args.Message.From.Id),
                                 Text = $"Hello, player {member.Username}",
                                 ReplyUserId = replyId,
@@ -239,7 +247,7 @@ namespace Telegram
                     {
                         message = new RecivedMessage
                         {
-                            ChatId = new ChatId(MessengerId, args.Message.Chat.Id),
+                            ChatId = new AdventureBot.ChatId(MessengerId, args.Message.Chat.Id),
                             UserId = new UserId(MessengerId, args.Message.From.Id),
                             Text = $"Goodbye, {member.Username}",
                             ReplyUserId = replyId,

@@ -6,7 +6,6 @@ using AdventureBot;
 using AdventureBot.Messenger;
 using AdventureBot.User;
 using JetBrains.Annotations;
-using Microsoft.Extensions.Logging;
 using NLog;
 using Yandex.Metrica;
 
@@ -33,8 +32,8 @@ namespace Telegram
         // }
 
         private const string RootVariable = "Telegram.Messenger/available_messengers";
-        private readonly TelegramBot _defaultMessenger;
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
+        private readonly TelegramBot _defaultMessenger;
         private readonly List<TelegramBot> _messengers;
         internal readonly ImmutableHashSet<int> MessengerIds;
 
