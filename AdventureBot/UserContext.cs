@@ -7,29 +7,30 @@ namespace AdventureBot
     public class UserContext : IDisposable
     {
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
-        private readonly User.User _user;
         private DateTime _opened;
         private Timer _timer;
 
         public UserContext(UserId userId)
         {
-            _user = UserManager.Instance.Get(userId);
+            User = UserManager.Instance.Get(userId);
             InitializeTimer();
         }
 
         public UserContext(UserId userId, ChatId chatId)
         {
             Logger.Debug($"Opening user {userId}@{chatId}");
-            _user = UserManager.Instance.Get(userId);
-            _user.MessageManager.ChatId = chatId;
+            User = UserManager.Instance.Get(userId);
+            User.MessageManager.ChatId = chatId;
             InitializeTimer();
         }
+
+        public User.User User { get; }
 
         public void Dispose()
         {
             Logger.Debug($"User closed in {DateTime.Now - _opened}");
             _timer.Stop();
-            UserManager.Instance.Save(_user);
+            UserManager.Instance.Save(User);
             _timer.Dispose();
         }
 
@@ -52,7 +53,7 @@ namespace AdventureBot
 
         public static implicit operator User.User(UserContext userContext)
         {
-            return userContext._user;
+            return userContext.User;
         }
     }
 }

@@ -5,6 +5,7 @@ using System.Data;
 using System.Linq;
 using System.Threading;
 using MessagePack;
+using MessagePack.Formatters;
 using MessagePack.ImmutableCollection;
 using MessagePack.Resolvers;
 using Mono.Data.Sqlite;
@@ -15,6 +16,8 @@ namespace AdventureBot
 {
     public class UserManager : Singleton<UserManager>
     {
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
+
         private readonly ConcurrentDictionary<UserId, CachedUser> _cache =
             new ConcurrentDictionary<UserId, CachedUser>();
 
@@ -25,7 +28,6 @@ namespace AdventureBot
         private readonly Timer _flushTimer;
 
         private readonly DecreaseCounter _loadedUsers = new DecreaseCounter();
-        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
         private DateTime _lastFlushed = DateTime.Now;
         private bool _toFlush;
 
@@ -38,7 +40,6 @@ namespace AdventureBot
                 StandardResolverAllowPrivate.Instance
             );
 
-            // SQLitePCL.Batteries.Init();
             _connectionString = $"Data Source = {Configuration.Config["database"]};";
 
             using (var connection = new SqliteConnection(_connectionString))
@@ -136,6 +137,39 @@ namespace AdventureBot
             return new CachedUser();
         }
 
+        public List<UserId> GetUsersList(int? messengerId = null)
+        {
+            var result = new List<UserId>();
+
+            lock (_databaseLock)
+            {
+                using (var connection = new SqliteConnection(_connectionString))
+                using (var command = connection.CreateCommand())
+                {
+                    connection.Open();
+                    using (var transaction = connection.BeginTransaction())
+                    {
+                        command.Transaction = transaction;
+                        command.CommandText =
+                            "SELECT id, messenger FROM users WHERE (@messenger is null or messenger = @messenger)";
+                        command.Parameters.AddWithValue("@messenger", messengerId);
+
+                        using (var reader = command.ExecuteReader())
+                        {
+                            var idPos = reader.GetOrdinal("id");
+                            var messengerPos = reader.GetOrdinal("messenger");
+                            while (reader.Read())
+                            {
+                                result.Add(new UserId(reader.GetInt32(messengerPos), reader.GetInt64(idPos)));
+                            }
+                        }
+                    }
+                }
+            }
+
+            return result;
+        }
+
         /// <summary>
         ///     Loads user with given user_id. Returns null if user not found
         /// </summary>
@@ -168,15 +202,17 @@ namespace AdventureBot
 
                         using (var reader = command.ExecuteReader())
                         {
+                            var dataPos = reader.GetOrdinal("data");
                             while (reader.Read())
                             {
-                                if (reader["data"] == null || Convert.IsDBNull(reader["data"]))
+                                var value = reader[dataPos];
+                                if (value == null || Convert.IsDBNull(value))
                                 {
                                     continue;
                                 }
 
                                 // Loads user from database and saves it to cache
-                                var userdata = (byte[]) reader["data"];
+                                var userdata = (byte[]) value;
                                 var user = MessagePackSerializer.Deserialize<User.User>(userdata);
                                 cached.User = user;
                                 cached.User.Unsafe = !safe;

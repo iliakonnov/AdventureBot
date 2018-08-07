@@ -48,7 +48,10 @@ namespace AdventureBot
 
             var commandLine = new PythonCommandLine();
             var engine = Python.CreateEngine();
-            engine.Runtime.LoadAssembly(Assembly.GetExecutingAssembly());
+            foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
+            {
+                engine.Runtime.LoadAssembly(assembly);
+            }
             commandLine.Run(engine, new SuperConsole(commandLine, true), new PythonConsoleOptions
             {
                 AutoIndent = true,
