@@ -168,7 +168,11 @@ namespace AdventureBot.User
 
         private List<ItemInfo> ActivateItems(StructFlag<StatsProperty> prop, MustBeOrderedList<ItemInfo> items)
         {
-            var limit = ActiveProportions[prop];
+            if (!ActiveProportions.TryGetValue(prop, out var limit))
+            {
+                return new List<ItemInfo>();
+            }
+            
             var groups = GroupByChangeType(items);
             var useSet = DetectUseSet(prop, groups);
 
