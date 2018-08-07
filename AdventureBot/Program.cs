@@ -2,6 +2,7 @@
 using System.IO;
 using System.Reflection;
 using System.Threading;
+using AdventureBot.Analysis;
 using AdventureBot.Item;
 using AdventureBot.Messenger;
 using AdventureBot.ObjectManager;
@@ -18,6 +19,8 @@ namespace AdventureBot
 
         private static void Main(string[] args)
         {
+            Events.Start();
+            
             Logger.Debug("Loading...");
 
             ObjectManager<IRoom>.Instance.RegisterManager<RoomManager>();

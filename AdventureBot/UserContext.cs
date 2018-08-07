@@ -9,28 +9,54 @@ namespace AdventureBot
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
         private DateTime _opened;
         private Timer _timer;
+        private User.User _unlinked = null;
 
         public UserContext(UserId userId)
         {
-            User = UserManager.Instance.Get(userId);
-            InitializeTimer();
+            LoadUser(userId);
         }
 
         public UserContext(UserId userId, ChatId chatId)
         {
-            Logger.Debug($"Opening user {userId}@{chatId}");
-            User = UserManager.Instance.Get(userId);
+            LoadUser(userId);
             User.MessageManager.ChatId = chatId;
+        }
+
+        private void LoadUser(UserId userId)
+        {
+            Logger.Debug($"Opening user {userId}");
+            User = UserManager.Instance.Get(userId);
+            if (User.LinkedTo != null)
+            {
+                _unlinked = User;
+                // Load user not through UserContext, because it can be linked to other user and so on.
+                User = UserManager.Instance.Get(_unlinked.LinkedTo.Item1);
+                if (User.Token != _unlinked.LinkedTo.Item2)
+                {
+                    // Token was revoked, so unlink this user
+                    Unlink();
+                }
+            }
             InitializeTimer();
         }
 
-        public User.User User { get; }
+        internal void Unlink()
+        {
+            _unlinked.LinkedTo = null;
+            User = _unlinked;
+        }
+
+        public User.User User { get; private set; }
 
         public void Dispose()
         {
             Logger.Debug($"User closed in {DateTime.Now - _opened}");
             _timer.Stop();
             UserManager.Instance.Save(User);
+            if (_unlinked != null)
+            {
+                UserManager.Instance.Save(_unlinked);
+            }
             _timer.Dispose();
         }
 

@@ -8,7 +8,7 @@ using Yandex.Metrica;
 
 namespace AdventureBot.Analysis
 {
-    public class Events
+    public static class Events
     {
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
@@ -18,6 +18,11 @@ namespace AdventureBot.Analysis
             YandexMetricaFolder.SetCurrent(metrika.GetValue<string>("folder"));
             YandexMetrica.Config.CrashTracking = true;
             YandexMetrica.Activate(metrika.GetValue<string>("token"));
+        }
+
+        internal static void Start()
+        {
+            // Needs just to initialize constructor
         }
 
         private static void Report(User.User user, string eventName, IEnumerable<KeyValuePair<string, string>> dict)
