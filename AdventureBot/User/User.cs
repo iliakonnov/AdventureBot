@@ -17,7 +17,8 @@ namespace AdventureBot.User
         [UsedImplicitly]
         [SerializationConstructor]
         public User(ItemManager itemManager, ActiveItemsManager activeItemsManager, UserInfo info,
-            VariableManager variableManager, RoomManager roomManager, MessageManager messageManager, Guid token, Tuple<UserId, Guid> linkedTo)
+            VariableManager variableManager, RoomManager roomManager, MessageManager messageManager, Guid token,
+            Tuple<UserId, Guid> linkedTo)
         {
             ItemManager = itemManager;
             ItemManager._user = this;
@@ -35,7 +36,7 @@ namespace AdventureBot.User
             MessageManager._user = this;
 
             VariableManager = variableManager;
-            
+
             Token = token;
             LinkedTo = linkedTo;
         }
@@ -73,8 +74,8 @@ namespace AdventureBot.User
         public MessageManager MessageManager { get; private set; }
 
         [IgnoreMember] internal bool Unsafe { get; set; }
-        
-        internal Guid Token { get; set; } = Guid.Empty;
+
+        public Guid Token { get; set; } = Guid.Empty;
         internal Tuple<UserId, Guid> LinkedTo { get; set; }
 
         private void Reset(UserId userId)

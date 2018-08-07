@@ -5,7 +5,6 @@ using System.Data;
 using System.Linq;
 using System.Threading;
 using MessagePack;
-using MessagePack.Formatters;
 using MessagePack.ImmutableCollection;
 using MessagePack.Resolvers;
 using Mono.Data.Sqlite;
@@ -295,7 +294,7 @@ namespace AdventureBot
                             "INSERT OR REPLACE INTO users (messenger, id, data) VALUES (@messenger, @user_id, @data)";
 
                         var messengerParam = command.Parameters.Add("@messenger", DbType.Int32);
-                        var idParam = command.Parameters.Add("@user_id", DbType.Int32);
+                        var idParam = command.Parameters.Add("@user_id", DbType.Int64);
                         var dataParam = command.Parameters.Add("@data", DbType.Binary);
 
                         foreach (var user in users)
