@@ -172,7 +172,7 @@ namespace AdventureBot.User
             {
                 return new List<ItemInfo>();
             }
-            
+
             var groups = GroupByChangeType(items);
             var useSet = DetectUseSet(prop, groups);
 
