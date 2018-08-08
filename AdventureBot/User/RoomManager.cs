@@ -68,16 +68,26 @@ namespace AdventureBot.User
             Go(roomIdentifier, true);
         }
 
-        internal void Leave(bool doReturn = true)
+        internal void Leave(bool doReturn = true, bool checkLeave = true)
         {
-            var allowLeave = GetRoom()?.OnLeave(User);
-            if (allowLeave == false)
+            if (checkLeave)
             {
-                return;
+                var allowLeave = GetRoom()?.OnLeave(User);
+                if (allowLeave == false)
+                {
+                    return;
+                }
             }
 
-            CurrentRoom = Rooms.Pop();
-            User.MessageManager.ShownStats = CurrentRoom?.ShownStats ?? ShownStats.Default;
+            if (Rooms.Count != 0)
+            {
+                CurrentRoom = Rooms.Pop();
+                User.MessageManager.ShownStats = CurrentRoom?.ShownStats ?? ShownStats.Default;
+            }
+            else
+            {
+                CurrentRoom = null;
+            }
 
             User.ItemManager.OnLeave();
 

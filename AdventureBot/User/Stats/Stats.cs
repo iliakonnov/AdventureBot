@@ -17,7 +17,8 @@ namespace AdventureBot.User.Stats
                 {StatsProperty.Stamina, 100},
                 {StatsProperty.Intelligence, 10},
                 {StatsProperty.Strength, 10},
-                {StatsProperty.Defence, 10}
+                {StatsProperty.Defence, 10},
+                {StatsProperty.Karma, 0}
             };
 
         public static readonly IReadOnlyDictionary<StatsProperty, string> Emojis =
@@ -29,7 +30,8 @@ namespace AdventureBot.User.Stats
                     {StatsProperty.Mana, "🌀"},
                     {StatsProperty.Stamina, "⚡️"},
                     {StatsProperty.Strength, "💪"},
-                    {StatsProperty.Defence, "🛡️"}
+                    {StatsProperty.Defence, "🛡️"},
+                    {StatsProperty.Karma, "☯"}
                 }
             );
 

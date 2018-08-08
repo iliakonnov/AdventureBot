@@ -24,8 +24,9 @@ namespace AdventureBot.Room
             base.OnEnter(user);
 
             var variables = GetRoomVariables(user);
-            variables.Set("old_hp", new Serializable.Decimal(Health));
-            variables.Set("hp", new Serializable.Decimal(Health));
+            var hp = Health - user.Info.KarmaEffect(Health);
+            variables.Set("old_hp", new Serializable.Decimal(hp));
+            variables.Set("hp", new Serializable.Decimal(hp));
 
             var buttons = GetActions(user);
             Enter(user, buttons);
@@ -88,6 +89,7 @@ namespace AdventureBot.Room
             }
 
             var dmg = GetDamage(user);
+            dmg -= user.Info.KarmaEffect(dmg);
             SendMessage(
                 user,
                 $"Монстр бьет вас и вам становится нехоршо. Аж на {dmg} единиц здоровья хуже.",

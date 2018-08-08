@@ -95,6 +95,9 @@ namespace Content.Town
                     case StatsProperty.Defence:
                         stats.Append(" Защита");
                         break;
+                    case StatsProperty.Karma:
+                        stats.Append(" Карма");
+                        break;
                     default:
                         throw new ArgumentOutOfRangeException();
                 }

@@ -25,6 +25,7 @@ namespace AdventureBot.User
         Intelligence = 1 << 4,
         Strength = 1 << 5,
         Defence = 1 << 6,
+        Karma = 1 << 7,
 
         /// <summary>
         ///     Характеристики по-умолчанию.
@@ -213,6 +214,12 @@ namespace AdventureBot.User
                     case ShownStats.Defence:
                     {
                         const StatsProperty prop = StatsProperty.Defence;
+                        stats.Append($" {Stats.Stats.Emojis[prop]}{User.Info.CurrentStats.Effect[prop]:F2}");
+                        break;
+                    }
+                    case ShownStats.Karma:
+                    {
+                        const StatsProperty prop = StatsProperty.Karma;
                         stats.Append($" {Stats.Stats.Emojis[prop]}{User.Info.CurrentStats.Effect[prop]:F2}");
                         break;
                     }

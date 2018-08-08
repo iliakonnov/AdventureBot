@@ -2,6 +2,7 @@
 using System.Collections.ObjectModel;
 using AdventureBot.Analysis;
 using AdventureBot.Item;
+using AdventureBot.Messenger;
 using AdventureBot.User.Stats;
 using MessagePack;
 
@@ -30,7 +31,20 @@ namespace AdventureBot.User
                     {StatsProperty.Stamina, 100},
                     {StatsProperty.Intelligence, 100},
                     {StatsProperty.Strength, 100},
-                    {StatsProperty.Defence, 100}
+                    {StatsProperty.Defence, 100},
+                    {StatsProperty.Karma, 100}
+                }
+            ));
+            MinStats = new Stats.Stats(new ReadOnlyDictionary<StatsProperty, decimal>(
+                new Dictionary<StatsProperty, decimal>
+                {
+                    {StatsProperty.Health, 0},
+                    {StatsProperty.Mana, 0},
+                    {StatsProperty.Stamina, 0},
+                    {StatsProperty.Intelligence, 0},
+                    {StatsProperty.Strength, 0},
+                    {StatsProperty.Defence, 0},
+                    {StatsProperty.Karma, -100}
                 }
             ));
             BaseStats = new Stats.Stats(new ReadOnlyDictionary<StatsProperty, decimal>(
@@ -70,6 +84,11 @@ namespace AdventureBot.User
         ///     Максимально возможные характеристики (базовые). Характеристики с эффектами от бонусов могут быть больше.
         /// </summary>
         public Stats.Stats MaxStats { get; set; }
+
+        /// <summary>
+        ///     Минимально возможные характеристики (базовые).
+        /// </summary>
+        public Stats.Stats MinStats { get; set; }
 
         /// <summary>
         ///     Перерасчитывает <see cref="CurrentStats" />, учитывая текущие активные предметы.
@@ -129,7 +148,7 @@ namespace AdventureBot.User
                 // (базовое здоровье может быть меньше нуля, т.к. предметы тебя спасут)
                 var changed = ApplyItems(changedBase, User.ActiveItemsManager.ActiveItems);
                 var newValue = changed.Effect[property];
-                if (!allowLess && newValue < 0)
+                if (!allowLess && newValue < MinStats.Effect[property])
                 {
                     return false;
                 }
@@ -173,8 +192,27 @@ namespace AdventureBot.User
         /// </summary>
         public void Kill()
         {
+            if (CurrentStats.Effect[StatsProperty.Karma] == MaxStats.Effect[StatsProperty.Karma])
+            {
+                ChangeStats(ChangeType.Set, StatsProperty.Karma, MinStats.Effect[StatsProperty.Karma]);
+                while (User.RoomManager.CurrentRoom?.Identifier != "town")
+                {
+                    // Leaving all rooms until town, without calling OnLeave and OnReturn
+                    User.RoomManager.Leave(false, false);
+                }
+
+                User.MessageManager.SendMessage(new SentMessage
+                {
+                    Text = "Такой хороший человек не может так просто умереть"
+                });
+
+                // Now we need to "Enter" town to send message and update buttons
+                User.RoomManager.GetRoom()?.OnEnter(User);
+                return;
+            }
+
             Events.Dead(User);
-            ChangeStats(ChangeType.Set, StatsProperty.Health, 0);
+            ChangeStats(ChangeType.Set, StatsProperty.Health, MinStats.Effect[StatsProperty.Health]);
             Dead = true;
             User.RoomManager.Go("_root", false);
         }
@@ -204,10 +242,18 @@ namespace AdventureBot.User
 
             value *= -(19m / (CurrentStats.Effect[StatsProperty.Defence] + 19m) + 0.05m);
             ChangeStats(ChangeType.Add, StatsProperty.Health, value, true);
-            if (CurrentStats.Effect[StatsProperty.Health] <= 0)
+            if (CurrentStats.Effect[StatsProperty.Health] <= MinStats.Effect[StatsProperty.Health])
             {
                 Kill();
             }
+        }
+
+        public decimal KarmaEffect(decimal value)
+        {
+            // 100 Karma = 15%
+            const decimal step = 0.15m / 100;
+            var percent = step * CurrentStats.Effect[StatsProperty.Karma];
+            return value * percent;
         }
     }
 }

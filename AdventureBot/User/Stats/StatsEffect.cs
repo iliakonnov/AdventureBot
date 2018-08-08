@@ -18,7 +18,8 @@ namespace AdventureBot.User.Stats
         Strength,
         Mana,
         Stamina,
-        Defence
+        Defence,
+        Karma
     }
 
     [MessagePackObject(true)]
