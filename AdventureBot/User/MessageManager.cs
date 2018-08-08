@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using AdventureBot.Messenger;
@@ -37,21 +38,24 @@ namespace AdventureBot.User
     {
         [Key(nameof(LastMessages))] internal readonly Queue<SentMessage> LastMessages = new Queue<SentMessage>();
         [Key("intent")] private string _intent;
-        [IgnoreMember] internal User _user;
 
         /// <summary>
         ///     Характеристики под сообщением.
         /// </summary>
         [Key(nameof(ShownStats))] public ShownStats ShownStats = ShownStats.Default;
 
+        [IgnoreMember] internal User User;
+
         public MessageManager(User user)
         {
-            _user = user;
-            if (_user.MessageManager != null)
+            User = user;
+            if (User.MessageManager == null)
             {
-                ChatId = _user.MessageManager.ChatId;
-                RecievedMessage = _user.MessageManager.RecievedMessage;
+                return;
             }
+
+            ChatId = User.MessageManager.ChatId;
+            RecievedMessage = User.MessageManager.RecievedMessage;
         }
 
         [Obsolete("This constructor for serializer only")]
@@ -60,8 +64,8 @@ namespace AdventureBot.User
         public MessageManager(List<SentMessage> queue, string[][] buttons, Queue<SentMessage> lastMessages,
             ChatId chatId, RecivedMessage recievedMessage, ShownStats shownStats, string intent)
         {
-            _queue = queue;
-            _buttons = buttons;
+            Queue = queue;
+            Buttons = buttons;
             RecievedMessage = recievedMessage;
             LastMessages = lastMessages;
             ChatId = chatId;
@@ -69,8 +73,8 @@ namespace AdventureBot.User
             _intent = intent;
         }
 
-        [Key("queue")] private List<SentMessage> _queue { get; } = new List<SentMessage>();
-        [Key("buttons")] private string[][] _buttons { get; set; }
+        [Key("queue")] private List<SentMessage> Queue { get; } = new List<SentMessage>();
+        [Key("buttons")] private string[][] Buttons { get; set; }
         [Key(nameof(RecievedMessage))] internal RecivedMessage RecievedMessage { get; set; }
 
 
@@ -85,10 +89,10 @@ namespace AdventureBot.User
         /// </summary>
         public void SendMessage(SentMessage message)
         {
-            _queue.Add(message);
+            Queue.Add(message);
             if (message.Buttons != null)
             {
-                _buttons = message.Buttons;
+                Buttons = message.Buttons;
             }
 
             if (message.Intent != null)
@@ -109,35 +113,33 @@ namespace AdventureBot.User
                 Buttons = message.Buttons,
                 Intent = message.Intent,
                 ChatId = ChatId
-            }, null, _user);
+            }, null, User);
         }
 
         internal void OnRecieved(RecivedMessage message)
         {
-            _user.ItemManager.OnMessage();
+            User.ItemManager.OnMessage();
 
-            var room = _user.RoomManager.GetRoom();
-            if (room == null)
+            var room = User.RoomManager.GetRoom();
+            switch (room)
             {
-                if (_user.RoomManager.Rooms.Count == 0)
-                {
+                case null when User.RoomManager.Rooms.Count == 0:
                     SendMessage(new SentMessage
                     {
                         Text = "Вы находитесь в *нигде*. Попробуйте /start, только это вам поможет"
                     });
-                }
-                else
-                {
+                    break;
+                case null:
                     SendMessage(new SentMessage
                     {
                         Text = "Такое чувство, что вы в несуществующей комнате! Попробуем вытащить вас отсюда."
                     });
-                    _user.RoomManager.Leave();
-                }
-            }
-            else
-            {
-                room.OnMessage(_user, message);
+                    User.RoomManager.Leave();
+                    break;
+                default:
+                    Debug.Assert(room != null, nameof(room) + " != null");
+                    room.OnMessage(User, message);
+                    break;
             }
         }
 
@@ -145,10 +147,10 @@ namespace AdventureBot.User
         {
             // Path
             var roomMgr = ObjectManager<IRoom>.Instance.Get<Room.RoomManager>();
-            var path = string.Join(">", _user.RoomManager.Rooms
+            var path = string.Join(">", User.RoomManager.Rooms
                 .Reverse()
                 .Select(room => roomMgr.Get(room.Identifier)?.Name)
-                .Concat(new[] {roomMgr.Get(_user.RoomManager.CurrentRoom?.Identifier)?.Name})
+                .Concat(new[] {roomMgr.Get(User.RoomManager.CurrentRoom?.Identifier)?.Name})
                 .Where(n => n != null)
             );
 
@@ -156,72 +158,74 @@ namespace AdventureBot.User
 
             foreach (ShownStats shownStat in Enum.GetValues(typeof(ShownStats)))
             {
-                if ((shownStat & ShownStats) != 0)
+                if ((shownStat & ShownStats) == 0)
                 {
-                    switch (shownStat)
-                    {
-                        case ShownStats.Health:
-                        {
-                            var heart = "♥️";
-                            var percent = _user.Info.CurrentStats.Effect[StatsProperty.Health] /
-                                          _user.Info.MaxStats.Effect[StatsProperty.Health];
-                            if (percent < 1m / 3)
-                            {
-                                heart = "🖤️"; // black
-                            }
-                            else if (percent < 2m / 3)
-                            {
-                                heart = "💛"; // yellow
-                            }
-                            else if (percent < 2m / 3)
-                            {
-                                heart = "❤️"; // red
-                            }
+                    continue;
+                }
 
-                            stats.Append($"{heart}{_user.Info.CurrentStats.Effect[StatsProperty.Health]:F2}");
-                            break;
-                        }
-                        case ShownStats.Intelligence:
+                switch (shownStat)
+                {
+                    case ShownStats.Health:
+                    {
+                        var heart = "♥️";
+                        var percent = User.Info.CurrentStats.Effect[StatsProperty.Health] /
+                                      User.Info.MaxStats.Effect[StatsProperty.Health];
+                        if (percent < 1m / 3)
                         {
-                            const StatsProperty prop = StatsProperty.Intelligence;
-                            stats.Append($" {Stats.Stats.Emojis[prop]}{_user.Info.CurrentStats.Effect[prop]:F2}");
-                            break;
+                            heart = "🖤️"; // black
                         }
-                        case ShownStats.Strength:
+                        else if (percent < 2m / 3)
                         {
-                            const StatsProperty prop = StatsProperty.Strength;
-                            stats.Append($" {Stats.Stats.Emojis[prop]}{_user.Info.CurrentStats.Effect[prop]:F2}");
-                            break;
+                            heart = "💛"; // yellow
                         }
-                        case ShownStats.Mana:
+                        else if (percent < 2m / 3)
                         {
-                            const StatsProperty prop = StatsProperty.Mana;
-                            stats.Append($" {Stats.Stats.Emojis[prop]}{_user.Info.CurrentStats.Effect[prop]:F2}");
-                            break;
+                            heart = "❤️"; // red
                         }
-                        case ShownStats.Stamina:
-                        {
-                            const StatsProperty prop = StatsProperty.Stamina;
-                            stats.Append($" {Stats.Stats.Emojis[prop]}{_user.Info.CurrentStats.Effect[prop]:F2}");
-                            break;
-                        }
-                        case ShownStats.Defence:
-                        {
-                            const StatsProperty prop = StatsProperty.Defence;
-                            stats.Append($" {Stats.Stats.Emojis[prop]}{_user.Info.CurrentStats.Effect[prop]:F2}");
-                            break;
-                        }
-                        case ShownStats.Gold:
-                        {
-                            stats.Append($" 💰{_user.Info.Gold:F2}");
-                            break;
-                        }
-                        case ShownStats.Default:
-                            break;
-                        default:
-                        {
-                            throw new ArgumentOutOfRangeException();
-                        }
+
+                        stats.Append($"{heart}{User.Info.CurrentStats.Effect[StatsProperty.Health]:F2}");
+                        break;
+                    }
+                    case ShownStats.Intelligence:
+                    {
+                        const StatsProperty prop = StatsProperty.Intelligence;
+                        stats.Append($" {Stats.Stats.Emojis[prop]}{User.Info.CurrentStats.Effect[prop]:F2}");
+                        break;
+                    }
+                    case ShownStats.Strength:
+                    {
+                        const StatsProperty prop = StatsProperty.Strength;
+                        stats.Append($" {Stats.Stats.Emojis[prop]}{User.Info.CurrentStats.Effect[prop]:F2}");
+                        break;
+                    }
+                    case ShownStats.Mana:
+                    {
+                        const StatsProperty prop = StatsProperty.Mana;
+                        stats.Append($" {Stats.Stats.Emojis[prop]}{User.Info.CurrentStats.Effect[prop]:F2}");
+                        break;
+                    }
+                    case ShownStats.Stamina:
+                    {
+                        const StatsProperty prop = StatsProperty.Stamina;
+                        stats.Append($" {Stats.Stats.Emojis[prop]}{User.Info.CurrentStats.Effect[prop]:F2}");
+                        break;
+                    }
+                    case ShownStats.Defence:
+                    {
+                        const StatsProperty prop = StatsProperty.Defence;
+                        stats.Append($" {Stats.Stats.Emojis[prop]}{User.Info.CurrentStats.Effect[prop]:F2}");
+                        break;
+                    }
+                    case ShownStats.Gold:
+                    {
+                        stats.Append($" 💰{User.Info.Gold:F2}");
+                        break;
+                    }
+                    case ShownStats.Default:
+                        break;
+                    default:
+                    {
+                        throw new ArgumentOutOfRangeException();
                     }
                 }
             }
@@ -235,12 +239,12 @@ namespace AdventureBot.User
 
         internal void Finish()
         {
-            if (_queue.Count == 0)
+            if (Queue.Count == 0)
             {
                 return;
             }
 
-            var totalText = AddInfo(_queue.Select(m => m.Text));
+            var totalText = AddInfo(Queue.Select(m => m.Text));
 
             if (string.IsNullOrWhiteSpace(totalText))
             {
@@ -250,18 +254,18 @@ namespace AdventureBot.User
             var message = new SentMessage
             {
                 Text = totalText,
-                Buttons = _buttons,
+                Buttons = Buttons,
                 ChatId = ChatId,
                 Intent = _intent
             };
 
-            var room = _user.RoomManager.Rooms.FirstOrDefault();
+            var room = User.RoomManager.Rooms.FirstOrDefault();
             if (room != null)
             {
                 room.LastMessage = LastMessages.LastOrDefault();
             }
 
-            ObjectManager<IMessenger>.Instance.Get<MessengerManager>().Reply(message, RecievedMessage, _user);
+            ObjectManager<IMessenger>.Instance.Get<MessengerManager>().Reply(message, RecievedMessage, User);
             while (LastMessages.Count > 10)
             {
                 LastMessages.Dequeue();
@@ -269,8 +273,8 @@ namespace AdventureBot.User
 
             LastMessages.Enqueue(message);
 
-            _queue.Clear();
-            _buttons = null;
+            Queue.Clear();
+            Buttons = null;
             _intent = null;
         }
 

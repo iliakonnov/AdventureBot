@@ -1,5 +1,4 @@
-﻿using System;
-using AdventureBot;
+﻿using AdventureBot;
 using AdventureBot.Item;
 using AdventureBot.Messenger;
 using AdventureBot.ObjectManager;
@@ -11,7 +10,7 @@ namespace Content.Items
     [Item("voldemort/wand")]
     public class ElderWand : ItemBase
     {
-        public override Flag<BuyGroup> Group => new Flag<BuyGroup>();
+        public override StructFlag<BuyGroup> Group => new StructFlag<BuyGroup>();
         public override string Name => "Бузиная палочка";
         public override string Description => string.Empty;
         public override decimal? Price => null;

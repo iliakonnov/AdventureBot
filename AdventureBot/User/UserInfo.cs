@@ -42,11 +42,11 @@ namespace AdventureBot.User
                 }
             ));
             UserId = userId;
-            _user = user;
+            User = user;
             RecalculateStats();
         }
 
-        [IgnoreMember] internal User _user { get; set; }
+        [IgnoreMember] internal User User { get; set; }
 
         public bool Dead { get; internal set; }
 
@@ -76,7 +76,7 @@ namespace AdventureBot.User
         /// </summary>
         internal void RecalculateStats()
         {
-            CurrentStats = ApplyItems(new Stats.Stats(BaseStats.Effect), _user.ActiveItemsManager.ActiveItems);
+            CurrentStats = ApplyItems(new Stats.Stats(BaseStats.Effect), User.ActiveItemsManager.ActiveItems);
         }
 
         internal static Stats.Stats ApplyItems(StatsEffect stats, IEnumerable<ItemInfo> activeItems)
@@ -127,7 +127,7 @@ namespace AdventureBot.User
             {
                 // При понижении статов, нужно проверять с учетом предметов.
                 // (базовое здоровье может быть меньше нуля, т.к. предметы тебя спасут)
-                var changed = ApplyItems(changedBase, _user.ActiveItemsManager.ActiveItems);
+                var changed = ApplyItems(changedBase, User.ActiveItemsManager.ActiveItems);
                 var newValue = changed.Effect[property];
                 if (!allowLess && newValue < 0)
                 {
@@ -173,10 +173,10 @@ namespace AdventureBot.User
         /// </summary>
         public void Kill()
         {
-            Events.Dead(_user);
+            Events.Dead(User);
             ChangeStats(ChangeType.Set, StatsProperty.Health, 0);
             Dead = true;
-            _user.RoomManager.Go("_root", false);
+            User.RoomManager.Go("_root", false);
         }
 
         /// <summary>

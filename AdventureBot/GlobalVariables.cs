@@ -4,7 +4,7 @@ using MessagePack;
 
 namespace AdventureBot
 {
-    public class GlobalVariables
+    public static class GlobalVariables
     {
         private const string Filename = "globalVariables.msgpack";
 

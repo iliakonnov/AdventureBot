@@ -3,10 +3,10 @@ using AdventureBot.Messenger;
 
 namespace AdventureBot.Room
 {
-    [Room(identifier)]
+    [Room(Id)]
     public class RootRoom : RoomBase
     {
-        private const string identifier = "_root";
+        private const string Id = "_root";
 
         public RootRoom()
         {
@@ -26,19 +26,16 @@ namespace AdventureBot.Room
         }
 
         public override string Name { get; } = string.Empty;
-        public override string Identifier { get; } = identifier;
+        public override string Identifier { get; } = Id;
 
         public override void OnEnter(User.User user)
         {
             SwitchAction(user, ConfirmRestart);
-            if (!user.Info.Dead)
-            {
-                SendMessage(user, "Неужели хотите начать новую игру?", GetButtons(user));
-            }
-            else
-            {
-                SendMessage(user, "Вы оказались в мире мертвых. Хотите играть?", GetButtons(user));
-            }
+            SendMessage(user,
+                !user.Info.Dead
+                    ? "Неужели хотите начать новую игру?"
+                    : "Вы оказались в мире мертвых. Хотите играть?",
+                GetButtons(user));
         }
 
         private void NewGame(User.User user, string message = null)

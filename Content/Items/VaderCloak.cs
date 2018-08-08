@@ -10,7 +10,7 @@ namespace Content.Items
     [Item("vader/cloak")]
     public class VaderCloak : ItemBase
     {
-        public override Flag<BuyGroup> Group => new Flag<BuyGroup>();
+        public override StructFlag<BuyGroup> Group => new StructFlag<BuyGroup>();
         public override string Name => "Темный плащ";
         public override string Description => string.Empty;
         public override decimal? Price => null;

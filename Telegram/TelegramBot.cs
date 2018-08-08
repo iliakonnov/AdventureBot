@@ -178,6 +178,7 @@ namespace Telegram
                 replyId = null;
             }
 
+            // ReSharper disable once SwitchStatementMissingSomeCases
             switch (args.Message.Type)
             {
                 case MessageType.Text:

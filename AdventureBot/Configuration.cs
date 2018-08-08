@@ -3,7 +3,7 @@ using Microsoft.Extensions.Configuration;
 
 namespace AdventureBot
 {
-    public class Configuration
+    public static class Configuration
     {
         static Configuration()
         {

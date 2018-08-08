@@ -11,9 +11,12 @@ namespace Content.Items
     [Item("item/stark_suit")]
     public class StarkSuit : ItemBase
     {
-        public override Flag<BuyGroup> Group => new Flag<BuyGroup>(BuyGroup.Market);
+        public override StructFlag<BuyGroup> Group => new StructFlag<BuyGroup>(BuyGroup.Market);
         public override string Name => "Одноразовый костюм Старка";
-        public override string Description => "Его создал Старк когда-то для критических случаев, но ему так и не пришлось им пользоваться.";
+
+        public override string Description =>
+            "Его создал Старк когда-то для критических случаев, но ему так и не пришлось им пользоваться.";
+
         public override decimal? Price => 500;
         public override string Identifier => "item/stark_suit";
         public override StatsEffect Effect => null;
@@ -36,7 +39,7 @@ namespace Content.Items
     [Item("stark_suit/activated")]
     public class ActivatedStarkSuit : ItemBase, IAdventureItem
     {
-        public override Flag<BuyGroup> Group => new Flag<BuyGroup>();
+        public override StructFlag<BuyGroup> Group => new StructFlag<BuyGroup>();
         public override string Name => "Активированное костюм Старка";
         public override string Description => "Надпись на этикетке: не рассчитан на продолжительное использование";
         public override decimal? Price => null;
@@ -58,7 +61,6 @@ namespace Content.Items
 
         public override void OnAdd(User user, ItemInfo info, int count)
         {
-
             if (user.ItemManager.Remove(new ItemInfo(Identifier, 1)))
             {
                 user.MessageManager.SendMessage(new SentMessage

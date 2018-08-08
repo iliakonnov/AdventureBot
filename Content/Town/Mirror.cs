@@ -105,7 +105,7 @@ namespace Content.Town
             SendMessage(user, stats.ToString());
         }
 
-        private string[][] EditButtons(User user)
+        private static string[][] EditButtons(User user)
         {
             // Show current proportions
             var numbers = new[] {-5, -3, -1, +1, +3, +5};

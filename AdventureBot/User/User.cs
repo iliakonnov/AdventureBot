@@ -11,7 +11,7 @@ namespace AdventureBot.User
         /// <summary>
         ///     Генератор случайных чисел
         /// </summary>
-        [IgnoreMember] public Random Random = new Random();
+        [IgnoreMember] public readonly Random Random = new Random();
 
         [Obsolete("This constructor for serializer only")]
         [UsedImplicitly]
@@ -21,19 +21,19 @@ namespace AdventureBot.User
             Tuple<UserId, Guid> linkedTo)
         {
             ItemManager = itemManager;
-            ItemManager._user = this;
+            ItemManager.User = this;
 
             ActiveItemsManager = activeItemsManager;
-            ActiveItemsManager._user = this;
+            ActiveItemsManager.User = this;
 
             RoomManager = roomManager;
-            RoomManager._user = this;
+            RoomManager.User = this;
 
             Info = info;
-            Info._user = this;
+            Info.User = this;
 
             MessageManager = messageManager;
-            MessageManager._user = this;
+            MessageManager.User = this;
 
             VariableManager = variableManager;
 

@@ -26,7 +26,7 @@ namespace AdventureBot.Messenger
             Register(creator());
         }
 
-        private void MessageHandler(RecivedMessage message)
+        private static void MessageHandler(RecivedMessage message)
         {
             if (message == null)
             {
@@ -39,8 +39,6 @@ namespace AdventureBot.Messenger
             using (var context = new UserContext(message.UserId, message.ChatId))
             {
                 User.User user = context;
-
-                // Analyzer.Chatbase.ReciveMessage(user, message);
 
                 try
                 {
@@ -131,7 +129,7 @@ namespace AdventureBot.Messenger
                                 });
                                 break;
                             }
-                            
+
                             using (var linkTo = new UserContext(uid))
                             {
                                 if (linkTo.User.Token != token)
@@ -195,7 +193,6 @@ namespace AdventureBot.Messenger
 
         public void Reply(SentMessage message, [CanBeNull] RecivedMessage recievedMessage, User.User user)
         {
-            message.SentTime = DateTimeOffset.UtcNow;
             Events.Message(user, message, recievedMessage);
             foreach (var messenger in _messengers)
             {

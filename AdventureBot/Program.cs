@@ -13,14 +13,14 @@ using NLog;
 
 namespace AdventureBot
 {
-    internal class Program
+    internal static class Program
     {
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
-        private static void Main(string[] args)
+        private static void Main()
         {
             Events.Start();
-            
+
             Logger.Debug("Loading...");
 
             ObjectManager<IRoom>.Instance.RegisterManager<RoomManager>();
@@ -55,6 +55,7 @@ namespace AdventureBot
             {
                 engine.Runtime.LoadAssembly(assembly);
             }
+
             commandLine.Run(engine, new SuperConsole(commandLine, true), new PythonConsoleOptions
             {
                 AutoIndent = true,

@@ -2,7 +2,7 @@
 
 namespace AdventureBot
 {
-    public static class IReadOnlyDictionaryExtensions
+    public static class ReadOnlyDictionaryExtensions
     {
         public static TValue GetValueOrDefault<TKey, TValue>(this IReadOnlyDictionary<TKey, TValue> dictionary,
             TKey key,

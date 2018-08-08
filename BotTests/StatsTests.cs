@@ -105,7 +105,6 @@ namespace BotTests
         [Fact]
         public void CompareSame()
         {
-            var stats = new Stats();
             var props = new StructFlag<StatsProperty>(StatsProperty.Health);
 
             var comparer = StatsEffect.CreateComparer(props);

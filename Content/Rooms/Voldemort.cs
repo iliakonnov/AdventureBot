@@ -11,7 +11,7 @@ namespace Content.Rooms
         public override string Name => "Волан-де-Морт";
         public override string Identifier => "monster/voldemort";
 
-        public override decimal Health
+        protected override decimal Health
         {
             get
             {
@@ -21,14 +21,15 @@ namespace Content.Rooms
             }
         }
 
-        public override decimal GetDamage(User user)
+        protected override decimal GetDamage(User user)
         {
             var no = (int?) (Serializable.Int) GlobalVariables.Variables.Get("voldemort_no") ?? 1;
             // 1% per 5 deaths
+            // ReSharper disable once PossibleLossOfFraction
             return 40 * (decimal) Math.Pow(1.01, no / 5);
         }
 
-        public override void Enter(User user, string[][] buttons)
+        protected override void Enter(User user, string[][] buttons)
         {
             var no = (int?) (Serializable.Int) GlobalVariables.Variables.Get("voldemort_no") ?? 1;
             var time = DateTimeOffset.FromUnixTimeSeconds(
@@ -44,12 +45,12 @@ namespace Content.Rooms
             SendMessage(user, "Его взгляд совсем не кажется дружелюбным. Похоже, пора расчехлять оружие.", buttons);
         }
 
-        public override bool OnRunaway(User user)
+        protected override bool OnRunaway(User user)
         {
             return true;
         }
 
-        public override void OnWon(User user)
+        protected override void OnWon(User user)
         {
             var no = (int?) (Serializable.Int) GlobalVariables.Variables.Get("voldemort_no") ?? 1;
 

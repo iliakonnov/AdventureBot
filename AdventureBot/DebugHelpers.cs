@@ -1,9 +1,10 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
+using JetBrains.Annotations;
 using MessagePack;
 
 namespace AdventureBot
 {
+    [PublicAPI]
     public static class DebugHelpers
     {
         public static byte[] Serialize<T>(T obj)
@@ -17,7 +18,7 @@ namespace AdventureBot
             File.WriteAllBytes("test1.bin", data);
             return MessagePackSerializer.ToJson(data);
         }
-        
+
         public static void Dump<T>(T obj, string output)
         {
             File.WriteAllBytes(output, Serialize(obj));

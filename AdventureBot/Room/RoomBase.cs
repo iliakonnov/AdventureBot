@@ -194,25 +194,24 @@ namespace AdventureBot.Room
                 return false;
             }
 
-            if (buttons.TryGetValue(message.Text, out var handler))
+            if (!buttons.TryGetValue(message.Text, out var handler))
             {
-                handler(user, message);
-                return true;
+                return false;
             }
 
-            return false;
+            handler(user, message);
+            return true;
         }
 
         #endregion
 
         #region Use items
 
-        protected static string[] GetItems(User.User user)
+        protected static IEnumerable<string> GetItems(User.User user)
         {
             return user.ItemManager.Items
                 .Where(i => i.CanUse(user))
-                .Select(i => $"{i.Item.Name} (x{i.Count})")
-                .ToArray();
+                .Select(i => $"{i.Item.Name} (x{i.Count})");
         }
 
         protected static bool UseItem(User.User user, RecivedMessage message)

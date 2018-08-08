@@ -11,7 +11,7 @@ namespace Content.Items
     [Item("item/golem_heart")]
     public class GolemHeart : ItemBase
     {
-        public override Flag<BuyGroup> Group => new Flag<BuyGroup>(BuyGroup.Market);
+        public override StructFlag<BuyGroup> Group => new StructFlag<BuyGroup>(BuyGroup.Market);
         public override string Name => "Сердце голема";
         public override string Description => "Делает кожу каменной";
         public override decimal? Price => 50;
@@ -36,7 +36,7 @@ namespace Content.Items
     [Item("golem_heart/activated")]
     public class ActivatedGolemHeart : ItemBase, IAdventureItem
     {
-        public override Flag<BuyGroup> Group => new Flag<BuyGroup>();
+        public override StructFlag<BuyGroup> Group => new StructFlag<BuyGroup>();
         public override string Name => "Активированное сердце голема";
         public override string Description => "Делает кожу каменной";
         public override decimal? Price => null;

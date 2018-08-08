@@ -35,14 +35,14 @@ namespace AdventureBot.ObjectManager
                 return result;
             }
 
-            if (_items.TryGetValue(identifier, out var item))
+            if (!_items.TryGetValue(identifier, out var item))
             {
-                var res = item.Creator();
-                _cache[identifier] = res;
-                return res;
+                return default;
             }
 
-            return default;
+            var res = item.Creator();
+            _cache[identifier] = res;
+            return res;
         }
 
         public IEnumerable<Item> Items()

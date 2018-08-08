@@ -45,10 +45,5 @@ namespace AdventureBot.Item
         {
             Item.OnUse(user, this);
         }
-
-        public ItemInfo Clone()
-        {
-            return new ItemInfo(Item, Count);
-        }
     }
 }

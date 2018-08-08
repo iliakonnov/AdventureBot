@@ -9,7 +9,7 @@ namespace AdventureBot
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
         private DateTime _opened;
         private Timer _timer;
-        private User.User _unlinked = null;
+        private User.User _unlinked;
 
         public UserContext(UserId userId)
         {
@@ -20,6 +20,21 @@ namespace AdventureBot
         {
             LoadUser(userId);
             User.MessageManager.ChatId = chatId;
+        }
+
+        public User.User User { get; private set; }
+
+        public void Dispose()
+        {
+            Logger.Debug($"User closed in {DateTime.Now - _opened}");
+            _timer.Stop();
+            UserManager.Instance.Save(User);
+            if (_unlinked != null)
+            {
+                UserManager.Instance.Save(_unlinked);
+            }
+
+            _timer.Dispose();
         }
 
         private void LoadUser(UserId userId)
@@ -37,6 +52,7 @@ namespace AdventureBot
                     Unlink();
                 }
             }
+
             InitializeTimer();
         }
 
@@ -44,20 +60,6 @@ namespace AdventureBot
         {
             _unlinked.LinkedTo = null;
             User = _unlinked;
-        }
-
-        public User.User User { get; private set; }
-
-        public void Dispose()
-        {
-            Logger.Debug($"User closed in {DateTime.Now - _opened}");
-            _timer.Stop();
-            UserManager.Instance.Save(User);
-            if (_unlinked != null)
-            {
-                UserManager.Instance.Save(_unlinked);
-            }
-            _timer.Dispose();
         }
 
         private void InitializeTimer()
@@ -72,7 +74,7 @@ namespace AdventureBot
             _opened = DateTime.Now;
         }
 
-        private void TimerOnElapsed(object sender, ElapsedEventArgs e)
+        private static void TimerOnElapsed(object sender, ElapsedEventArgs e)
         {
             throw new TimeoutException("User have been opened too long");
         }

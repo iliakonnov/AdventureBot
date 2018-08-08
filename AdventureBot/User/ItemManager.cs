@@ -16,7 +16,7 @@ namespace AdventureBot.User
             new ItemInfo(new Wand())
         };
 
-        [IgnoreMember] internal User _user;
+        [IgnoreMember] internal User User;
 
         [Obsolete("This constructor for serializer only")]
         [UsedImplicitly]
@@ -28,9 +28,9 @@ namespace AdventureBot.User
 
         public ItemManager(User user)
         {
-            _user = user;
+            User = user;
 
-            if (_user.Info.UserId.Messenger == -1) // Testing messenger, empty initial _items
+            if (User.Info.UserId.Messenger == -1) // Testing messenger, empty initial _items
             {
                 _items.Clear();
             }
@@ -47,16 +47,16 @@ namespace AdventureBot.User
             var found = _items.FirstOrDefault(x => x.Identifier == item.Identifier);
             if (found != null)
             {
-                found.Item.OnAdd(_user, found, item.Count);
+                found.Item.OnAdd(User, found, item.Count);
                 found.Count += item.Count;
             }
             else
             {
-                item.Item.OnAdd(_user, item, item.Count);
+                item.Item.OnAdd(User, item, item.Count);
                 _items.Add(item);
             }
 
-            _user.ActiveItemsManager.RecalculateActive();
+            User.ActiveItemsManager.RecalculateActive();
         }
 
         /// <summary>
@@ -77,10 +77,10 @@ namespace AdventureBot.User
                 return false;
             }
 
-            found.Item.OnRemove(_user, found, item.Count);
+            found.Item.OnRemove(User, found, item.Count);
             found.Count -= item.Count;
 
-            _user.ActiveItemsManager.RecalculateActive();
+            User.ActiveItemsManager.RecalculateActive();
 
             return true;
         }
@@ -96,17 +96,17 @@ namespace AdventureBot.User
 
         internal void OnMessage()
         {
-            _items.ForEach(i => i.Item.OnMessage(_user, i));
+            _items.ForEach(i => i.Item.OnMessage(User, i));
         }
 
         internal void OnEnter()
         {
-            _items.ForEach(i => i.Item.OnEnter(_user, i));
+            _items.ForEach(i => i.Item.OnEnter(User, i));
         }
 
         internal void OnLeave()
         {
-            _items.ForEach(i => i.Item.OnLeave(_user, i));
+            _items.ForEach(i => i.Item.OnLeave(User, i));
         }
     }
 }

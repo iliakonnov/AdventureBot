@@ -10,7 +10,7 @@ namespace Content.Items
     [Item("geek/d&d")]
     public class DungeonsAndDragons : ItemBase
     {
-        public override Flag<BuyGroup> Group => new Flag<BuyGroup>();
+        public override StructFlag<BuyGroup> Group => new StructFlag<BuyGroup>();
         public override string Name => "Dungeons and Dragons";
         public override string Description => string.Empty;
         public override decimal? Price => null;

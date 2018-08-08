@@ -1,7 +1,9 @@
 ﻿using AdventureBot.Messenger;
+using JetBrains.Annotations;
 
 namespace AdventureBot.Room
 {
+    [PublicAPI]
     public interface IRoom
     {
         string Name { get; }

@@ -132,7 +132,7 @@ namespace BotTests
             for (var i = 0; i < objects.Length; i++)
             {
                 Assert.True(user.ItemManager.Remove(
-                    new ItemInfo(new TestItem("test_item #{i}"), objects[i].Item2)
+                    new ItemInfo(new TestItem($"test_item #{i}"), objects[i].Item2)
                 ));
             }
 

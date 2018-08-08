@@ -78,7 +78,7 @@ namespace Content.Rooms
         private void Shop(User user, RecivedMessage message)
         {
             var items = GetAllItems();
-            var flag = new Flag<BuyGroup>(BuyGroup.Merchant, BuyGroup.Market);
+            var flag = new StructFlag<BuyGroup>(BuyGroup.Merchant, BuyGroup.Market);
             var available = items.Keys()
                 .Select(id => items.Get(id))
                 .Where(item => item?.Price != null && item.Group.Intersects(flag))
@@ -104,7 +104,7 @@ namespace Content.Rooms
         private void Shop2(User user, RecivedMessage message)
         {
             var dict = GetAllItems()
-                .AvailableToBuy(new Flag<BuyGroup>(BuyGroup.Merchant, BuyGroup.Market))
+                .AvailableToBuy(new StructFlag<BuyGroup>(BuyGroup.Merchant, BuyGroup.Market))
                 .ToDictionary(i => i.Name, i => i);
 
             if (message.Text == "Ничего")

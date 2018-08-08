@@ -8,10 +8,10 @@ using AdventureBot.User;
 
 namespace Content.Town
 {
-    [Room(identifier)]
+    [Room(Id)]
     public class Market : RoomBase
     {
-        private const string identifier = "town/market";
+        private const string Id = "town/market";
 
         public Market()
         {
@@ -38,7 +38,7 @@ namespace Content.Town
             };
         }
 
-        public override string Identifier { get; } = identifier;
+        public override string Identifier { get; } = Id;
         public override string Name { get; } = "Рынок";
 
         public override void OnEnter(User user)
@@ -65,7 +65,7 @@ namespace Content.Town
 
         private void Buy(User user, RecivedMessage message)
         {
-            var loaded = GetAllItems().AvailableToBuy(new Flag<BuyGroup>(BuyGroup.Market));
+            var loaded = GetAllItems().AvailableToBuy(new StructFlag<BuyGroup>(BuyGroup.Market));
             var buttons = loaded
                 .Select(item => new[] {item.Name})
                 .Concat(new[] {new[] {"Ничего"}})
@@ -89,7 +89,7 @@ namespace Content.Town
                 return;
             }
 
-            var dict = GetAllItems().AvailableToBuy(new Flag<BuyGroup>(BuyGroup.Market))
+            var dict = GetAllItems().AvailableToBuy(new StructFlag<BuyGroup>(BuyGroup.Market))
                 .ToDictionary(i => i.Name, i => i);
             if (dict.TryGetValue(message.Text, out var item))
             {
@@ -111,7 +111,7 @@ namespace Content.Town
 
         private void Sell(User user, RecivedMessage message)
         {
-            var items = user.ItemManager.Items.AvailableToSell(new Flag<BuyGroup>(BuyGroup.Market));
+            var items = user.ItemManager.Items.AvailableToSell(new StructFlag<BuyGroup>(BuyGroup.Market));
             var buttons = items
                 .Select(item => new[] {item.Item.Name})
                 .Concat(new[] {new[] {"Ничего"}})
@@ -136,7 +136,7 @@ namespace Content.Town
             }
             else
             {
-                var items = user.ItemManager.Items.AvailableToSell(new Flag<BuyGroup>(BuyGroup.Market));
+                var items = user.ItemManager.Items.AvailableToSell(new StructFlag<BuyGroup>(BuyGroup.Market));
                 var dict = items.ToDictionary(i => i.Item.Name, i => new ItemInfo(i.Identifier, 1));
 
                 if (dict.TryGetValue(message.Text, out var item))

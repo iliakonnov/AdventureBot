@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Threading;
 using AdventureBot;
 using AdventureBot.Messenger;
 using AdventureBot.ObjectManager;
@@ -16,15 +15,20 @@ namespace Api
     public class ApiMessenger : NancyModule, IMessenger
     {
         private const int MessengerId = 3;
+        private static Random _random;
+
+        private static string _secret;
+
+        private NancyHost _host;
 
         public ApiMessenger()
         {
-            if (_messageRecieved == null)
+            if (MessageRecievedStatic == null)
             {
-                _messageRecieved += message => MessageRecieved?.Invoke(message);
+                MessageRecievedStatic += message => MessageRecieved?.Invoke(message);
             }
 
-            Post["/api/{token}", runAsync: true] = async (parameters, _) =>
+            Post["/api/{token}", true] = async (parameters, _) =>
             {
                 (ChatId, UserId)? token = ParseToken(parameters.token);
                 if (token == null)
@@ -42,11 +46,11 @@ namespace Api
                     Text = text,
                     UserId = user
                 };
-                _messageRecieved?.Invoke(message);
+                MessageRecievedStatic?.Invoke(message);
                 return HttpStatusCode.OK;
             };
 
-            Get["/api/{token}", runAsync: true] = async (parameters, _) =>
+            Get["/api/{token}", true] = async (parameters, _) =>
             {
                 (ChatId, UserId)? token = ParseToken(parameters.token);
                 if (token == null)
@@ -77,7 +81,7 @@ namespace Api
                 }
             };
 
-            Get["/api/register", runAsync: true] = async (parameters, _) =>
+            Get["/api/register", true] = async (parameters, _) =>
             {
                 var query = (DynamicDictionary) Request.Query;
 
@@ -107,27 +111,12 @@ namespace Api
             };
         }
 
-        private static long LongRandom(Random rand)
-        {
-            var buf = new byte[8];
-            rand.NextBytes(buf);
-            var longRand = BitConverter.ToInt64(buf, 0);
-            return Math.Abs(longRand);
-        }
-
         public void Send(SentMessage message, RecivedMessage recievedMessage, User user)
         {
             // Do nothing because PublicUser.MessageManager.LastMessages already contains last messages
         }
 
-
-        private static event MessageHandler _messageRecieved;
         public event MessageHandler MessageRecieved;
-
-        private NancyHost _host;
-        private static Random _random;
-
-        private static string _secret;
 
         public void BeginPolling()
         {
@@ -142,6 +131,17 @@ namespace Api
             _host = new NancyHost(hostConf, new Uri(url));
             _host.Start();
         }
+
+        private static long LongRandom(Random rand)
+        {
+            var buf = new byte[8];
+            rand.NextBytes(buf);
+            var longRand = BitConverter.ToInt64(buf, 0);
+            return Math.Abs(longRand);
+        }
+
+
+        private static event MessageHandler MessageRecievedStatic;
 
         private static (ChatId, UserId)? ParseToken(string token)
         {

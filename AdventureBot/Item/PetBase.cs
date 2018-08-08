@@ -9,6 +9,7 @@
             {
                 user.ItemManager.Remove(currentPet);
             }
+
             user.VariableManager.UserVariables.Set("pet", new ItemInfo(info.Identifier, count));
         }
     }

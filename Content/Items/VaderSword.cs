@@ -11,7 +11,7 @@ namespace Content.Items
     [Item("vader/sword")]
     public class VaderSword : ItemBase
     {
-        public override Flag<BuyGroup> Group => new Flag<BuyGroup>();
+        public override StructFlag<BuyGroup> Group => new StructFlag<BuyGroup>();
         public override string Name => "Световой меч";
         public override string Description => "Светится красным";
         public override decimal? Price => null;

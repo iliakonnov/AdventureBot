@@ -14,7 +14,7 @@ namespace Content.Items
         public override string Name => "Цепной меч";
         public override string Description => "Cамый распространенный вид цепного оружия";
         public override decimal? Price => null;
-        public override Flag<BuyGroup> Group => new Flag<BuyGroup>();
+        public override StructFlag<BuyGroup> Group => new StructFlag<BuyGroup>();
         public override string Identifier => "spacemarine/chainsword";
         public override StatsEffect Effect => null;
 

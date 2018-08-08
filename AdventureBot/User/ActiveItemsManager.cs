@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using AdventureBot.Item;
 using AdventureBot.User.Stats;
@@ -13,7 +14,7 @@ namespace AdventureBot.User
     public class ActiveItemsManager
     {
         [Key("ActiveItems")] private List<ItemInfo> _activeItems = new List<ItemInfo>();
-        [IgnoreMember] internal User _user;
+        [IgnoreMember] internal User User;
 
         [Obsolete("This constructor for serializer only")]
         [UsedImplicitly]
@@ -23,13 +24,13 @@ namespace AdventureBot.User
             int activeLimit)
         {
             _activeItems = activeItems;
-            _activeProportions = activeProportions;
+            Proportions = activeProportions;
             ActiveLimit = activeLimit;
         }
 
         public ActiveItemsManager(User user)
         {
-            _user = user;
+            User = user;
         }
 
         /// <summary>
@@ -39,11 +40,10 @@ namespace AdventureBot.User
         public IReadOnlyList<ItemInfo> ActiveItems => _activeItems;
 
 
-        [IgnoreMember]
-        public IReadOnlyDictionary<StructFlag<StatsProperty>, int> ActiveProportions => _activeProportions;
+        [IgnoreMember] public IReadOnlyDictionary<StructFlag<StatsProperty>, int> ActiveProportions => Proportions;
 
         [Key("ActiveProportions")]
-        internal Dictionary<StructFlag<StatsProperty>, int> _activeProportions { get; set; } =
+        internal Dictionary<StructFlag<StatsProperty>, int> Proportions { get; set; } =
             new Dictionary<StructFlag<StatsProperty>, int>();
 
         [Key(nameof(ActiveLimit))] public int ActiveLimit { get; internal set; } = 3;
@@ -54,16 +54,16 @@ namespace AdventureBot.User
             var available = ActiveLimit - currentSum;
             var toAdd = Math.Min(count, available); // User cannot add more items than ActiveLimit
 
-            var currentValue = ActiveProportions.GetValueOrDefault(property, 0);
+            var currentValue = ActiveProportions.GetValueOrDefault(property);
 
             var newValue = currentValue + toAdd;
             if (newValue <= 0)
             {
-                _activeProportions.Remove(property);
+                Proportions.Remove(property);
             }
             else
             {
-                _activeProportions[property] = newValue;
+                Proportions[property] = newValue;
             }
 
             RecalculateActive();
@@ -71,7 +71,7 @@ namespace AdventureBot.User
 
         public List<StructFlag<StatsProperty>> GetAvailableProportions()
         {
-            return _user.ItemManager.Items
+            return User.ItemManager.Items
                 .Select(item => item.Item.Effect)
                 .Where(effect => effect != null)
                 .Select(effect => new StructFlag<StatsProperty>(effect.Effect.Keys))
@@ -80,20 +80,21 @@ namespace AdventureBot.User
 
         private IEnumerable<ItemInfo> FindAvailableItems()
         {
-            return _user.ItemManager.Items
+            return User.ItemManager.Items
                 .Where(i =>
                     i.Item.Effect != null
                     && i.Item.Effect.Effect.Count != 0
                 );
         }
 
-        private IReadOnlyDictionary<StructFlag<StatsProperty>, MustBeOrderedList<ItemInfo>> GroupByStats(
+        private static IReadOnlyDictionary<StructFlag<StatsProperty>, MustBeOrderedList<ItemInfo>> GroupByStats(
             IEnumerable<ItemInfo> items)
         {
             var result = new Dictionary<StructFlag<StatsProperty>, List<ItemInfo>>();
             foreach (var item in items)
             {
                 var combined = new StructFlag<StatsProperty>();
+                Debug.Assert(item.Item.Effect != null, "item.Item.Effect != null");
                 foreach (var effectKey in item.Item.Effect.Effect.Keys)
                 {
                     combined = new StructFlag<StatsProperty>(combined.Values.Add(effectKey));
@@ -116,13 +117,14 @@ namespace AdventureBot.User
             );
         }
 
-        private IDictionary<ChangeType, MustBeOrderedList<ItemInfo>> GroupByChangeType(
+        private static IDictionary<ChangeType, MustBeOrderedList<ItemInfo>> GroupByChangeType(
             MustBeOrderedList<ItemInfo> items)
         {
             var result = new Dictionary<ChangeType, MustBeOrderedList<ItemInfo>>();
 
             foreach (var item in items)
             {
+                Debug.Assert(item.Item.Effect != null, "item.Item.Effect != null");
                 if (result.TryGetValue(item.Item.Effect.ChangeType, out var list))
                 {
                     list.Add(item);
@@ -136,7 +138,7 @@ namespace AdventureBot.User
             return result;
         }
 
-        private MustBeOrderedList<ItemInfo> TakeBest(int count, MustBeOrderedList<ItemInfo> items)
+        private static MustBeOrderedList<ItemInfo> TakeBest(int count, MustBeOrderedList<ItemInfo> items)
         {
             var result = new MustBeOrderedList<ItemInfo>();
             foreach (var item in items)
@@ -160,7 +162,7 @@ namespace AdventureBot.User
             if (items.TryGetValue(ChangeType.Set, out var setItems))
             {
                 // Returns is best "set" item better than BaseStats
-                return StatsEffect.Compare(prop, _user.Info.BaseStats, TakeBest(1, setItems).First().Item.Effect) == 1;
+                return StatsEffect.Compare(prop, User.Info.BaseStats, TakeBest(1, setItems).First().Item.Effect) == 1;
             }
 
             return false;
@@ -217,7 +219,7 @@ namespace AdventureBot.User
              * Работает за O(N^2), где N -- max (ActiveProportions[prop])
              */
             var selectedItemsBase = selectedItems.ToList();
-            var bestStats = _user.Info.BaseStats;
+            var bestStats = User.Info.BaseStats;
             var bestItems = new List<ItemInfo>();
             for (var addCount = 0; addCount < max; addCount++)
             {
@@ -227,7 +229,7 @@ namespace AdventureBot.User
                 selectedItems.AddRange(TakeBest(addCount, groups[ChangeType.Add]));
                 selectedItems.AddRange(TakeBest(mulCount, groups[ChangeType.Multiply]));
 
-                var currentStats = UserInfo.ApplyItems(_user.Info.BaseStats, selectedItems);
+                var currentStats = UserInfo.ApplyItems(User.Info.BaseStats, selectedItems);
 
                 if (StatsEffect.Compare(prop, bestStats, currentStats) == 1)
                 {
@@ -248,7 +250,7 @@ namespace AdventureBot.User
                 _activeItems = ActivateItems(keyValuePair.Key, keyValuePair.Value);
             }
 
-            _user.Info.RecalculateStats();
+            User.Info.RecalculateStats();
         }
 
         private class MustBeOrderedList<T> : IOrderedEnumerable<T>, IList<T>

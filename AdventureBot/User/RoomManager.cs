@@ -12,7 +12,7 @@ namespace AdventureBot.User
     [MessagePackObject(true)]
     public class RoomManager
     {
-        [IgnoreMember] internal User _user;
+        [IgnoreMember] internal User User;
 
         [Obsolete("This constructor for serializer only")]
         [UsedImplicitly]
@@ -25,7 +25,7 @@ namespace AdventureBot.User
 
         public RoomManager(User user)
         {
-            _user = user;
+            User = user;
         }
 
         [CanBeNull] internal StackedRoom CurrentRoom { get; set; }
@@ -40,7 +40,7 @@ namespace AdventureBot.User
 
             if (leave)
             {
-                var allowLeave = GetRoom()?.OnLeave(_user);
+                var allowLeave = GetRoom()?.OnLeave(User);
                 if (allowLeave == false)
                 {
                     return;
@@ -53,10 +53,10 @@ namespace AdventureBot.User
             }
 
             CurrentRoom = new StackedRoom(roomIdentifier);
-            _user.MessageManager.ShownStats = ShownStats.Default;
-            Events.Go(_user, roomIdentifier);
-            GetRoom()?.OnEnter(_user);
-            _user.ItemManager.OnEnter();
+            User.MessageManager.ShownStats = ShownStats.Default;
+            Events.Go(User, roomIdentifier);
+            GetRoom()?.OnEnter(User);
+            User.ItemManager.OnEnter();
         }
 
         /// <summary>
@@ -70,20 +70,20 @@ namespace AdventureBot.User
 
         internal void Leave(bool doReturn = true)
         {
-            var allowLeave = GetRoom()?.OnLeave(_user);
+            var allowLeave = GetRoom()?.OnLeave(User);
             if (allowLeave == false)
             {
                 return;
             }
 
             CurrentRoom = Rooms.Pop();
-            _user.MessageManager.ShownStats = CurrentRoom?.ShownStats ?? ShownStats.Default;
+            User.MessageManager.ShownStats = CurrentRoom?.ShownStats ?? ShownStats.Default;
 
-            _user.ItemManager.OnLeave();
+            User.ItemManager.OnLeave();
 
             if (doReturn)
             {
-                GetRoom()?.OnReturn(_user);
+                GetRoom()?.OnReturn(User);
             }
         }
 
@@ -92,15 +92,15 @@ namespace AdventureBot.User
         /// </summary>
         public void Leave()
         {
-            var allowLeave = GetRoom()?.OnLeave(_user);
+            var allowLeave = GetRoom()?.OnLeave(User);
             if (allowLeave == false)
             {
                 return;
             }
 
             CurrentRoom = Rooms.Pop();
-            _user.MessageManager.ShownStats = CurrentRoom.ShownStats;
-            GetRoom()?.OnReturn(_user);
+            User.MessageManager.ShownStats = CurrentRoom?.ShownStats ?? ShownStats.Default;
+            GetRoom()?.OnReturn(User);
         }
 
         /// <summary>
@@ -110,12 +110,9 @@ namespace AdventureBot.User
         [CanBeNull]
         public IRoom GetRoom()
         {
-            if (CurrentRoom == null)
-            {
-                return null;
-            }
-
-            return ObjectManager<IRoom>.Instance.Get<Room.RoomManager>().Get(CurrentRoom.Identifier);
+            return CurrentRoom == null
+                ? null
+                : ObjectManager<IRoom>.Instance.Get<Room.RoomManager>().Get(CurrentRoom.Identifier);
         }
 
         /// <summary>

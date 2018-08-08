@@ -9,7 +9,7 @@ namespace Content.Items
     [Item("worms/worm")]
     public class Worm : ItemBase
     {
-        public override Flag<BuyGroup> Group => new Flag<BuyGroup>(BuyGroup.Market);
+        public override StructFlag<BuyGroup> Group => new StructFlag<BuyGroup>(BuyGroup.Market);
         public override string Name => "Червяк";
         public override string Description => "Маленький, но храбрый";
         public override decimal? Price => 1m;

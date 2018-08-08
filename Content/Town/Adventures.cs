@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using AdventureBot;
 using AdventureBot.Item;
@@ -24,6 +25,13 @@ namespace Content.Town
                         {"Направо", (user, message) => Go(user, Difficulity.Medium)},
                         {"Прямо", (user, message) => Go(user, Difficulity.Hard)},
                         {"Назад", (user, message) => user.RoomManager.Leave()}
+                    }
+                },
+                {
+                    RoomSelection, new Dictionary<string, MessageRecived>
+                    {
+                        {"Пойти в лес", (user, message) => RoomSelection(user, RoomSelectionMessage.Next)},
+                        {"Пойти на поляну", (user, message) => RoomSelection(user, RoomSelectionMessage.Select)}
                     }
                 }
             };
@@ -96,36 +104,43 @@ namespace Content.Town
             GetRoomVariables(user).Set("room", new Serializable.String(selectedRoom));
             SendMessage(user,
                 $"Ты идешь по лесу и видишь на поляне *{GetAllRooms().Get(selectedRoom)?.Name}*",
-                new[] {new[] {"Пойти в лес"}, new[] {"Пойти на поляну"}}
+                GetButtons(user)
             );
         }
 
         private void RoomSelection(User user, RecivedMessage message)
         {
+            HandleButtonAlways(user, message);
+        }
+
+        private void RoomSelection(User user, RoomSelectionMessage message)
+        {
             var variables = GetRoomVariables(user);
             var difficulity = (Difficulity) (int) variables.Get<Serializable.Int>("difficulity");
             var count = (int) variables.Get<Serializable.Int>("count");
             count--;
-            switch (message.Text)
+            switch (message)
             {
-                case "Пойти в лес" when count <= 0:
+                case RoomSelectionMessage.Next when count <= 0:
                 {
                     // Last room
                     SendMessage(user, "Дальше идти некуда");
                     break;
                 }
-                case "Пойти в лес":
+                case RoomSelectionMessage.Next:
                 {
                     AskRoom(user, difficulity);
                     variables.Set("count", new Serializable.Int(count));
                     break;
                 }
-                case "Пойти на поляну":
+                case RoomSelectionMessage.Select:
                 {
                     var selectedRoom = (string) variables.Get<Serializable.String>("room");
                     SwitchRoom(user, selectedRoom);
                     break;
                 }
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(message), message, null);
             }
         }
 
@@ -139,10 +154,10 @@ namespace Content.Town
             }
             else if (user.ItemManager.Get("item/slippers") != null)
             {
+                SwitchAction(user, RoomSelection);
                 GetRoomVariables(user).Set("difficulity", new Serializable.Int((int) difficulity));
                 GetRoomVariables(user).Set("count", new Serializable.Int(user.Random.Next(3, 5 + 1)));
                 AskRoom(user, difficulity);
-                SwitchAction(user, RoomSelection);
             }
             else
             {
@@ -161,6 +176,12 @@ namespace Content.Town
                     adventureItem.OnAdventureEnter(user, info);
                 }
             }
+        }
+
+        private enum RoomSelectionMessage
+        {
+            Next,
+            Select
         }
     }
 }

@@ -10,9 +10,9 @@ namespace VkMessenger
 {
     public class LongpollParameters
     {
-        public ulong Timestamp;
         public string Key;
         public string Server;
+        public ulong Timestamp;
 
         public LongpollParameters(LongPollServerResponse longPollServerResponse)
         {
@@ -61,7 +61,7 @@ namespace VkMessenger
             {
                 Timestamp = response.Ts;
             }
-            
+
             // Про сервер ничего не говорится, но на всякий случай тоже обновляю
             Server = response.Server;
         }
@@ -74,24 +74,22 @@ namespace VkMessenger
 
     public class LongpollResponse
     {
+        [JsonProperty("failed")] public int? Failed;
         [JsonProperty("ts")] public string Timestamp;
 
         [JsonProperty("updates")] public Update[] Updates;
-
-        [JsonProperty("failed")] public int? Failed;
     }
 
     public class Update
     {
-        [JsonProperty("type")] public string Type;
+        [JsonProperty("group_id")] public int GroupId;
 
         [JsonProperty("object")] public Message Message;
-
-        [JsonProperty("group_id")] public int GroupId;
+        [JsonProperty("type")] public string Type;
 
         public RecivedMessage ToRecivedMessage()
         {
-            long chatId = 0;
+            long chatId;
             long? replyUserId = null;
             if (Message.ChatId == null)
             {

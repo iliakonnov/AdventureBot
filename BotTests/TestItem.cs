@@ -1,5 +1,4 @@
-﻿using System;
-using AdventureBot;
+﻿using AdventureBot;
 using AdventureBot.Item;
 using AdventureBot.User;
 using AdventureBot.User.Stats;
@@ -22,14 +21,13 @@ namespace BotTests
         public override string Name => "Test item";
         public override string Description => "This item only for unit tests";
         public override decimal? Price => 0m;
-        public override Flag<BuyGroup> Group => new Flag<BuyGroup>(BuyGroup.Guild);
+        public override StructFlag<BuyGroup> Group => new StructFlag<BuyGroup>(BuyGroup.Guild);
 
         public override string Identifier { get; } = "test_item";
         public override StatsEffect Effect { get; }
 
         public override void OnLeave(User user, ItemInfo info)
         {
-            throw new NotImplementedException();
         }
 
         public override void OnUse(User user, ItemInfo info)

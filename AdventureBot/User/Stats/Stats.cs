@@ -54,7 +54,7 @@ namespace AdventureBot.User.Stats
             {
                 case ChangeType.Add:
                     return new Stats(Effect
-                        .ToDictionary(kv => kv.Key, kv => kv.Value + effect.Effect.GetValueOrDefault(kv.Key, 0))
+                        .ToDictionary(kv => kv.Key, kv => kv.Value + effect.Effect.GetValueOrDefault(kv.Key))
                     );
                 case ChangeType.Set:
                     return new Stats(Effect

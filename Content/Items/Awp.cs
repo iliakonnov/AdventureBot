@@ -9,9 +9,9 @@ using AdventureBot.User.Stats;
 namespace Content.Items
 {
     [Item("camper/awp")]
-    public class AWP : ItemBase
+    public class Awp : ItemBase
     {
-        public override Flag<BuyGroup> Group => new Flag<BuyGroup>();
+        public override StructFlag<BuyGroup> Group => new StructFlag<BuyGroup>();
         public override string Name => "AWP";
         public override string Description => string.Empty;
         public override decimal? Price => null;

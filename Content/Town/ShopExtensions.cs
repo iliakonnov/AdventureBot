@@ -18,13 +18,13 @@ namespace Content.Town
 
             var price = (decimal) item.Item.Price * item.Count;
 
-            if (user.Info.TryDecreaseGold(price))
+            if (!user.Info.TryDecreaseGold(price))
             {
-                user.ItemManager.Add(item);
-                return true;
+                return false;
             }
 
-            return false;
+            user.ItemManager.Add(item);
+            return true;
         }
 
         public static bool SellItem(this User user, ItemInfo item)
@@ -36,16 +36,16 @@ namespace Content.Town
 
             var price = (decimal) item.Item.Price * item.Count * user.Info.SellMultiplier;
 
-            if (user.ItemManager.Remove(item))
+            if (!user.ItemManager.Remove(item))
             {
-                user.Info.Gold += price;
-                return true;
+                return false;
             }
 
-            return false;
+            user.Info.Gold += price;
+            return true;
         }
 
-        public static List<IItem> AvailableToBuy(this ItemManager manager, Flag<BuyGroup> filter)
+        public static List<IItem> AvailableToBuy(this ItemManager manager, StructFlag<BuyGroup> filter)
         {
             return manager.Keys()
                 .Select(manager.Get)
@@ -53,7 +53,7 @@ namespace Content.Town
                 .ToList();
         }
 
-        public static List<ItemInfo> AvailableToSell(this IEnumerable<ItemInfo> items, Flag<BuyGroup> filter)
+        public static List<ItemInfo> AvailableToSell(this IEnumerable<ItemInfo> items, StructFlag<BuyGroup> filter)
         {
             return items
                 .Where(item => item.Item.Price != null && item.Item.Group.Intersects(filter))

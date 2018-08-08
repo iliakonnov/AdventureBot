@@ -9,14 +9,14 @@ namespace Content.Rooms
     {
         public override string Name => "Беорн";
         public override string Identifier => "monster/beorn";
-        public override decimal Health => 1500;
+        protected override decimal Health => 1500;
 
-        public override decimal GetDamage(User user)
+        protected override decimal GetDamage(User user)
         {
             return 50;
         }
 
-        public override void Enter(User user, string[][] buttons)
+        protected override void Enter(User user, string[][] buttons)
         {
             SendMessage(
                 user,
@@ -25,12 +25,12 @@ namespace Content.Rooms
             );
         }
 
-        public override bool OnRunaway(User user)
+        protected override bool OnRunaway(User user)
         {
             return true;
         }
 
-        public override void OnWon(User user)
+        protected override void OnWon(User user)
         {
             user.ItemManager.Add(new ItemInfo("beorn/skin", 1));
         }

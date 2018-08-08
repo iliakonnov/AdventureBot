@@ -10,7 +10,7 @@ namespace Content.Items
     [Item("vader/respirator")]
     public class VaderRespirator : ItemBase
     {
-        public override Flag<BuyGroup> Group => new Flag<BuyGroup>();
+        public override StructFlag<BuyGroup> Group => new StructFlag<BuyGroup>();
         public override string Name => "Респираторная маска";
         public override string Description => string.Empty;
         public override decimal? Price => null;

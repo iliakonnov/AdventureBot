@@ -6,10 +6,10 @@ using AdventureBot.User;
 
 namespace Content.Town
 {
-    [Room(identifier)]
+    [Room(Id)]
     public class Town : RoomBase
     {
-        private const string identifier = "town";
+        private const string Id = "town";
 
         public Town()
         {
@@ -28,7 +28,7 @@ namespace Content.Town
             };
         }
 
-        public override string Identifier { get; } = identifier;
+        public override string Identifier { get; } = Id;
         public override string Name { get; } = "Город";
 
         public override void OnReturn(User user)

@@ -10,7 +10,7 @@ namespace Content.Items
     [Item("skitties/candy")]
     public class Skitties : ItemBase, IAdventureItem
     {
-        public override Flag<BuyGroup> Group => new Flag<BuyGroup>();
+        public override StructFlag<BuyGroup> Group => new StructFlag<BuyGroup>();
         public override string Name => "Конфета \"Skitties\"";
         public override string Description => string.Empty;
         public override decimal? Price => 50;

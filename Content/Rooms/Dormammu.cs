@@ -10,14 +10,14 @@ namespace Content.Rooms
     {
         public override string Name => "Дормамму";
         public override string Identifier => "monster/dormammu";
-        public override decimal Health => 1_000_000;
+        protected override decimal Health => 1_000_000;
 
-        public override decimal GetDamage(User user)
+        protected override decimal GetDamage(User user)
         {
             return 70;
         }
 
-        public override void Enter(User user, string[][] buttons)
+        protected override void Enter(User user, string[][] buttons)
         {
             GetRoomVariables(user).Set("diplomacy", new Serializable.Int(0));
             SendMessage(user, "Похоже,  он собирается затянуть землю в свое измерение. Самое время его остановить!",
@@ -51,12 +51,12 @@ namespace Content.Rooms
             }
         }
 
-        public override bool OnRunaway(User user)
+        protected override bool OnRunaway(User user)
         {
             return true;
         }
 
-        public override void OnWon(User user)
+        protected override void OnWon(User user)
         {
             user.Info.Gold += 1000;
         }

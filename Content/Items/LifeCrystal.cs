@@ -10,7 +10,7 @@ namespace Content.Items
     [Item("lifecrystal/shard")]
     public class LifeCrystalShard : ItemBase
     {
-        public override Flag<BuyGroup> Group => new Flag<BuyGroup>(BuyGroup.Merchant);
+        public override StructFlag<BuyGroup> Group => new StructFlag<BuyGroup>(BuyGroup.Merchant);
         public override string Name => "Осколок кристалла жизни";
         public override string Description => "Собери четыре";
         public override decimal? Price => 750;
@@ -35,7 +35,7 @@ namespace Content.Items
     [Item("item/lifecrystal")]
     public class LifeCrystal : ItemBase
     {
-        public override Flag<BuyGroup> Group => new Flag<BuyGroup>();
+        public override StructFlag<BuyGroup> Group => new StructFlag<BuyGroup>();
         public override string Name => "Кристалла жизни";
         public override string Description => "Просто активируй";
         public override decimal? Price => null;

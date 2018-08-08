@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using IronPython.Hosting;
@@ -54,13 +55,16 @@ namespace AdventureBot.ObjectManager
         {
             foreach (var type in assembly.GetTypes())
             {
-                if (type.GetCustomAttribute(typeof(GameObjectAttribute)) is GameObjectAttribute attr)
+                if (!(type.GetCustomAttribute(typeof(GameObjectAttribute)) is GameObjectAttribute attr))
                 {
-                    var ctor = type.GetConstructor(Type.EmptyTypes);
-                    foreach (var manager in _managers)
-                    {
-                        manager.Register(attr, () => ctor.Invoke(new object[] { }));
-                    }
+                    continue;
+                }
+
+                var ctor = type.GetConstructor(Type.EmptyTypes);
+                foreach (var manager in _managers)
+                {
+                    Debug.Assert(ctor != null, nameof(ctor) + " != null");
+                    manager.Register(attr, () => ctor.Invoke(new object[] { }));
                 }
             }
         }

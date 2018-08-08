@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using AdventureBot;
 using AdventureBot.Item;
 using AdventureBot.Messenger;
@@ -93,24 +94,24 @@ namespace Content.Rooms
         {
             public override string Name => "Битва с отцом";
             public override string Identifier => "monster/vader/battle";
-            public override decimal Health => 550;
+            protected override decimal Health => 550;
 
-            public override decimal GetDamage(User user)
+            protected override decimal GetDamage(User user)
             {
                 return 40;
             }
 
-            public override void Enter(User user, string[][] buttons)
+            protected override void Enter(User user, string[][] buttons)
             {
                 SendMessage(user, "Световой меч озарил все вокруг своим кроваво-красным светом.", buttons);
             }
 
-            public override bool OnRunaway(User user)
+            protected override bool OnRunaway(User user)
             {
                 return true;
             }
 
-            public override void OnWon(User user)
+            protected override void OnWon(User user)
             {
                 var rand = user.Random.Next(3);
                 switch (rand)
@@ -124,9 +125,9 @@ namespace Content.Rooms
                     case 2:
                         user.ItemManager.Add(new ItemInfo("vader/cloak", 1));
                         break;
+                    // ReSharper disable once RedundantEmptySwitchSection
                     default:
-                        // Should not be here
-                        break;
+                        throw new ArgumentOutOfRangeException(nameof(rand), rand, "rand > 2 || rand < 0");
                 }
             }
         }

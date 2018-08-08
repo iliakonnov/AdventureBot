@@ -11,9 +11,9 @@ namespace Content.Rooms
     {
         public override string Name => "Гик";
         public override string Identifier => "monster/geek";
-        public override decimal Health => 150;
+        protected override decimal Health => 150;
 
-        public override decimal GetDamage(User user)
+        protected override decimal GetDamage(User user)
         {
             return 25;
         }
@@ -25,7 +25,7 @@ namespace Content.Rooms
                 .ToArray();
         }
 
-        public override void Enter(User user, string[][] buttons)
+        protected override void Enter(User user, string[][] buttons)
         {
             SendMessage(user,
                 "\"...Ты в С++ делал хоть клик? Ты хоть в один фандом вник? Знаешь эльфийский язык? Хотя бы english can you speak?\"");
@@ -48,12 +48,12 @@ namespace Content.Rooms
             }
         }
 
-        public override bool OnRunaway(User user)
+        protected override bool OnRunaway(User user)
         {
             return true;
         }
 
-        public override void OnWon(User user)
+        protected override void OnWon(User user)
         {
             user.ItemManager.Add(new ItemInfo("geek/d&d", 1));
         }

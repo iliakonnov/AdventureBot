@@ -12,11 +12,12 @@ namespace AdventureBot.Item
         Merchant
     }
 
+    [PublicAPI]
     [Union(0, typeof(ItemInfo))]
     public interface IItem
     {
         decimal? Price { get; }
-        [NotNull] Flag<BuyGroup> Group { get; }
+        [NotNull] StructFlag<BuyGroup> Group { get; }
 
         string Name { get; }
         string Description { get; }
@@ -74,9 +75,9 @@ namespace AdventureBot.Item
         public abstract string Name { get; }
         public abstract string Description { get; }
         public abstract decimal? Price { get; }
-        public abstract Flag<BuyGroup> Group { get; }
+        public abstract StructFlag<BuyGroup> Group { get; }
 
-        public VariableContainer GetItemVariables(User.User user)
+        protected VariableContainer GetItemVariables(User.User user)
         {
             return user.VariableManager.GetItemVariables(Identifier);
         }

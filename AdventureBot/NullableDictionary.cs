@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using JetBrains.Annotations;
 
 namespace AdventureBot
 {
-    // https://github.com/nhibernate/nhibernate-core/blob/master/src/NHibernate/Util/NullableDictionary.cs
+    // Based on https://github.com/nhibernate/nhibernate-core/blob/master/src/NHibernate/Util/NullableDictionary.cs
     public class NullableDictionary<TKey, TValue> : IDictionary<TKey, TValue>
         where TKey : class
     {
@@ -22,17 +23,12 @@ namespace AdventureBot
             _dict = new Dictionary<TKey, TValue>(comparer);
         }
 
-        public bool ContainsKey(TKey key)
+        public bool ContainsKey([CanBeNull] TKey key)
         {
-            if (key == null)
-            {
-                return _gotNullValue;
-            }
-
-            return _dict.ContainsKey(key);
+            return key == null ? _gotNullValue : _dict.ContainsKey(key);
         }
 
-        public void Add(TKey key, TValue value)
+        public void Add([CanBeNull] TKey key, TValue value)
         {
             if (key == null)
             {
@@ -45,41 +41,41 @@ namespace AdventureBot
             }
         }
 
-        public bool Remove(TKey key)
+        public bool Remove([CanBeNull] TKey key)
         {
-            if (key == null)
+            if (key != null)
             {
-                if (_gotNullValue)
-                {
-                    _nullValue = default;
-                    _gotNullValue = false;
-                    return true;
-                }
+                return _dict.Remove(key);
+            }
 
+            if (!_gotNullValue)
+            {
                 return false;
             }
 
-            return _dict.Remove(key);
+            _nullValue = default;
+            _gotNullValue = false;
+            return true;
         }
 
-        public bool TryGetValue(TKey key, out TValue value)
+        public bool TryGetValue([CanBeNull] TKey key, out TValue value)
         {
-            if (key == null)
+            if (key != null)
             {
-                if (_gotNullValue)
-                {
-                    value = _nullValue;
-                    return true;
-                }
-
-                value = default;
-                return false;
+                return _dict.TryGetValue(key, out value);
             }
 
-            return _dict.TryGetValue(key, out value);
+            if (_gotNullValue)
+            {
+                value = _nullValue;
+                return true;
+            }
+
+            value = default;
+            return false;
         }
 
-        public TValue this[TKey key]
+        public TValue this[[CanBeNull] TKey key]
         {
             get
             {
@@ -88,9 +84,7 @@ namespace AdventureBot
                     return _nullValue;
                 }
 
-                TValue ret;
-
-                _dict.TryGetValue(key, out ret);
+                _dict.TryGetValue(key, out var ret);
 
                 return ret;
             }
@@ -112,14 +106,13 @@ namespace AdventureBot
         {
             get
             {
-                if (_gotNullValue)
+                if (!_gotNullValue)
                 {
-                    var keys = new List<TKey>(_dict.Keys);
-                    keys.Add(null);
-                    return keys;
+                    return _dict.Keys;
                 }
 
-                return _dict.Keys;
+                var keys = new List<TKey>(_dict.Keys) {null};
+                return keys;
             }
         }
 
@@ -127,14 +120,13 @@ namespace AdventureBot
         {
             get
             {
-                if (_gotNullValue)
+                if (!_gotNullValue)
                 {
-                    var values = new List<TValue>(_dict.Values);
-                    values.Add(_nullValue);
-                    return values;
+                    return _dict.Values;
                 }
 
-                return _dict.Values;
+                var values = new List<TValue>(_dict.Values) {_nullValue};
+                return values;
             }
         }
 
@@ -178,14 +170,7 @@ namespace AdventureBot
 
         public bool Contains(KeyValuePair<TKey, TValue> item)
         {
-            TValue val;
-
-            if (TryGetValue(item.Key, out val))
-            {
-                return Equals(item.Value, val);
-            }
-
-            return false;
+            return TryGetValue(item.Key, out var val) && Equals(item.Value, val);
         }
 
         public void CopyTo(KeyValuePair<TKey, TValue>[] array, int arrayIndex)

@@ -77,25 +77,28 @@ namespace AdventureBot
                 return;
             }
 
-            if (_toFlush || DateTime.Now - _lastFlushed > new TimeSpan(0, 0, 15)) // Every 15 seconds
+            // Every 15 seconds
+            if (!_toFlush && DateTime.Now - _lastFlushed <= new TimeSpan(0, 0, 15))
             {
-                Flush(_cache.Values.Where(c => c.Changed));
-                _lastFlushed = DateTime.Now;
-                _toFlush = false;
+                return;
             }
+
+            Flush(_cache.Values.Where(c => c.Changed));
+            _lastFlushed = DateTime.Now;
+            _toFlush = false;
         }
 
         private User.User WaitUser(CachedUser user, bool safe = true)
         {
             if (safe)
             {
-                if (user.Lock.Wait(3500))
+                if (!user.Lock.Wait(3500))
                 {
-                    _loadedUsers.Increase();
-                    return user.User;
+                    throw new TimeoutException("Timeout waiting for user");
                 }
 
-                throw new TimeoutException("Timeout waiting for user");
+                _loadedUsers.Increase();
+                return user.User;
             }
 
             if (user.User == null)
@@ -367,11 +370,13 @@ namespace AdventureBot
             public void Decrease()
             {
                 Count--;
-                if (Count == 0)
+                if (Count != 0)
                 {
-                    OnZero?.Invoke();
-                    _allowIncrease.Set();
+                    return;
                 }
+
+                OnZero?.Invoke();
+                _allowIncrease.Set();
             }
 
             public void Acquire()

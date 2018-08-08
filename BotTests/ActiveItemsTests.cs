@@ -71,7 +71,7 @@ namespace BotTests
             Assert.Empty(user.ActiveItemsManager.ActiveItems);
 
             user.ActiveItemsManager.ActiveLimit = 3;
-            user.ActiveItemsManager._activeProportions = new Dictionary<StructFlag<StatsProperty>, int>
+            user.ActiveItemsManager.Proportions = new Dictionary<StructFlag<StatsProperty>, int>
             {
                 {new StructFlag<StatsProperty>(StatsProperty.Health), 3}
             };

@@ -9,7 +9,7 @@ namespace Content.Items
     [Item("item/energy")]
     public class EnergyDrink : ItemBase
     {
-        public override Flag<BuyGroup> Group => new Flag<BuyGroup>(BuyGroup.Market);
+        public override StructFlag<BuyGroup> Group => new StructFlag<BuyGroup>(BuyGroup.Market);
         public override string Name => "Энергетик";
         public override string Description => "Для тех, кто хочет жить опасно";
         public override decimal? Price => 100;

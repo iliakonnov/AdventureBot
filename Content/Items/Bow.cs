@@ -10,13 +10,13 @@ namespace Content.Items
     [Item("legolas/bow")]
     public class Bow : ItemBase
     {
-        public override Flag<BuyGroup> Group => new Flag<BuyGroup>();
+        public override StructFlag<BuyGroup> Group => new StructFlag<BuyGroup>();
         public override string Name => "Эльфийский лук";
         public override string Description => "Этому луку стрелы не нужны!";
         public override decimal? Price => null;
         public override string Identifier => "legolas/bow";
         public override StatsEffect Effect => null;
-        
+
         public override bool CanUse(User user, ItemInfo info)
         {
             return user.RoomManager.GetRoom() is IMonster;
@@ -28,7 +28,7 @@ namespace Content.Items
             {
                 return;
             }
-            
+
             monster.MakeDamage(user, 300);
         }
     }

@@ -1,5 +1,4 @@
-﻿using System;
-using JetBrains.Annotations;
+﻿using JetBrains.Annotations;
 using MessagePack;
 
 namespace AdventureBot.Messenger
@@ -23,7 +22,6 @@ namespace AdventureBot.Messenger
         public ChatId ChatId = new ChatId(int.MinValue, long.MinValue);
         public bool Formatted = true;
 
-        public DateTimeOffset SentTime;
         public string Text;
         public string Intent { get; set; }
     }

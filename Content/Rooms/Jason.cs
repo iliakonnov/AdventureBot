@@ -11,7 +11,7 @@ namespace Content.Rooms
         public override string Name => "Джейсон Вурхиз";
         public override string Identifier => "moster/jason";
 
-        public override decimal Health
+        protected override decimal Health
         {
             get
             {
@@ -30,7 +30,7 @@ namespace Content.Rooms
             return today.DayOfWeek == DayOfWeek.Friday && today.Day == 13;
         }
 
-        public override decimal GetDamage(User user)
+        protected override decimal GetDamage(User user)
         {
             if (IsFriday())
             {
@@ -40,7 +40,7 @@ namespace Content.Rooms
             return 45;
         }
 
-        public override void Enter(User user, string[][] buttons)
+        protected override void Enter(User user, string[][] buttons)
         {
             SendMessage(
                 user,
@@ -51,12 +51,12 @@ namespace Content.Rooms
             );
         }
 
-        public override bool OnRunaway(User user)
+        protected override bool OnRunaway(User user)
         {
             return true;
         }
 
-        public override void OnWon(User user)
+        protected override void OnWon(User user)
         {
             user.ItemManager.Add(new ItemInfo("jason/mask", 1));
         }

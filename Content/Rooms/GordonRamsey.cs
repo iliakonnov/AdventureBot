@@ -9,24 +9,24 @@ namespace Content.Rooms
     {
         public override string Name => "Гордон Рамзи";
         public override string Identifier => "monster/gordonRamsey";
-        public override decimal Health => 200;
+        protected override decimal Health => 200;
 
-        public override decimal GetDamage(User user)
+        protected override decimal GetDamage(User user)
         {
             return 15;
         }
 
-        public override void Enter(User user, string[][] buttons)
+        protected override void Enter(User user, string[][] buttons)
         {
             SendMessage(user, "Эта свинина настолько жирная, что уже натягивает свои леопардовые лосины!", buttons);
         }
 
-        public override bool OnRunaway(User user)
+        protected override bool OnRunaway(User user)
         {
             return true;
         }
 
-        public override void OnWon(User user)
+        protected override void OnWon(User user)
         {
             user.ItemManager.Add(new ItemInfo("gordonRamsey/knife", 1));
         }

@@ -10,7 +10,7 @@ namespace Content.Items
     [Item("anime/badge")]
     public class AnimeBadge : ItemBase
     {
-        public override Flag<BuyGroup> Group => new Flag<BuyGroup>();
+        public override StructFlag<BuyGroup> Group => new StructFlag<BuyGroup>();
         public override string Name => "Значок \"I ❤️ 宮崎 駿\"";
         public override string Description => "";
         public override decimal? Price => null;

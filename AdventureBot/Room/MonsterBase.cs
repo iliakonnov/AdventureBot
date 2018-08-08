@@ -10,7 +10,7 @@ namespace AdventureBot.Room
 
     public abstract class MonsterBase : RoomBase, IMonster
     {
-        public abstract decimal Health { get; }
+        protected abstract decimal Health { get; }
 
         public void MakeDamage(User.User user, decimal damage)
         {
@@ -101,9 +101,9 @@ namespace AdventureBot.Room
             return GetItems(user).Select(item => new[] {item}).ToArray();
         }
 
-        public abstract decimal GetDamage(User.User user);
-        public abstract void Enter(User.User user, string[][] buttons);
-        public abstract bool OnRunaway(User.User user);
-        public abstract void OnWon(User.User user);
+        protected abstract decimal GetDamage(User.User user);
+        protected abstract void Enter(User.User user, string[][] buttons);
+        protected abstract bool OnRunaway(User.User user);
+        protected abstract void OnWon(User.User user);
     }
 }

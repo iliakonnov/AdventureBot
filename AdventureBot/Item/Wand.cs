@@ -14,7 +14,7 @@ namespace AdventureBot.Item
             "Ты даже не знаешь откуда она взялась. Такое чувство, что она всегда была с тобой";
 
         public override decimal? Price => null;
-        public override Flag<BuyGroup> Group => new Flag<BuyGroup>(new BuyGroup[0]);
+        public override StructFlag<BuyGroup> Group => new StructFlag<BuyGroup>(new BuyGroup[0]);
 
         public override string Identifier => "wand";
         public override StatsEffect Effect => null;

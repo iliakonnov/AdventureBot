@@ -42,7 +42,7 @@ namespace Content.Rooms
             SendMessage(user, "Хозяева пригашают тебя на рюмку вина.", GetButtons(user));
         }
 
-        public void TryLeave(User user, RecivedMessage message)
+        private void TryLeave(User user, RecivedMessage message)
         {
             SendMessage(user, "Ты почувствовал, как мимо твоего уха пролетел нож.", GetButtons(user));
         }

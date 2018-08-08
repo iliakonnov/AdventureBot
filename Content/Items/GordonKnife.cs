@@ -11,7 +11,7 @@ namespace Content.Items
     [Item("gordonRamsey/knife")]
     public class GordonKnife : ItemBase
     {
-        public override Flag<BuyGroup> Group => new Flag<BuyGroup>();
+        public override StructFlag<BuyGroup> Group => new StructFlag<BuyGroup>();
         public override string Name => "Нож Шефа";
         public override string Description => string.Empty;
         public override decimal? Price => null;

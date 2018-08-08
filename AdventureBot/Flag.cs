@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using MessagePack;
@@ -8,7 +9,11 @@ using MessagePack;
 namespace AdventureBot
 {
     [MessagePackObject(true)]
-    public class StructFlag<T> : Flag<T> where T : struct
+    public class StructFlag<T> :
+#pragma warning disable 612
+        Flag<T>
+#pragma warning restore 612
+        where T : struct
     {
         public StructFlag()
         {
@@ -19,6 +24,10 @@ namespace AdventureBot
         }
 
         public StructFlag(IEnumerable<T> values) : base(values)
+        {
+        }
+
+        public StructFlag(params T[] values) : base(values)
         {
         }
 
@@ -38,7 +47,11 @@ namespace AdventureBot
     }
 
     [MessagePackObject(true)]
-    public class SerializableFlag<T> : Flag<T>, ISerializable where T : ISerializable
+    public class SerializableFlag<T> :
+#pragma warning disable 612
+        Flag<T>,
+#pragma warning restore 612
+        ISerializable where T : ISerializable
     {
         public SerializableFlag()
         {
@@ -52,6 +65,11 @@ namespace AdventureBot
         {
         }
 
+        public SerializableFlag(params T[] values) : base(values)
+        {
+        }
+
+        [SerializationConstructor]
         public SerializableFlag(ImmutableHashSet<T> values) : base(values)
         {
         }
@@ -77,28 +95,28 @@ namespace AdventureBot
     {
         private int? _hashcode;
 
-        public Flag()
+        protected Flag()
         {
             Values = ImmutableHashSet.Create<T>();
         }
 
-        public Flag(T value)
+        protected Flag(T value)
         {
             Values = ImmutableHashSet.Create(value);
         }
 
-        public Flag(IEnumerable<T> values)
+        protected Flag(IEnumerable<T> values)
         {
             Values = ImmutableHashSet.Create(values.ToArray());
         }
 
-        public Flag(params T[] values)
+        protected Flag(params T[] values)
         {
             Values = ImmutableHashSet.Create(values);
         }
 
         [SerializationConstructor]
-        public Flag(ImmutableHashSet<T> values)
+        protected Flag(ImmutableHashSet<T> values)
         {
             Values = values;
         }
@@ -153,6 +171,7 @@ namespace AdventureBot
                 _hashcode ^= value.GetHashCode();
             }
 
+            Debug.Assert(_hashcode != null, nameof(_hashcode) + " != null");
             return (int) _hashcode;
         }
 
