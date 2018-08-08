@@ -35,6 +35,8 @@ namespace Content.Rooms
 
         public override void OnEnter(User user)
         {
+            base.OnEnter(user);
+
             SwitchAction(user, null);
             SendMessage(user, "Танцы, песни, вино рекой. Все как положено.");
             SendMessage(user, "Хозяева пригашают тебя на рюмку вина.", GetButtons(user));
@@ -47,6 +49,8 @@ namespace Content.Rooms
 
         public override bool OnLeave(User user)
         {
+            base.OnLeave(user);
+
             SendMessage(user, "Ты очнулся в городе. Что случилось на свадьбе — вечная загадка для тебя.");
             return true;
         }

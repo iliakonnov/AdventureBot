@@ -21,6 +21,8 @@ namespace AdventureBot.Room
 
         public override void OnEnter(User.User user)
         {
+            base.OnEnter(user);
+
             var variables = GetRoomVariables(user);
             variables.Set("old_hp", new Serializable.Decimal(Health));
             variables.Set("hp", new Serializable.Decimal(Health));
@@ -37,7 +39,7 @@ namespace AdventureBot.Room
                 if (OnRunaway(user))
                 {
                     SendMessage(user, "Вы убежали от монстра.");
-                    return true;
+                    return base.OnLeave(user);
                 }
 
                 SendMessage(user, "Вы попытались убежать, но монстр вам не отпускает.");
@@ -46,7 +48,7 @@ namespace AdventureBot.Room
 
             OnWon(user);
             SendMessage(user, "Вы победили монстра!");
-            return true;
+            return base.OnLeave(user);
         }
 
         public override void OnMessage(User.User user, RecivedMessage message)

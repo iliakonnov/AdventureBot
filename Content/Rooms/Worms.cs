@@ -30,6 +30,8 @@ namespace Content.Rooms
 
         public override void OnEnter(User user)
         {
+            base.OnEnter(user);
+
             SendMessage(
                 user,
                 "В террариуме оказалось несколько червяков, палящих друг по другу миниатюрными, но ничуть не менее опасными базуками.",
@@ -39,6 +41,8 @@ namespace Content.Rooms
 
         public override bool OnLeave(User user)
         {
+            base.OnLeave(user);
+
             user.ItemManager.Add(new ItemInfo("worms/worm", 3));
             SendMessage(user, "Перед уходом ты подобрал бездыханные тела бравых бойцов.");
             return true;

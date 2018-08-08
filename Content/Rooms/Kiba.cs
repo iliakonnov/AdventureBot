@@ -27,14 +27,12 @@ namespace Content.Rooms
 
         public override void OnEnter(User user)
         {
+            base.OnEnter(user);
+
             SendMessage(user, "— Я бы привез тебе лису, но отсюда до моей игры слишком дале...");
             SendMessage(user, "Он что, заснул?", GetButtons(user));
         }
 
-        public override bool OnLeave(User user)
-        {
-            return true;
-        }
 
         public override void OnMessage(User user, RecivedMessage message)
         {

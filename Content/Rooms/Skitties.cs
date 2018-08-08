@@ -45,15 +45,13 @@ namespace Content.Rooms
 
         public override void OnEnter(User user)
         {
+            base.OnEnter(user);
+
             SendMessage(user,
                 "Ты увидел афроамериканца, который доил жирафа конфетами, ел их и угарал как укуренный. Ты начал было мысленно перечислять все галюциногенные грибы, которые могли быть подмешаны в зелье, но темнокожий предложил тебе этих самых конфет. Что будем делать?",
                 GetButtons(user));
         }
 
-        public override bool OnLeave(User user)
-        {
-            return true;
-        }
 
         public override void OnMessage(User user, RecivedMessage message)
         {

@@ -20,12 +20,56 @@ namespace AdventureBot.Room
 
         public abstract string Name { get; }
         public abstract string Identifier { get; }
-        public abstract void OnEnter(User.User user);
-        public abstract bool OnLeave(User.User user);
         public abstract void OnMessage(User.User user, RecivedMessage message);
+
+        public virtual bool OnLeave(User.User user)
+        {
+            UpdateCounter("rooms_leave", 1);
+            return true;
+        }
+
+        private int UpdateCounter(string containerName, int diff)
+        {
+            int value;
+            var container = GlobalVariables.Variables.Get<VariableContainer>(containerName);
+            if (container == null)
+            {
+                container = new VariableContainer();
+                GlobalVariables.Variables.Set(containerName, container);
+                value = 0;
+            }
+            else
+            {
+                value = container.Get<Serializable.Int>(Identifier);
+            }
+
+            if (diff != 0)
+            {
+                container.Set(Identifier, new Serializable.Int(value + diff));
+            }
+
+            return value + diff;
+        }
+
+        public virtual void OnEnter(User.User user)
+        {
+            var enterCount = UpdateCounter("rooms_enter", 1) - 1;
+            var leaveCount = UpdateCounter("rooms_leave", 0);
+
+            if (enterCount != 0)
+            {
+                var percents = (decimal) leaveCount / enterCount;
+                SendMessage(user, $"Из этого места смогли выбраться живым в {percents:#0.##%} случаев");
+            }
+            else
+            {
+                SendMessage(user, "Вы — первый, кто сюда зашел!");
+            }
+        }
 
         public virtual void OnReturn(User.User user)
         {
+            UpdateCounter("rooms_leave", -1);
             user.RoomManager.Leave();
         }
 

@@ -39,6 +39,8 @@ namespace Content.Rooms
 
         public override void OnEnter(User user)
         {
+            base.OnEnter(user);
+
             SendMessage(
                 user,
                 "У тебя возникло непреодолимое желание отведать яблок, но они висят слишком высоко.",
@@ -46,10 +48,6 @@ namespace Content.Rooms
             );
         }
 
-        public override bool OnLeave(User user)
-        {
-            return true;
-        }
 
         public override void OnMessage(User user, RecivedMessage message)
         {

@@ -51,6 +51,8 @@ namespace Content.Rooms
 
         public override void OnEnter(User user)
         {
+            base.OnEnter(user);
+
             SwitchAction(user, null);
             user.MessageManager.ShownStats = ShownStats.Gold;
             SendMessage(
@@ -64,10 +66,6 @@ namespace Content.Rooms
             );
         }
 
-        public override bool OnLeave(User user)
-        {
-            return true;
-        }
 
         public override void OnMessage(User user, RecivedMessage message)
         {

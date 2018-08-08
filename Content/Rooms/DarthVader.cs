@@ -52,6 +52,8 @@ namespace Content.Rooms
 
         public override void OnEnter(User user)
         {
+            base.OnEnter(user);
+
             SendMessage(user,
                 "Перед вами предстал крупный мужчина в черной блестящей респираторной маске и темном матовом плаще.");
             SendMessage(user, "— Я твой отец!", GetButtons(user));
@@ -59,6 +61,8 @@ namespace Content.Rooms
 
         public override bool OnLeave(User user)
         {
+            base.OnLeave(user);
+
             return _battleRoom.OnLeave(user);
         }
 
