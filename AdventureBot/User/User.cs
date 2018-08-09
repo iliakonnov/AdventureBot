@@ -73,8 +73,6 @@ namespace AdventureBot.User
 
         public MessageManager MessageManager { get; private set; }
 
-        [IgnoreMember] internal bool Unsafe { get; set; }
-
         public Guid Token { get; set; } = Guid.Empty;
         internal Tuple<UserId, Guid> LinkedTo { get; set; }
 

@@ -64,7 +64,7 @@ namespace AdventureBot
             });
 
             Logger.Info("Saving users...");
-            UserManager.Instance.Flush();
+            UserManager.Cache.Instance.FlushAll();
             Logger.Debug("Done!");
             Thread.Sleep(500); // Finish logging
             Environment.Exit(0);
