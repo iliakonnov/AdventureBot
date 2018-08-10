@@ -217,11 +217,7 @@ namespace AdventureBot.User
             User.RoomManager.Go("_root", false);
         }
 
-        /// <summary>
-        ///     Наносит урон с учетом защиты игрока. Убивает при необходимости
-        /// </summary>
-        /// <param name="value">Какой урон нанесен</param>
-        public void MakeDamage(decimal value)
+        public static decimal CalculateDefence(decimal damage, decimal defence)
         {
             // Урон (в процентах) в зависмости от защиты: https://www.desmos.com/calculator/xlslvcdbmo
 
@@ -240,8 +236,17 @@ namespace AdventureBot.User
             //
             // Необходимо учитывать это при создании монстров!
 
-            value *= -(19m / (CurrentStats.Effect[StatsProperty.Defence] + 19m) + 0.05m);
-            ChangeStats(ChangeType.Add, StatsProperty.Health, value, true);
+            return damage * 19m / (defence + 19m) + 0.05m;
+        }
+
+        /// <summary>
+        ///     Наносит урон с учетом защиты игрока. Убивает при необходимости
+        /// </summary>
+        /// <param name="value">Какой урон нанесен</param>
+        public void MakeDamage(decimal value)
+        {
+            value = CalculateDefence(value, CurrentStats.Effect[StatsProperty.Defence]);
+            ChangeStats(ChangeType.Add, StatsProperty.Health, -value, true);
             if (CurrentStats.Effect[StatsProperty.Health] <= MinStats.Effect[StatsProperty.Health])
             {
                 Kill();

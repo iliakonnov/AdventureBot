@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿#if DEBUG
+
+using System.Collections.Generic;
 using AdventureBot;
 using AdventureBot.Item;
 using AdventureBot.ObjectManager;
@@ -32,3 +34,5 @@ namespace Content.Items
         }
     }
 }
+
+#endif

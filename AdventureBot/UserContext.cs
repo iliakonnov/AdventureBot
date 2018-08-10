@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Timers;
+using AdventureBot.UserManager;
 using NLog;
 
 namespace AdventureBot
@@ -29,10 +29,10 @@ namespace AdventureBot
         {
             Logger.Debug($"User closed in {DateTime.Now - _opened}");
             _timer.Stop();
-            UserManager.UserProxy.Save(User);
+            UserProxy.Save(User);
             if (_unlinked != null)
             {
-                UserManager.UserProxy.Save(_unlinked);
+                UserProxy.Save(_unlinked);
             }
 
             _timer.Dispose();
@@ -41,12 +41,12 @@ namespace AdventureBot
         private void LoadUser(UserId userId)
         {
             Logger.Debug($"Opening user {userId}");
-            User = UserManager.UserProxy.Get(userId);
+            User = UserProxy.Get(userId);
             if (User.LinkedTo != null)
             {
                 _unlinked = User;
                 // Load user not through UserContext, because it can be linked to other user and so on.
-                User = UserManager.UserProxy.Get((UserId) User.LinkedTo.Item1);
+                User = UserProxy.Get(User.LinkedTo.Item1);
                 if (User.Token != _unlinked.LinkedTo.Item2)
                 {
                     // Token was revoked, so unlink this user
