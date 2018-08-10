@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.IO;
 using MessagePack;
 using MessagePack.ImmutableCollection;
 using MessagePack.Resolvers;
@@ -20,7 +21,7 @@ namespace AdventureBot.UserManager
             Connection = new SqliteConnection(connectionString);
             Connection.Open();
             QueryHelper(InitailizeTables);
-            
+
             CompositeResolver.RegisterAndSetAsDefault(
                 ImmutableCollectionResolver.Instance,
                 StandardResolverAllowPrivate.Instance
@@ -92,9 +93,16 @@ namespace AdventureBot.UserManager
                     }
 
                     var userdata = (byte[]) value;
-                    var user = MessagePackSerializer.Deserialize<User.User>(userdata);
-
-                    return user;
+                    try
+                    {
+                        return MessagePackSerializer.Deserialize<User.User>(userdata);
+                    }
+                    catch (Exception e)
+                    {
+                        var filename = $"{id.Messenger}_{id.Id}.userdump";
+                        File.WriteAllBytes(filename, userdata);
+                        Logger.Error(e, $"Cannot deserialize user {id}. Dump saved to {filename}");
+                    }
                 }
 
                 NotFound:
