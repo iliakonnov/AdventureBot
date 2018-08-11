@@ -7,14 +7,14 @@ using AdventureBot.ObjectManager;
 
 namespace AdventureBot.Room
 {
+    public delegate void MessageRecived(User.User user, RecivedMessage message);
+    
     public abstract class RoomBase : IRoom
     {
-        protected VariableContainer GetRoomVariables(User.User user)
+        public VariableContainer GetRoomVariables(User.User user)
         {
             return user.VariableManager.GetRoomVariables(Identifier);
         }
-
-        protected delegate void MessageRecived(User.User user, RecivedMessage message);
 
         #region IRoom implementation
 
@@ -77,7 +77,7 @@ namespace AdventureBot.Room
 
         #region Routes & actions
 
-        protected MessageRecived[] Routes { get; set; }
+        public MessageRecived[] Routes { get; set; }
 
         private int? GetRouteIdx(User.User user)
         {
@@ -86,7 +86,7 @@ namespace AdventureBot.Room
             return (Serializable.Int) action;
         }
 
-        protected bool HandleAction(User.User user, RecivedMessage message)
+        public bool HandleAction(User.User user, RecivedMessage message)
         {
             var route = GetRouteIdx(user);
 
@@ -99,7 +99,7 @@ namespace AdventureBot.Room
             return true;
         }
 
-        protected void SwitchAction(User.User user, MessageRecived handler)
+        public void SwitchAction(User.User user, MessageRecived handler)
         {
             if (handler == null)
             {
@@ -116,7 +116,7 @@ namespace AdventureBot.Room
             GetRoomVariables(user).Set("action", new Serializable.Int(idx));
         }
 
-        protected void SwitchAndHandle(User.User user, MessageRecived handler, RecivedMessage message)
+        public void SwitchAndHandle(User.User user, MessageRecived handler, RecivedMessage message)
         {
             SwitchAction(user, handler);
             handler?.Invoke(user, message);
@@ -126,7 +126,7 @@ namespace AdventureBot.Room
 
         #region Buttons
 
-        protected NullableDictionary<MessageRecived, Dictionary<string, MessageRecived>> Buttons { get; set; } =
+        public NullableDictionary<MessageRecived, Dictionary<string, MessageRecived>> Buttons { get; set; } =
             new NullableDictionary<MessageRecived, Dictionary<string, MessageRecived>>();
 
         private Dictionary<string, MessageRecived> GetCurrentButtons(User.User user)
@@ -145,7 +145,7 @@ namespace AdventureBot.Room
             return buttons;
         }
 
-        protected void HandleButtonAlways(User.User user, RecivedMessage message)
+        public void HandleButtonAlways(User.User user, RecivedMessage message)
         {
             var buttons = GetCurrentButtons(user);
 
@@ -164,7 +164,7 @@ namespace AdventureBot.Room
             }
         }
 
-        protected string[][] GetButtons(User.User user)
+        public string[][] GetButtons(User.User user)
         {
             var buttons = GetCurrentButtons(user);
 
@@ -185,7 +185,7 @@ namespace AdventureBot.Room
             return result;
         }
 
-        protected bool HandleButton(User.User user, RecivedMessage message)
+        public bool HandleButton(User.User user, RecivedMessage message)
         {
             var buttons = GetCurrentButtons(user);
 
@@ -207,14 +207,14 @@ namespace AdventureBot.Room
 
         #region Use items
 
-        protected static IEnumerable<string> GetItems(User.User user)
+        public static IEnumerable<string> GetItems(User.User user)
         {
             return user.ItemManager.Items
                 .Where(i => i.CanUse(user))
                 .Select(i => $"{i.Item.Name} (x{i.Count})");
         }
 
-        protected static bool UseItem(User.User user, RecivedMessage message)
+        public static bool UseItem(User.User user, RecivedMessage message)
         {
             var item = user.ItemManager.Items.SingleOrDefault(i =>
                 i.CanUse(user) && message.Text.StartsWith(i.Item.Name)
@@ -232,7 +232,7 @@ namespace AdventureBot.Room
 
         #region Small helpers
 
-        protected void SendMessage(User.User user, string message, string[][] buttons = null, string intent = null)
+        public void SendMessage(User.User user, string message, string[][] buttons = null, string intent = null)
         {
             if (intent == null)
             {
@@ -252,12 +252,12 @@ namespace AdventureBot.Room
             });
         }
 
-        protected static ItemManager GetAllItems()
+        public static ItemManager GetAllItems()
         {
             return ObjectManager<IItem>.Instance.Get<ItemManager>();
         }
 
-        protected static RoomManager GetAllRooms()
+        public static RoomManager GetAllRooms()
         {
             return ObjectManager<IRoom>.Instance.Get<RoomManager>();
         }
