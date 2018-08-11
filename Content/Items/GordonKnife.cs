@@ -32,7 +32,7 @@ namespace Content.Items
 
             if (user.Info.ChangeStats(StatsProperty.Stamina, -15))
             {
-                monster.MakeDamage(user, user.Info.CurrentStats.Effect[StatsProperty.Strength] + 15);
+                monster.MakeDamage(user, user.Info.CurrentStats.GetStat(StatsProperty.Strength) + 15);
             }
             else
             {

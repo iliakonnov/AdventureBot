@@ -16,8 +16,8 @@ namespace Content.Rooms.MegaMonster.Room
                 switch (stats.Stats.KnowledgeGroup)
                 {
                     case MegaMonster.Knowledge.Strength:
-                        if (user.Info.CurrentStats.Effect[StatsProperty.Strength] >= stats.Stats.KnowledgeMinimal
-                            && user.Info.CurrentStats.Effect[StatsProperty.Stamina] >= stats.Stats.KnowledgeRequired)
+                        if (user.Info.CurrentStats.GetStat(StatsProperty.Strength) >= stats.Stats.KnowledgeMinimal
+                            && user.Info.CurrentStats.GetStat(StatsProperty.Stamina) >= stats.Stats.KnowledgeRequired)
                         {
                             canLearn = true;
                             SwitchAction(user, GiveKnowledge);
@@ -28,8 +28,8 @@ namespace Content.Rooms.MegaMonster.Room
 
                         break;
                     case MegaMonster.Knowledge.Intelligence:
-                        if (user.Info.CurrentStats.Effect[StatsProperty.Intelligence] >= stats.Stats.KnowledgeMinimal
-                            && user.Info.CurrentStats.Effect[StatsProperty.Mana] >= stats.Stats.KnowledgeRequired)
+                        if (user.Info.CurrentStats.GetStat(StatsProperty.Intelligence) >= stats.Stats.KnowledgeMinimal
+                            && user.Info.CurrentStats.GetStat(StatsProperty.Mana) >= stats.Stats.KnowledgeRequired)
                         {
                             canLearn = true;
                             SwitchAction(user, GiveKnowledge);

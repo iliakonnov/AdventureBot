@@ -23,7 +23,7 @@ namespace Content.Items
 
         public override void OnUse(User user, ItemInfo info)
         {
-            user.Info.ChangeStats(StatsProperty.Stamina, user.Info.MaxStats.Effect[StatsProperty.Stamina]);
+            user.Info.ChangeStats(StatsProperty.Stamina, user.Info.MaxStats.GetStat(StatsProperty.Stamina));
         }
     }
 }

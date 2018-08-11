@@ -30,7 +30,7 @@ namespace Content.Items
                 return;
             }
 
-            monster.MakeDamage(user, user.Info.CurrentStats.Effect[StatsProperty.Strength] + 50);
+            monster.MakeDamage(user, user.Info.CurrentStats.GetStat(StatsProperty.Strength) + 50);
             user.MessageManager.SendMessage(new SentMessage
             {
                 Text = "Ты чуть не разрезал монстра пополам"

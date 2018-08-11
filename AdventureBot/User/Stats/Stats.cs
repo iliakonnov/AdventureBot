@@ -55,20 +55,27 @@ namespace AdventureBot.User.Stats
             switch (effect.ChangeType)
             {
                 case ChangeType.Add:
-                    return new Stats(Effect
-                        .ToDictionary(kv => kv.Key, kv => kv.Value + effect.Effect.GetValueOrDefault(kv.Key))
+                    return new Stats(DefaultStats
+                        .ToDictionary(kv => kv.Key, kv => GetStat(kv.Key) + effect.Effect.GetValueOrDefault(kv.Key))
                     );
                 case ChangeType.Set:
-                    return new Stats(Effect
-                        .ToDictionary(kv => kv.Key, kv => effect.Effect.GetValueOrDefault(kv.Key, kv.Value))
+                    return new Stats(DefaultStats
+                        .ToDictionary(kv => kv.Key, kv => effect.Effect.GetValueOrDefault(kv.Key, GetStat(kv.Key)))
                     );
                 case ChangeType.Multiply:
-                    return new Stats(Effect
-                        .ToDictionary(kv => kv.Key, kv => kv.Value * effect.Effect.GetValueOrDefault(kv.Key, 1))
+                    return new Stats(DefaultStats
+                        .ToDictionary(kv => kv.Key, kv => GetStat(kv.Key)  * effect.Effect.GetValueOrDefault(kv.Key, 1))
                     );
                 default:
                     throw new ArgumentOutOfRangeException();
             }
+        }
+
+        public decimal GetStat(StatsProperty property)
+        {
+            return Effect.TryGetValue(property, out var result)
+                ? result
+                : DefaultStats[property];
         }
     }
 }

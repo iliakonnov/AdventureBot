@@ -49,7 +49,7 @@ namespace Content.Town
 
         public override void OnEnter(User user)
         {
-            if (user.Info.CurrentStats.Effect[StatsProperty.Intelligence] > 10)
+            if (user.Info.CurrentStats.GetStat(StatsProperty.Intelligence) > 10)
             {
                 SendMessage(user, "Вам больше не рады в Спортзале");
                 user.RoomManager.Leave();

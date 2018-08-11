@@ -66,9 +66,9 @@ namespace Content.Town
         public override void OnReturn(User user)
         {
             const decimal k = 0.2m;
-            user.Info.ChangeStats(StatsProperty.Mana, user.Info.MaxStats.Effect[StatsProperty.Mana] * k);
-            user.Info.ChangeStats(StatsProperty.Stamina, user.Info.MaxStats.Effect[StatsProperty.Mana] * k);
-            user.Info.ChangeStats(StatsProperty.Health, user.Info.MaxStats.Effect[StatsProperty.Mana] * k);
+            user.Info.ChangeStats(StatsProperty.Mana, user.Info.MaxStats.GetStat(StatsProperty.Mana) * k);
+            user.Info.ChangeStats(StatsProperty.Stamina, user.Info.MaxStats.GetStat(StatsProperty.Mana) * k);
+            user.Info.ChangeStats(StatsProperty.Health, user.Info.MaxStats.GetStat(StatsProperty.Mana) * k);
 
             SendMessage(user, "Вы вернулись в город, отдохнули и теперь лучше себя чувствуете.");
 

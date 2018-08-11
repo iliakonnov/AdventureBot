@@ -42,7 +42,7 @@ namespace Content.Items
                         Text =
                             "Цепной меч издает сердитое жужжание, перерастающее в пронзительный визг, когда цепь начинает вгрызаться в врага."
                     });
-                    monsterRoom.MakeDamage(user, user.Info.CurrentStats.Effect[StatsProperty.Strength] + 80);
+                    monsterRoom.MakeDamage(user, user.Info.CurrentStats.GetStat(StatsProperty.Strength) + 80);
                     GetItemVariables(user).Set("bleeding", new Serializable.Int(bleeding + 1));
                 }
                 else

@@ -49,7 +49,7 @@ namespace Content.Town
 
         public override void OnEnter(User user)
         {
-            if (user.Info.CurrentStats.Effect[StatsProperty.Strength] > 10)
+            if (user.Info.CurrentStats.GetStat(StatsProperty.Strength) > 10)
             {
                 SendMessage(user, "Вам больше не рады в Гильдии");
                 user.RoomManager.Leave();
