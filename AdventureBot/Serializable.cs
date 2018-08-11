@@ -17,6 +17,7 @@ namespace AdventureBot
     [Union(9, typeof(SerializableFlag<ISerializable>))]
     [Union(10, typeof(StatsProperty))]
     [Union(11, typeof(Serializable.Long))]
+    [Union(12, typeof(SerializableList))]
     public interface ISerializable
     {
     }

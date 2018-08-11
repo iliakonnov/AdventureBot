@@ -245,9 +245,10 @@ namespace AdventureBot.User
         {
             var items = FindAvailableItems();
             var byStats = GroupByStats(items);
+            _activeItems.Clear();
             foreach (var keyValuePair in byStats)
             {
-                _activeItems = ActivateItems(keyValuePair.Key, keyValuePair.Value);
+                _activeItems.AddRange(ActivateItems(keyValuePair.Key, keyValuePair.Value));
             }
 
             User.Info.RecalculateStats();

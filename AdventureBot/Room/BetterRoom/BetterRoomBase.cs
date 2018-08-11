@@ -15,6 +15,7 @@ namespace AdventureBot.Room.BetterRoom
         {
             Buttons = new NullableDictionary<MessageRecived, Dictionary<string, MessageRecived>>();
             var routes = new List<Tuple<int, ActionBase>>();
+            var indexes = new HashSet<int>();
             foreach (var type in self.GetNestedTypes())
             {
                 var action = type.GetCustomAttribute<ActionAttribute>();
@@ -39,11 +40,22 @@ namespace AdventureBot.Room.BetterRoom
                 MessageRecived handler = null;
                 if (action.Index != null)
                 {
-                    routes.Add(new Tuple<int, ActionBase>((int) action.Index, instance));
+                    var index = (int) action.Index;
+                    if (indexes.Contains(index))
+                    {
+                        throw new Exception($"Muliply definition of action with index {action.Index}");
+                    }
+
+                    routes.Add(new Tuple<int, ActionBase>(index, instance));
                     handler = instance.OnMessage;
                 }
                 else
                 {
+                    if (_rootAction != null)
+                    {
+                        throw new Exception($"Muliply definition of default action");
+                    }
+
                     _rootAction = instance.OnMessage;
                 }
 
