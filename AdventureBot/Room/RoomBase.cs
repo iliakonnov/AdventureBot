@@ -231,8 +231,23 @@ namespace AdventureBot.Room
         #endregion
 
         #region Small helpers
+        
+        public void SendMessage(User.User user, string message)
+        {
+            SendMessage(user, message, null, null);
+        }
+        
+        public void SendMessage(User.User user, string message, string[][] buttons)
+        {
+            SendMessage(user, message, buttons, null);
+        }
+        
+        public void SendMessage(User.User user, string message, string intent)
+        {
+            SendMessage(user, message, null, intent);
+        }
 
-        public void SendMessage(User.User user, string message, string[][] buttons = null, string intent = null)
+        public void SendMessage(User.User user, string message, string[][] buttons, string intent)
         {
             if (intent == null)
             {

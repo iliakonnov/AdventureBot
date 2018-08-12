@@ -1,0 +1,1 @@
+..\boo\bin\booc.exe -utf8 -srcdir:src -t:library -r:AdventureBot.exe -lib:..\publish -debug- -o:..\publish\BooRooms.dll

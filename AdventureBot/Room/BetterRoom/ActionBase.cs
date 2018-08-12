@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reflection;
 using AdventureBot.Messenger;
-using Microsoft.Scripting.Utils;
 
 namespace AdventureBot.Room.BetterRoom
 {

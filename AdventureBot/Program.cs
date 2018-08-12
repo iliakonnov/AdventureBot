@@ -7,8 +7,6 @@ using AdventureBot.Item;
 using AdventureBot.Messenger;
 using AdventureBot.ObjectManager;
 using AdventureBot.Room;
-using IronPython.Hosting;
-using Microsoft.Scripting.Hosting.Shell;
 using NLog;
 
 namespace AdventureBot
@@ -33,11 +31,6 @@ namespace AdventureBot
                 MainManager.Instance.LoadAssembly(assembly.Value);
             }
 
-            foreach (var python in Configuration.Config.GetSection("python").GetChildren())
-            {
-                MainManager.Instance.LoadPython(Path.GetDirectoryName(python.Value), Path.GetFileName(python.Value));
-            }
-
             MainManager.Instance.LoadAssembly(Assembly.GetExecutingAssembly());
 
 
@@ -49,19 +42,11 @@ namespace AdventureBot
                 false,
                 16384));
 
-            var commandLine = new PythonCommandLine();
-            var engine = Python.CreateEngine();
-            foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
+            var console = new Boo.Lang.Interpreter.InteractiveInterpreterConsole()
             {
-                engine.Runtime.LoadAssembly(assembly);
-            }
-
-            commandLine.Run(engine, new SuperConsole(commandLine, true), new PythonConsoleOptions
-            {
-                AutoIndent = true,
-                ColorfulConsole = true,
-                TabCompletion = true
-            });
+                DisableAutocompletion = false
+            };
+            console.ReadEvalPrintLoop();
 
             Logger.Info("Saving users...");
             UserManager.Cache.Instance.FlushAll();

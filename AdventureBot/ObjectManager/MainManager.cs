@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.Reflection;
-using IronPython.Hosting;
-using IronPython.Runtime.Types;
 
 namespace AdventureBot.ObjectManager
 {
@@ -20,35 +17,6 @@ namespace AdventureBot.ObjectManager
         internal void Register<TMgr>(TMgr manager) where TMgr : IObjectManager
         {
             _managers.Add(manager);
-        }
-
-        internal void LoadPython(string path, string filename)
-        {
-#if DEBUG
-            var engine = Python.CreateEngine(AppDomain.CurrentDomain, new Dictionary<string, object>
-            {
-                {"Debug", true}
-            });
-#else
-            var engine = IronPython.Hosting.Python.CreateEngine(AppDomain.CurrentDomain);
-#endif
-            var scope = engine.CreateScope();
-            engine.Runtime.LoadAssembly(Assembly.GetExecutingAssembly());
-
-            engine.SetSearchPaths(new[] {path});
-
-            engine.ExecuteFile(Path.Combine(path, "module_loader.py"), scope);
-            var loaded =
-                engine.Execute<Tuple<GameObjectAttribute, Type, PythonType>>(
-                    $"load_path(r'{Path.Combine(path, filename)}')",
-                    scope);
-            foreach (var manager in _managers)
-            {
-                manager.Register(
-                    loaded.Item1,
-                    () => engine.Operations.CreateInstance(loaded.Item3)
-                );
-            }
         }
 
         internal void LoadAssembly(Assembly assembly)

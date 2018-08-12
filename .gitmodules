@@ -1,0 +1,3 @@
+[submodule "boo"]
+	path = boo
+	url = https://github.com/boo-lang/boo
