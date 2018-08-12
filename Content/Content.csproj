@@ -9,4 +9,7 @@
   <ItemGroup>
     <ProjectReference Include="..\AdventureBot\AdventureBot.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Rooms\DeadlyBattle\Loot" />
+  </ItemGroup>
 </Project>
