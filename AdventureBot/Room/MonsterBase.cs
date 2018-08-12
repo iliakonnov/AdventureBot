@@ -84,7 +84,7 @@ namespace AdventureBot.Room
             var diff = hp - (decimal) (Serializable.Decimal) variables.Get("old_hp");
             SendMessage(
                 user,
-                $"HP: {hp} _{diff:(+#.##);(-#.##);(0)}_"
+                $"HP: {hp} _{diff.Format()}_"
             );
 
             variables.Set("old_hp", new Serializable.Decimal(hp));

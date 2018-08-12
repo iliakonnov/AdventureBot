@@ -72,7 +72,7 @@ namespace Content.Rooms.MegaMonster.Room
                 SwitchAction(user, SelectTarget);
                 SendMessage(user, "А монстр то ещё жив! Постарайтесь это исправить, пока ещё можете.");
                 SendMessage(user,
-                    $"Вы оставили монстру {stats.Stats.Health:0.##} здоровья, а он вам его попытался понизить на {stats.Stats.Damage:0.##}");
+                    $"Вы оставили монстру {stats.Stats.Health.Format()} здоровья, а он вам его попытался понизить на {stats.Stats.Damage.Format()}");
                 SendMessage(user, "Как будем исправлять ситуацию?", GetButtons(user));
                 user.Info.MakeDamage(stats.Stats.Damage);
             }

@@ -3,8 +3,6 @@ using AdventureBot.User;
 
 namespace Content.Rooms.DeadlyBattle
 {
-    // TODO: Loot
-    
     [Room(Id)]
     public class KungLao : TournamentMonsterBase
     {

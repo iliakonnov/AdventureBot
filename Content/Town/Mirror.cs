@@ -102,7 +102,7 @@ namespace Content.Town
                         throw new ArgumentOutOfRangeException();
                 }
 
-                stats.Append(": ").Append(stat.Value.ToString("#.##")).AppendLine();
+                stats.Append(": ").Append(stat.Value.Format()).AppendLine();
             }
 
             SendMessage(user, stats.ToString());
@@ -273,11 +273,11 @@ namespace Content.Town
 
                     foreach (var effect in info.Item.Effect.Effect)
                     {
-                        description.Append($"{Stats.Emojis[effect.Key]}: {effect.Value:F2} ");
+                        description.Append($"{Stats.Emojis[effect.Key]}: {effect.Value.Format()} ");
                         if (active != null)
                         {
                             description.Append(
-                                $" (*{effect.Value * active.Count:+#.##;-#.##;0}*) ");
+                                $" (*{(effect.Value * active.Count).Format()}*) ");
                         }
                     }
                 }

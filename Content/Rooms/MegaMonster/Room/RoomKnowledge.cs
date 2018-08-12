@@ -1,4 +1,5 @@
 ﻿using System;
+using AdventureBot;
 using AdventureBot.Messenger;
 using AdventureBot.User;
 using AdventureBot.User.Stats;
@@ -24,7 +25,7 @@ namespace Content.Rooms.MegaMonster.Room
                         }
 
                         message =
-                            $"Монстр желает научиться спорту. Для этого необходимо минимум {stats.Stats.KnowledgeMinimal:0.##} силы и {stats.Stats.KnowledgeRequired:0.##} сил";
+                            $"Монстр желает научиться спорту. Для этого необходимо минимум {stats.Stats.KnowledgeMinimal.Format()} силы и {stats.Stats.KnowledgeRequired.Format()} сил";
 
                         break;
                     case MegaMonster.Knowledge.Intelligence:
@@ -36,7 +37,7 @@ namespace Content.Rooms.MegaMonster.Room
                         }
 
                         message =
-                            $"Монстр желает научиться магии. Для этого необходимо минимум {stats.Stats.KnowledgeMinimal:0.##} интеллекта и {stats.Stats.KnowledgeRequired:0.##} маны";
+                            $"Монстр желает научиться магии. Для этого необходимо минимум {stats.Stats.KnowledgeMinimal.Format()} интеллекта и {stats.Stats.KnowledgeRequired.Format()} маны";
                         break;
                     default:
                         throw new ArgumentOutOfRangeException();
