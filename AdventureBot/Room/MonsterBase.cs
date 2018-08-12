@@ -6,6 +6,7 @@ namespace AdventureBot.Room
     public interface IMonster : IRoom
     {
         void MakeDamage(User.User user, decimal damage);
+        decimal GetCurrentHealth(User.User user);
     }
 
     public abstract class MonsterBase : RoomBase, IMonster
@@ -15,8 +16,14 @@ namespace AdventureBot.Room
         public void MakeDamage(User.User user, decimal damage)
         {
             var variables = GetRoomVariables(user);
-            var hp = (decimal) (Serializable.Decimal) GetRoomVariables(user).Get("hp");
+            var hp = (decimal) (Serializable.Decimal) variables.Get("hp");
             variables.Set("hp", new Serializable.Decimal(hp - damage));
+        }
+
+        public decimal GetCurrentHealth(User.User user)
+        {
+            var hp = (decimal) (Serializable.Decimal) GetRoomVariables(user).Get("hp");
+            return hp;
         }
 
         public override void OnEnter(User.User user)

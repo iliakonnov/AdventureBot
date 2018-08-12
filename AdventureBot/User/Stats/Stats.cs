@@ -9,7 +9,7 @@ namespace AdventureBot.User.Stats
     [MessagePackObject(true)]
     public class Stats : StatsEffect
     {
-        private static readonly IReadOnlyDictionary<StatsProperty, decimal> DefaultStats =
+        public static readonly IReadOnlyDictionary<StatsProperty, decimal> DefaultStats =
             new Dictionary<StatsProperty, decimal>
             {
                 {StatsProperty.Health, 100},
@@ -64,7 +64,7 @@ namespace AdventureBot.User.Stats
                     );
                 case ChangeType.Multiply:
                     return new Stats(DefaultStats
-                        .ToDictionary(kv => kv.Key, kv => GetStat(kv.Key)  * effect.Effect.GetValueOrDefault(kv.Key, 1))
+                        .ToDictionary(kv => kv.Key, kv => GetStat(kv.Key) * effect.Effect.GetValueOrDefault(kv.Key, 1))
                     );
                 default:
                     throw new ArgumentOutOfRangeException();

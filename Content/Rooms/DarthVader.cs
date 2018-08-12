@@ -80,6 +80,11 @@ namespace Content.Rooms
             _battleRoom.MakeDamage(user, damage);
         }
 
+        public decimal GetCurrentHealth(User user)
+        {
+            return _battleRoom.GetCurrentHealth(user);
+        }
+
         private void PreBattle(User user, RecivedMessage message)
         {
             HandleButtonAlways(user, message);

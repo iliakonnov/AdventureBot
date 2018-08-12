@@ -25,6 +25,8 @@ namespace AdventureBot.Item
         [NotNull] string Identifier { get; }
         [CanBeNull] StatsEffect Effect { get; }
 
+        bool IsAlwaysActive { get; }
+
         void OnUse(User.User user, ItemInfo info);
 
         bool CanUse(User.User user, ItemInfo info);
@@ -46,6 +48,8 @@ namespace AdventureBot.Item
         public abstract StatsEffect Effect { get; }
 
         public abstract bool CanUse(User.User user, ItemInfo info);
+
+        public virtual bool IsAlwaysActive => false;
 
         public virtual void OnUse(User.User user, ItemInfo info)
         {

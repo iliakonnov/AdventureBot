@@ -71,10 +71,8 @@ namespace AdventureBot.User
 
         public List<StructFlag<StatsProperty>> GetAvailableProportions()
         {
-            return User.ItemManager.Items
-                .Select(item => item.Item.Effect)
-                .Where(effect => effect != null)
-                .Select(effect => new StructFlag<StatsProperty>(effect.Effect.Keys))
+            return FindAvailableItems()
+                .Select(info => new StructFlag<StatsProperty>(info.Item.Effect.Effect.Keys))
                 .ToList();
         }
 
@@ -82,7 +80,8 @@ namespace AdventureBot.User
         {
             return User.ItemManager.Items
                 .Where(i =>
-                    i.Item.Effect != null
+                    !i.Item.IsAlwaysActive
+                    && i.Item.Effect != null
                     && i.Item.Effect.Effect.Count != 0
                 );
         }
@@ -245,7 +244,7 @@ namespace AdventureBot.User
         {
             var items = FindAvailableItems();
             var byStats = GroupByStats(items);
-            _activeItems.Clear();
+            _activeItems = User.ItemManager.Items.Where(i => i.Item.IsAlwaysActive).ToList();
             foreach (var keyValuePair in byStats)
             {
                 _activeItems.AddRange(ActivateItems(keyValuePair.Key, keyValuePair.Value));

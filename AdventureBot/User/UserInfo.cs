@@ -142,7 +142,17 @@ namespace AdventureBot.User
                     {property, value}
                 })
             );
-            if (value < 0)
+            bool decreased;
+            if (changeType == ChangeType.Set)
+            {
+                decreased = changedBase.GetStat(property) - BaseStats.GetStat(property) < 0;
+            }
+            else
+            {
+                decreased = value < 0;
+            }
+
+            if (decreased)
             {
                 // При понижении статов, нужно проверять с учетом предметов.
                 // (базовое здоровье может быть меньше нуля, т.к. предметы тебя спасут)

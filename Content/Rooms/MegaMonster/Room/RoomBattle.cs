@@ -7,6 +7,23 @@ namespace Content.Rooms.MegaMonster.Room
 {
     public partial class MegaMonsterRoom
     {
+        public void MakeDamage(User user, decimal damage)
+        {
+            using (var stats = new StatsContext(user.Random, GetRoomVariables(user)))
+            {
+                var def = GetRoomVariables(user).Get<Serializable.Decimal>("current_defence");
+                stats.Stats.Health -= UserInfo.CalculateDefence(damage, def);
+            }
+        }
+
+        public decimal GetCurrentHealth(User user)
+        {
+            using (var stats = new StatsContext(user.Random, GetRoomVariables(user)))
+            {
+                return stats.Stats.Health;
+            }
+        }
+
         private void BeginBattle(User user)
         {
             SwitchAction(user, SelectTarget);
@@ -58,15 +75,6 @@ namespace Content.Rooms.MegaMonster.Room
                     $"Вы оставили монстру {stats.Stats.Health:0.##} здоровья, а он вам его попытался понизить на {stats.Stats.Damage:0.##}");
                 SendMessage(user, "Как будем исправлять ситуацию?", GetButtons(user));
                 user.Info.MakeDamage(stats.Stats.Damage);
-            }
-        }
-
-        public void MakeDamage(User user, decimal damage)
-        {
-            using (var stats = new StatsContext(user.Random, GetRoomVariables(user)))
-            {
-                var def = GetRoomVariables(user).Get<Serializable.Decimal>("current_defence");
-                stats.Stats.Health -= UserInfo.CalculateDefence(damage, def);
             }
         }
     }
