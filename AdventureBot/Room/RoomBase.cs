@@ -59,7 +59,7 @@ namespace AdventureBot.Room
             if (enterCount != 0)
             {
                 var percents = (decimal) leaveCount / enterCount;
-                SendMessage(user, $"Из этого места смогли выбраться живым в {percents:#0.##%} случаев");
+                SendMessage(user, $"Из этого места выбрались живыми в {percents:#0.##%} случаев");
             }
             else
             {
