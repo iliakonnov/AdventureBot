@@ -50,6 +50,12 @@ class Ryu(BetterRoomBase):
                 "— Тебе придется работать день и ночь, пройти через огонь, воду и медные трубы, но результат тебя удивит. Ты готов?",
                 Room.GetButtons(user))
 
+        [Button("Эмм, я пожалуй пойду обратно в город...")]
+        public def Leave(user as User, message as RecivedMessage):
+            Room.SendMessage(user, "— Передай привет моему другу Кену, если встретишь его по пути.")
+            user.RoomManager.Leave()
+
+
     [Action(0)]
     public class LearnAction(ActionBase):
         public def constructor(room as BetterRoomBase):
@@ -67,6 +73,4 @@ class Ryu(BetterRoomBase):
         public def No(user as User, message as RecivedMessage):
             user.Info.MakeDamage(15)
             Room.SendMessage(user, "— Слабак! — после этих слов он ударом ноги отправил тебя обратно в город.")
-            Room.SendMessage(user, "— Эмм, я пожалуй пойду обратно в город...")
-            Room.SendMessage(user, "— Передай привет моему другу Кену, если встретишь его по пути.")
             user.RoomManager.Leave()
