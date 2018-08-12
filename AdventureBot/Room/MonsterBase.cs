@@ -13,7 +13,7 @@ namespace AdventureBot.Room
     {
         protected abstract decimal Health { get; }
 
-        public void MakeDamage(User.User user, decimal damage)
+        public virtual void MakeDamage(User.User user, decimal damage)
         {
             var variables = GetRoomVariables(user);
             var hp = (decimal) (Serializable.Decimal) variables.Get("hp");
