@@ -59,16 +59,21 @@ namespace AdventureBot.Room
             return base.OnLeave(user);
         }
 
+        protected virtual void NotHandled(User.User user, RecivedMessage message)
+        {
+            SendMessage(
+                user,
+                "Вы поискали в карманах необходимый предмет, но ничего не нашли",
+                GetActions(user),
+                "unknown_item"
+            );
+        }
+
         public override void OnMessage(User.User user, RecivedMessage message)
         {
             if (!UseItem(user, message))
             {
-                SendMessage(
-                    user,
-                    "Вы поискали в карманах необходимый предмет, но ничего не нашли",
-                    GetActions(user),
-                    "unknown_item"
-                );
+                NotHandled(user, message);
             }
             else
             {
