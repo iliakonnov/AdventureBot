@@ -102,7 +102,7 @@ namespace Content.Town
                         throw new ArgumentOutOfRangeException();
                 }
 
-                stats.Append(": ").Append(stat.Value).AppendLine();
+                stats.Append(": ").Append(stat.Value.ToString("#.##")).AppendLine();
             }
 
             SendMessage(user, stats.ToString());
