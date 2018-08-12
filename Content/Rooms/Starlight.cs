@@ -7,7 +7,7 @@ using AdventureBot.User.Stats;
 
 namespace Content.Rooms
 {
-    [Available("monster/starlight", Difficulity.Upper)]
+    [Available("monster/starlight", Difficulity.Hard)]
     public class Starlight : MonsterBase
     {
         public override string Name => "Старлайт";
