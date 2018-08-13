@@ -28,7 +28,7 @@ namespace Content.Rooms
             {
                 case 0:
                     propText = "силы";
-                    prop = StatsProperty.Defence;
+                    prop = StatsProperty.Strength;
                     user.MessageManager.ShownStats |= ShownStats.Strength;
                     break;
                 case 1:

@@ -23,7 +23,10 @@ namespace Content.Items
 
         public override void OnUse(User user, ItemInfo info)
         {
-            user.Info.ChangeStats(StatsProperty.Stamina, user.Info.MaxStats.GetStat(StatsProperty.Stamina));
+            if (user.ItemManager.Remove(new ItemInfo(Identifier, 1)))
+            {
+                user.Info.ChangeStats(StatsProperty.Stamina, user.Info.MaxStats.GetStat(StatsProperty.Stamina));
+            }
         }
     }
 }
