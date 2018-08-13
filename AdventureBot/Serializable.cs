@@ -18,6 +18,7 @@ namespace AdventureBot
     [Union(10, typeof(StatsProperty))]
     [Union(11, typeof(Serializable.Long))]
     [Union(12, typeof(SerializableList))]
+    [Union(13, typeof(Serializable.Decimal))]
     public interface ISerializable
     {
     }

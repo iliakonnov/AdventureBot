@@ -3,31 +3,29 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using MessagePack;
+using MessagePack.ImmutableCollection;
+using MessagePack.Resolvers;
 using NLog;
 
 namespace AdventureBot.UserManager
 {
     public class Cache : Singleton<Cache>
     {
-        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
-
-        private class CachedUser
-        {
-            public byte[] UserData { get; set; }
-            public DateTimeOffset LastRequested { get; set; }
-            public bool Flushed;
-        }
-
-        static Cache()
-        {
-            Flusher.Init();
-        }
-
         private const int CacheSize = 100;
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
         private readonly Dictionary<UserId, CachedUser> _cache = new Dictionary<UserId, CachedUser>();
 
-        private static User.User DeserializeUser(byte[] userdata, UserId id)
+        public Cache()
+        {
+            Flusher.Init();
+            CompositeResolver.RegisterAndSetAsDefault(
+                ImmutableCollectionResolver.Instance,
+                StandardResolverAllowPrivate.Instance
+            );
+        }
+
+        private User.User DeserializeUser(byte[] userdata, UserId id)
         {
             if (userdata != null)
             {
@@ -133,6 +131,13 @@ namespace AdventureBot.UserManager
                 );
                 users.ForEach(u => u.Value.Flushed = true);
             }
+        }
+
+        private class CachedUser
+        {
+            public bool Flushed;
+            public byte[] UserData { get; set; }
+            public DateTimeOffset LastRequested { get; set; }
         }
     }
 }

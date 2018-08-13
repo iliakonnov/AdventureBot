@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using MessagePack;
@@ -9,13 +8,13 @@ namespace AdventureBot
     [MessagePackObject]
     public class VariableContainer : ISerializable
     {
-        [Key("variables")] private readonly ConcurrentDictionary<string, ISerializable> _variables =
-            new ConcurrentDictionary<string, ISerializable>();
+        [Key("variables")] private readonly Dictionary<string, ISerializable> _variables =
+            new Dictionary<string, ISerializable>();
 
         [Obsolete("This constructor for serializer only")]
         [UsedImplicitly]
         [SerializationConstructor]
-        public VariableContainer(ConcurrentDictionary<string, ISerializable> variables)
+        public VariableContainer(Dictionary<string, ISerializable> variables)
         {
             _variables = variables;
         }
@@ -48,7 +47,7 @@ namespace AdventureBot
 
         public void Remove(string key)
         {
-            _variables.TryRemove(key, out _);
+            _variables.Remove(key);
         }
     }
 }

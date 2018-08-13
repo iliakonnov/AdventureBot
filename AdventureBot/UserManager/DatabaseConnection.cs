@@ -1,10 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
-using System.IO;
-using MessagePack;
-using MessagePack.ImmutableCollection;
-using MessagePack.Resolvers;
 using Mono.Data.Sqlite;
 using NLog;
 
@@ -21,11 +17,6 @@ namespace AdventureBot.UserManager
             Connection = new SqliteConnection(connectionString);
             Connection.Open();
             QueryHelper(InitailizeTables);
-
-            CompositeResolver.RegisterAndSetAsDefault(
-                ImmutableCollectionResolver.Instance,
-                StandardResolverAllowPrivate.Instance
-            );
         }
 
         private static T QueryHelper<T>(QueryCallback<T> callback)
