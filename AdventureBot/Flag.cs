@@ -31,6 +31,7 @@ namespace AdventureBot
         {
         }
 
+        [SerializationConstructor]
         public StructFlag(ImmutableHashSet<T> values) : base(values)
         {
         }
