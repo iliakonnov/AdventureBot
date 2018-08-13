@@ -70,9 +70,9 @@ namespace AdventureBot.UserManager
             return QueryHelper(Query);
         }
 
-        public static User.User LoadUser(UserId id)
+        public static byte[] LoadUserData(UserId id)
         {
-            User.User Query(SqliteCommand command)
+            byte[] Query(SqliteCommand command)
             {
                 command.CommandText = "SELECT data FROM users WHERE id=@user_id AND messenger=@messenger";
                 command.Parameters.AddWithValue("@messenger", id.Messenger);
@@ -92,28 +92,18 @@ namespace AdventureBot.UserManager
                         goto NotFound;
                     }
 
-                    var userdata = (byte[]) value;
-                    try
-                    {
-                        return MessagePackSerializer.Deserialize<User.User>(userdata);
-                    }
-                    catch (Exception e)
-                    {
-                        var filename = $"{id.Messenger}_{id.Id}.userdump";
-                        File.WriteAllBytes(filename, userdata);
-                        Logger.Error(e, $"Cannot deserialize user {id}. Dump saved to {filename}");
-                    }
+                    return (byte[]) value;
                 }
 
                 NotFound:
                 // User not found in database.
-                return new User.User(id);
+                return null;
             }
 
             return QueryHelper(Query);
         }
 
-        public static void SaveUsers(IEnumerable<User.User> users)
+        public static void SaveUsers(IEnumerable<Tuple<UserId, byte[]>> users)
         {
             int Query(SqliteCommand command)
             {
@@ -129,9 +119,9 @@ namespace AdventureBot.UserManager
                 {
                     cnt++;
 
-                    messengerParam.Value = user.Info.UserId.Messenger;
-                    idParam.Value = user.Info.UserId.Id;
-                    dataParam.Value = MessagePackSerializer.Serialize(user);
+                    messengerParam.Value = user.Item1.Messenger;
+                    idParam.Value = user.Item1.Id;
+                    dataParam.Value = user.Item2;
                     command.ExecuteNonQuery();
                 }
 

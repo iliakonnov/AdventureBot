@@ -1,14 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using MessagePack;
+using NLog;
 
 namespace AdventureBot.UserManager
 {
     public class Cache : Singleton<Cache>
     {
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
+
         private class CachedUser
         {
-            public User.User User { get; set; }
+            public byte[] UserData { get; set; }
             public DateTimeOffset LastRequested { get; set; }
             public bool Flushed;
         }
@@ -22,6 +27,25 @@ namespace AdventureBot.UserManager
 
         private readonly Dictionary<UserId, CachedUser> _cache = new Dictionary<UserId, CachedUser>();
 
+        private static User.User DeserializeUser(byte[] userdata, UserId id)
+        {
+            if (userdata != null)
+            {
+                try
+                {
+                    return MessagePackSerializer.Deserialize<User.User>(userdata);
+                }
+                catch (Exception e)
+                {
+                    var filename = $"{id.Messenger}_{id.Id}.userdump";
+                    File.WriteAllBytes(filename, userdata);
+                    Logger.Error(e, $"Cannot deserialize user {id}. Dump saved to {filename}");
+                }
+            }
+
+            return new User.User(id);
+        }
+
         public User.User Get(UserId id)
         {
             lock (_cache)
@@ -29,18 +53,18 @@ namespace AdventureBot.UserManager
                 if (_cache.TryGetValue(id, out var user))
                 {
                     user.LastRequested = DateTimeOffset.Now;
-                    return user.User;
+                    return DeserializeUser(user.UserData, id);
                 }
 
                 var cached = new CachedUser
                 {
                     LastRequested = DateTimeOffset.Now,
-                    User = DatabaseConnection.LoadUser(id),
+                    UserData = DatabaseConnection.LoadUserData(id),
                     Flushed = true
                 };
                 _cache[id] = cached;
 
-                return cached.User;
+                return DeserializeUser(cached.UserData, id);
             }
         }
 
@@ -50,7 +74,7 @@ namespace AdventureBot.UserManager
             {
                 if (_cache.TryGetValue(user.Info.UserId, out var cached))
                 {
-                    cached.User = user;
+                    cached.UserData = MessagePackSerializer.Serialize(user);
                     cached.Flushed = false;
                     return;
                 }
@@ -65,19 +89,25 @@ namespace AdventureBot.UserManager
                     }
                 }
 
-                _cache.Add(user.Info.UserId, new CachedUser {User = user, Flushed = false});
+                _cache.Add(user.Info.UserId, new CachedUser
+                {
+                    UserData = MessagePackSerializer.Serialize(user),
+                    Flushed = false
+                });
             }
         }
 
         private void RemoveOldeset()
         {
             // _cache must be locked
-            CachedUser oldest = null;
-            foreach (var value in _cache.Values)
+            var lastRequested = DateTimeOffset.MaxValue;
+            Tuple<UserId, byte[]> oldest = null;
+            foreach (var kv in _cache)
             {
-                if (oldest == null || value.LastRequested < oldest.LastRequested)
+                if (oldest == null || kv.Value.LastRequested < lastRequested)
                 {
-                    oldest = value;
+                    lastRequested = kv.Value.LastRequested;
+                    oldest = new Tuple<UserId, byte[]>(kv.Key, kv.Value.UserData);
                 }
             }
 
@@ -87,8 +117,8 @@ namespace AdventureBot.UserManager
                 return;
             }
 
-            DatabaseConnection.SaveUsers(new[] {oldest.User});
-            _cache.Remove(oldest.User.Info.UserId);
+            DatabaseConnection.SaveUsers(new[] {oldest});
+            _cache.Remove(oldest.Item1);
         }
 
         public void FlushAll()
@@ -96,9 +126,11 @@ namespace AdventureBot.UserManager
             lock (_cache)
             {
                 var users = _cache
-                    .Where(u => !u.Value.Flushed)
+                    .Where(kv => !kv.Value.Flushed)
                     .ToList();
-                DatabaseConnection.SaveUsers(users.Select(u => u.Value.User));
+                DatabaseConnection.SaveUsers(users
+                    .Select(kv => new Tuple<UserId, byte[]>(kv.Key, kv.Value.UserData))
+                );
                 users.ForEach(u => u.Value.Flushed = true);
             }
         }
