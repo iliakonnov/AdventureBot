@@ -1,12 +1,13 @@
 ﻿using System.Collections.Generic;
 using AdventureBot;
+using AdventureBot.Item;
 using AdventureBot.Messenger;
 using AdventureBot.Room;
 using AdventureBot.User;
 
 namespace Content.Rooms
 {
-    [Available("room/wedding", Difficulity.Any)]
+    [Available("room/wedding", Difficulity.Easy | Difficulity.Medium)]
     public class Wedding : RoomBase
     {
         public Wedding()
@@ -58,6 +59,16 @@ namespace Content.Rooms
         public override void OnMessage(User user, RecivedMessage message)
         {
             HandleButtonAlways(user, message);
+        }
+    }
+
+    [Available("room/hard_wedding", Difficulity.Hard)]
+    public class HardWedding : Wedding
+    {
+        public override bool OnLeave(User user)
+        {
+            user.ItemManager.Add(new ItemInfo("wedding/narzan", 1));
+            return base.OnLeave(user);
         }
     }
 }
