@@ -31,8 +31,6 @@ namespace AdventureBot.Item
 
         bool CanUse(User.User user, ItemInfo info);
 
-        void OnMessage(User.User user, ItemInfo info);
-
         void OnEnter(User.User user, ItemInfo info);
 
         void OnLeave(User.User user, ItemInfo info);
@@ -52,10 +50,6 @@ namespace AdventureBot.Item
         public virtual bool IsAlwaysActive => false;
 
         public virtual void OnUse(User.User user, ItemInfo info)
-        {
-        }
-
-        public virtual void OnMessage(User.User user, ItemInfo info)
         {
         }
 

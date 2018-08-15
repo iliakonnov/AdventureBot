@@ -26,7 +26,6 @@
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="2.1.1" />
     <PackageReference Include="Mono.Data.Sqlite.Portable" Version="1.0.3.5" />
     <PackageReference Include="NLog" Version="4.5.7" />
-    <PackageReference Include="Yandex.Metrica" Version="3.5.1" />
   </ItemGroup>
   <ItemGroup>
     <None Update="sqlite3.dll">

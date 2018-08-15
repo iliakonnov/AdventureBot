@@ -55,9 +55,9 @@ namespace AdventureBot
             return _listImplementation.Remove(item);
         }
 
-        public int Count => _listImplementation.Count;
+        [IgnoreMember] public int Count => _listImplementation.Count;
 
-        public bool IsReadOnly => ((IList<ISerializable>) _listImplementation).IsReadOnly;
+        [IgnoreMember] public bool IsReadOnly => ((IList<ISerializable>) _listImplementation).IsReadOnly;
 
         public int IndexOf(ISerializable item)
         {

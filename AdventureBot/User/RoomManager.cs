@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using AdventureBot.Analysis;
 using AdventureBot.Messenger;
 using AdventureBot.ObjectManager;
 using AdventureBot.Room;
@@ -31,6 +30,9 @@ namespace AdventureBot.User
         [CanBeNull] internal StackedRoom CurrentRoom { get; set; }
         internal Stack<StackedRoom> Rooms { get; } = new Stack<StackedRoom>();
 
+        public static event GameEventHandler<string> OnEnter;
+        public static event GameEventHandler OnLeave;
+
         internal void Go(string roomIdentifier, bool leave = true)
         {
             if (!ObjectManager<IRoom>.Instance.Get<Room.RoomManager>().Contains(roomIdentifier))
@@ -54,9 +56,9 @@ namespace AdventureBot.User
 
             CurrentRoom = new StackedRoom(roomIdentifier);
             User.MessageManager.ShownStats = ShownStats.Default;
-            Events.Go(User, roomIdentifier);
+
             GetRoom()?.OnEnter(User);
-            User.ItemManager.OnEnter();
+            OnEnter?.Invoke(User, roomIdentifier);
         }
 
         /// <summary>
@@ -89,7 +91,7 @@ namespace AdventureBot.User
                 CurrentRoom = null;
             }
 
-            User.ItemManager.OnLeave();
+            OnLeave?.Invoke(User);
 
             if (doReturn)
             {

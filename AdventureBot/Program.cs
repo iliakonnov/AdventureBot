@@ -1,12 +1,13 @@
 ﻿using System;
 using System.IO;
 using System.Reflection;
-using System.Threading;
 using AdventureBot.Analysis;
 using AdventureBot.Item;
 using AdventureBot.Messenger;
 using AdventureBot.ObjectManager;
 using AdventureBot.Room;
+using AdventureBot.UserManager;
+using Boo.Lang.Interpreter;
 using NLog;
 
 namespace AdventureBot
@@ -15,15 +16,34 @@ namespace AdventureBot
     {
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
+        private static bool _work = true;
+
+        private static void Exit()
+        {
+            Logger.Info("Saving users...");
+            Cache.Instance.FlushAll();
+            Logger.Debug("Done!");
+            LogManager.Shutdown();
+            _work = false;
+        }
+
         private static void Main()
         {
             Events.Start();
+
+            AppDomain.CurrentDomain.UnhandledException += (sender, args) =>
+            {
+                Logger.Error(args.ExceptionObject as Exception, "Unhandled error");
+                _work = false;
+                Exit();
+            };
 
             Logger.Debug("Loading...");
 
             ObjectManager<IRoom>.Instance.RegisterManager<RoomManager>();
             ObjectManager<IItem>.Instance.RegisterManager<ItemManager>();
             ObjectManager<IMessenger>.Instance.RegisterManager<MessengerManager>();
+            ObjectManager<IMigrator>.Instance.RegisterManager<MigratorManager>();
 
             Logger.Debug("Loading objects...");
             foreach (var assembly in Configuration.Config.GetSection("assemblies").GetChildren())
@@ -33,7 +53,6 @@ namespace AdventureBot
 
             MainManager.Instance.LoadAssembly(Assembly.GetExecutingAssembly());
 
-
             Logger.Info("Working!");
 
             // To allow long strings
@@ -42,17 +61,23 @@ namespace AdventureBot
                 false,
                 16384));
 
-            var console = new Boo.Lang.Interpreter.InteractiveInterpreterConsole()
+            while (_work)
             {
-                DisableAutocompletion = false
-            };
-            console.ReadEvalPrintLoop();
+                try
+                {
+                    var console = new InteractiveInterpreterConsole();
+                    console.ReadEvalPrintLoop();
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                    continue;
+                }
 
-            Logger.Info("Saving users...");
-            UserManager.Cache.Instance.FlushAll();
-            Logger.Debug("Done!");
-            Thread.Sleep(500); // Finish logging
-            Environment.Exit(0);
+                break;
+            }
+
+            Exit();
         }
     }
 }

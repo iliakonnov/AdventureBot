@@ -7,7 +7,6 @@ using AdventureBot.Messenger;
 using AdventureBot.User;
 using JetBrains.Annotations;
 using NLog;
-using Yandex.Metrica;
 
 namespace Telegram
 {
@@ -112,7 +111,6 @@ namespace Telegram
                     }
                     catch (Exception e)
                     {
-                        YandexMetrica.ReportError("Error", e);
                         Logger.Error(e, "Error");
                     }
                 };

@@ -1,10 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
 using System.Linq;
 using AdventureBot.Messenger;
-using JetBrains.Annotations;
-using Microsoft.Extensions.Configuration;
+using AdventureBot.User;
 using NLog;
-using Yandex.Metrica;
 
 namespace AdventureBot.Analysis
 {
@@ -14,10 +12,11 @@ namespace AdventureBot.Analysis
 
         static Events()
         {
-            var metrika = Configuration.Config.GetSection("metrika");
-            YandexMetricaFolder.SetCurrent(metrika.GetValue<string>("folder"));
-            YandexMetrica.Config.CrashTracking = true;
-            YandexMetrica.Activate(metrika.GetValue<string>("token"));
+            RoomManager.OnEnter += Go;
+            User.User.OnReset += Reset;
+            UserInfo.OnDead += Dead;
+            MessengerManager.OnReply += Sent;
+            MessengerManager.OnRecived += Recived;
         }
 
         internal static void Start()
@@ -25,50 +24,40 @@ namespace AdventureBot.Analysis
             // Needs just to initialize constructor
         }
 
-        private static void Report(User.User user, string eventName, IEnumerable<KeyValuePair<string, string>> dict)
+        private static void Log(string message, string eventName, User.User user, params object[] parameters)
         {
-            Logger.Debug($"Sending Yandex event: {eventName}");
-            YandexMetrica.ReportEvent(eventName, dict
-                .Concat(new[]
-                {
-                    new KeyValuePair<string, string>("user", user.Info.UserId.ToString()),
-                    new KeyValuePair<string, string>("intent", Utils.CurrentIntent(user))
-                })
-                .ToDictionary(kv => kv.Key, kv => kv.Value)
-            );
+            parameters =
+                new object[] {eventName, user.Info.UserId.ToString(), Utils.CurrentIntent(user)}
+                    .Concat(parameters)
+                    .ToArray();
+            Logger.Debug("Event {eventName} for user {user} at {intent}: " + message, parameters);
         }
 
-        private static void Report(User.User user, string eventName)
+        private static void Go(User.User user, string identificator)
         {
-            YandexMetrica.ReportEvent(eventName, new Dictionary<string, string>
-            {
-                {"user", user.Info.UserId.ToString()},
-                {"userIntent", Utils.CurrentIntent(user)}
-            });
+            Log("{roomId}", "go", user, identificator);
         }
 
-        public static void Go(User.User user, string identificator)
+        private static void Reset(User.User user)
         {
-            Report(user, "go", new[] {new KeyValuePair<string, string>("room", identificator)});
+            Log("", "reset", user);
         }
 
-        public static void Reset(User.User user)
+        private static void Dead(User.User user)
         {
-            Report(user, "reset");
+            Log("", "dead", user);
         }
 
-        public static void Dead(User.User user)
+        private static void Recived(User.User user, RecivedMessage message)
         {
-            Report(user, "dead");
+            Log("id<{id}> '{message}'", "messageRecived", user, message.MessageId, message.Text);
         }
 
-        public static void Message(User.User user, SentMessage message, [CanBeNull] RecivedMessage recivedMessage)
+        private static void Sent(User.User user, Tuple<SentMessage, RecivedMessage> message)
         {
-            Report(user, "message/" + message.Intent, new[]
-            {
-                new KeyValuePair<string, string>("botMessage", message.Text),
-                new KeyValuePair<string, string>("userMessage", recivedMessage?.Text)
-            });
+            Log("in reply to '{reply}': {message}", "messageSent", user,
+                message.Item1.Text,
+                message.Item2?.MessageId);
         }
     }
 }

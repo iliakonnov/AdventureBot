@@ -1,5 +1,4 @@
 ﻿using System;
-using AdventureBot.Analysis;
 using JetBrains.Annotations;
 using MessagePack;
 
@@ -76,6 +75,8 @@ namespace AdventureBot.User
         public Guid Token { get; set; } = Guid.Empty;
         internal Tuple<UserId, Guid> LinkedTo { get; set; }
 
+        public static event GameEventHandler OnReset;
+
         private void Reset(UserId userId)
         {
             ActiveItemsManager = new ActiveItemsManager(this);
@@ -98,7 +99,7 @@ namespace AdventureBot.User
                 Token = Guid.NewGuid();
             }
 
-            Events.Reset(this);
+            OnReset?.Invoke(this);
         }
 
         internal void Reset()
