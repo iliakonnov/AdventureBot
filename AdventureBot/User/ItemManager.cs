@@ -93,20 +93,5 @@ namespace AdventureBot.User
         {
             return _items.FirstOrDefault(x => x.Identifier == identifier);
         }
-
-        internal void OnMessage()
-        {
-            _items.ForEach(i => i.Item.OnMessage(User, i));
-        }
-
-        internal void OnEnter()
-        {
-            _items.ForEach(i => i.Item.OnEnter(User, i));
-        }
-
-        internal void OnLeave()
-        {
-            _items.ForEach(i => i.Item.OnLeave(User, i));
-        }
     }
 }

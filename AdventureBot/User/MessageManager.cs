@@ -119,8 +119,6 @@ namespace AdventureBot.User
 
         internal void OnRecieved(RecivedMessage message)
         {
-            User.ItemManager.OnMessage();
-
             var room = User.RoomManager.GetRoom();
             switch (room)
             {

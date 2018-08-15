@@ -20,6 +20,8 @@ namespace AdventureBot.User
             VariableManager variableManager, RoomManager roomManager, MessageManager messageManager, Guid token,
             Tuple<UserId, Guid> linkedTo)
         {
+            EventRouter.Initialize();
+
             ItemManager = itemManager;
             ItemManager.User = this;
 
@@ -43,6 +45,7 @@ namespace AdventureBot.User
 
         public User(UserId userId)
         {
+            EventRouter.Initialize();
             Reset(userId);
         }
 
