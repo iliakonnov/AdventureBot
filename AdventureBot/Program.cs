@@ -42,11 +42,20 @@ namespace AdventureBot
                 false,
                 16384));
 
-            var console = new Boo.Lang.Interpreter.InteractiveInterpreterConsole()
+            while (true)
             {
-                DisableAutocompletion = false
-            };
-            console.ReadEvalPrintLoop();
+                try
+                {
+                    var console = new Boo.Lang.Interpreter.InteractiveInterpreterConsole();
+                    console.ReadEvalPrintLoop();
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                    continue;
+                }
+                break;
+            }
 
             Logger.Info("Saving users...");
             UserManager.Cache.Instance.FlushAll();
