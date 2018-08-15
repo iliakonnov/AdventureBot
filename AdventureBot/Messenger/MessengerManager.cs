@@ -4,7 +4,6 @@ using System.Linq;
 using AdventureBot.ObjectManager;
 using AdventureBot.User;
 using JetBrains.Annotations;
-using MessagePack;
 using NLog;
 
 namespace AdventureBot.Messenger
@@ -48,18 +47,6 @@ namespace AdventureBot.Messenger
                         case "/start":
                         {
                             user.RoomManager.Go("_root", false);
-                            break;
-                        }
-                        case "/debug":
-                        {
-                            var serialized = MessageManager.Escape(MessagePackSerializer.ToJson(
-                                new PublicUser(user)
-                            ));
-                            user.MessageManager.SendImmediately(new SentMessage
-                            {
-                                Text = $"Всё про вас:\n```\n{serialized}\n```",
-                                Intent = "command-debug"
-                            });
                             break;
                         }
                         case "/lag":

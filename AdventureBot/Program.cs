@@ -43,6 +43,7 @@ namespace AdventureBot
             ObjectManager<IRoom>.Instance.RegisterManager<RoomManager>();
             ObjectManager<IItem>.Instance.RegisterManager<ItemManager>();
             ObjectManager<IMessenger>.Instance.RegisterManager<MessengerManager>();
+            ObjectManager<IMigrator>.Instance.RegisterManager<MigratorManager>();
 
             Logger.Debug("Loading objects...");
             foreach (var assembly in Configuration.Config.GetSection("assemblies").GetChildren())
