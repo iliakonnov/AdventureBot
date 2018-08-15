@@ -5,6 +5,7 @@ using AdventureBot.Analysis;
 using AdventureBot.Item;
 using AdventureBot.Messenger;
 using AdventureBot.ObjectManager;
+using AdventureBot.Quest;
 using AdventureBot.Room;
 using AdventureBot.UserManager;
 using Boo.Lang.Interpreter;
@@ -42,6 +43,7 @@ namespace AdventureBot
 
             ObjectManager<IRoom>.Instance.RegisterManager<RoomManager>();
             ObjectManager<IItem>.Instance.RegisterManager<ItemManager>();
+            ObjectManager<IQuest>.Instance.RegisterManager<QuestManager>();
             ObjectManager<IMessenger>.Instance.RegisterManager<MessengerManager>();
             ObjectManager<IMigrator>.Instance.RegisterManager<MigratorManager>();
 

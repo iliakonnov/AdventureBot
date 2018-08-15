@@ -5,7 +5,7 @@ using MessagePack;
 namespace AdventureBot.User
 {
     [MessagePackObject(true)]
-    public class User : ISerializable
+    public class User
     {
         /// <summary>
         ///     Генератор случайных чисел
@@ -16,8 +16,8 @@ namespace AdventureBot.User
         [UsedImplicitly]
         [SerializationConstructor]
         public User(ItemManager itemManager, ActiveItemsManager activeItemsManager, UserInfo info,
-            VariableManager variableManager, RoomManager roomManager, MessageManager messageManager, Guid token,
-            Tuple<UserId, Guid> linkedTo)
+            VariableManager variableManager, RoomManager roomManager, MessageManager messageManager,
+            QuestManager questManager, Guid token, Tuple<UserId, Guid> linkedTo)
         {
             ItemManager = itemManager;
             ItemManager.User = this;
@@ -33,6 +33,9 @@ namespace AdventureBot.User
 
             MessageManager = messageManager;
             MessageManager.User = this;
+
+            QuestManager = questManager;
+            QuestManager.User = this;
 
             VariableManager = variableManager;
 
@@ -72,6 +75,8 @@ namespace AdventureBot.User
 
         public MessageManager MessageManager { get; private set; }
 
+        public QuestManager QuestManager { get; private set; }
+
         public Guid Token { get; set; } = Guid.Empty;
         internal Tuple<UserId, Guid> LinkedTo { get; set; }
 
@@ -84,6 +89,7 @@ namespace AdventureBot.User
             ItemManager = new ItemManager(this);
             RoomManager = new RoomManager(this);
             MessageManager = new MessageManager(this);
+            QuestManager = new QuestManager(this);
 
             if (VariableManager != null)
             {

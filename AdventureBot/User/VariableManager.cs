@@ -11,6 +11,9 @@ namespace AdventureBot.User
         [Key("ItemVariables")]
         private Dictionary<string, VariableContainer> _itemVariables = new Dictionary<string, VariableContainer>();
 
+        [Key("QuestVariables")] private Dictionary<string, Dictionary<Guid, VariableContainer>> _questVariables =
+            new Dictionary<string, Dictionary<Guid, VariableContainer>>();
+
         [Key("RoomVariables")]
         private Dictionary<string, VariableContainer> _roomVariables = new Dictionary<string, VariableContainer>();
 
@@ -28,11 +31,13 @@ namespace AdventureBot.User
         public VariableManager(
             Dictionary<string, VariableContainer> roomVariables,
             Dictionary<string, VariableContainer> itemVariables,
+            Dictionary<string, Dictionary<Guid, VariableContainer>> questVariables,
             VariableContainer persistentVariables,
             VariableContainer userVariables)
         {
             _roomVariables = roomVariables;
             _itemVariables = itemVariables;
+            _questVariables = questVariables;
             PersistentVariables = persistentVariables;
             UserVariables = userVariables;
         }
@@ -41,6 +46,7 @@ namespace AdventureBot.User
         {
             _roomVariables = new Dictionary<string, VariableContainer>();
             _itemVariables = new Dictionary<string, VariableContainer>();
+            _questVariables = new Dictionary<string, Dictionary<Guid, VariableContainer>>();
             UserVariables = new VariableContainer();
         }
 
@@ -62,6 +68,23 @@ namespace AdventureBot.User
             }
 
             return _itemVariables[identifier];
+        }
+
+        internal VariableContainer GetQuestVariables(string identifier, Guid questId)
+        {
+            if (!_questVariables.TryGetValue(identifier, out var variables))
+            {
+                variables = new Dictionary<Guid, VariableContainer>();
+                _questVariables[identifier] = variables;
+            }
+
+            if (!variables.TryGetValue(questId, out var result))
+            {
+                result = new VariableContainer();
+                variables[questId] = result;
+            }
+
+            return result;
         }
     }
 }

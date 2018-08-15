@@ -1,5 +1,4 @@
 ﻿using AdventureBot.Item;
-using AdventureBot.Messenger;
 using AdventureBot.User.Stats;
 using MessagePack;
 
@@ -10,10 +9,7 @@ namespace AdventureBot
     [Union(2, typeof(Serializable.Double))]
     [Union(3, typeof(Serializable.Bool))]
     [Union(4, typeof(VariableContainer))]
-    [Union(5, typeof(User.User))]
     [Union(6, typeof(ItemInfo))]
-    [Union(7, typeof(RecivedMessage))]
-    [Union(8, typeof(SentMessage))]
     [Union(9, typeof(SerializableFlag<ISerializable>))]
     [Union(10, typeof(StatsProperty))]
     [Union(11, typeof(Serializable.Long))]

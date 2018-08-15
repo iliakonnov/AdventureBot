@@ -12,6 +12,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VkMessenger", "VkMessenger\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Api", "Api\Api.csproj", "{D1E177B2-2CDC-457E-8246-8203DEFD8E73}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Migrations", "Migrations\Migrations.csproj", "{8B66F27C-82E5-4B78-B139-FF64D960643A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -42,5 +44,9 @@ Global
 		{D1E177B2-2CDC-457E-8246-8203DEFD8E73}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D1E177B2-2CDC-457E-8246-8203DEFD8E73}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D1E177B2-2CDC-457E-8246-8203DEFD8E73}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8B66F27C-82E5-4B78-B139-FF64D960643A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8B66F27C-82E5-4B78-B139-FF64D960643A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8B66F27C-82E5-4B78-B139-FF64D960643A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8B66F27C-82E5-4B78-B139-FF64D960643A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

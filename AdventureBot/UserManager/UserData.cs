@@ -1,16 +1,20 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
-using MessagePack;
-using NLog;
 using AdventureBot.ObjectManager;
+using MessagePack;
 using MessagePack.ImmutableCollection;
 using MessagePack.Resolvers;
+using NLog;
 
 namespace AdventureBot.UserManager
 {
     public class UserData
     {
+        public const int LastVersion = 2;
+
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
+
         static UserData()
         {
             CompositeResolver.RegisterAndSetAsDefault(
@@ -18,9 +22,6 @@ namespace AdventureBot.UserManager
                 StandardResolverAllowPrivate.Instance
             );
         }
-        
-        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
-        public const int LastVersion = 1;
 
         public UserData(UserId id, byte[] data, int version)
         {
@@ -44,7 +45,7 @@ namespace AdventureBot.UserManager
         {
             return new UserData(user.Info.UserId, MessagePackSerializer.Serialize(user), LastVersion);
         }
-        
+
         public User.User Deserialize()
         {
             if (Data != null)
@@ -55,6 +56,7 @@ namespace AdventureBot.UserManager
                     {
                         return MessagePackSerializer.Deserialize<User.User>(Data);
                     }
+
                     var user = MessagePackSerializer.Deserialize<dynamic>(Data);
                     var migrated = Migrate(user);
                     return MessagePackSerializer.Deserialize<User.User>(MessagePackSerializer.Serialize(migrated));
