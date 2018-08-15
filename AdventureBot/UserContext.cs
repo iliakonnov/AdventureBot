@@ -27,7 +27,7 @@ namespace AdventureBot
 
         public void Dispose()
         {
-            Logger.Debug($"User closed in {DateTime.Now - _opened}");
+            Logger.Debug("User closed in {time}", DateTime.Now - _opened);
             _timer.Stop();
             UserProxy.Save(User);
             if (_unlinked != null)
@@ -40,7 +40,7 @@ namespace AdventureBot
 
         private void LoadUser(UserId userId)
         {
-            Logger.Debug($"Opening user {userId}");
+            Logger.Debug("Opening user {userId}", userId);
             User = UserProxy.Get(userId);
             if (User.LinkedTo != null)
             {

@@ -6,7 +6,6 @@ using AdventureBot.User;
 using JetBrains.Annotations;
 using MessagePack;
 using NLog;
-using Yandex.Metrica;
 
 namespace AdventureBot.Messenger
 {
@@ -25,6 +24,8 @@ namespace AdventureBot.Messenger
             Register(creator());
         }
 
+        public static event GameEventHandler<RecivedMessage> OnRecived;
+
         private static void MessageHandler(RecivedMessage message)
         {
             if (message == null)
@@ -32,12 +33,10 @@ namespace AdventureBot.Messenger
                 return;
             }
 
-#if DEBUG
-            Logger.Debug($"Message from {message.UserId}@{message.ChatId}");
-#endif
             using (var context = new UserContext(message.UserId, message.ChatId))
             {
                 User.User user = context;
+                OnRecived?.Invoke(user, message);
 
                 try
                 {
@@ -171,8 +170,7 @@ namespace AdventureBot.Messenger
                 }
                 catch (Exception e)
                 {
-                    YandexMetrica.ReportError($"Error for user {message.UserId}@{message.ChatId}", e);
-                    Logger.Error(e, $"Error for user {message.UserId}@{message.ChatId}");
+                    Logger.Error(e, "Error for user {UserId}@{ChatId}", message.UserId, message.ChatId);
                     var error = MessageManager.Escape(e.ToString());
                     user.MessageManager.SendImmediately(new SentMessage
                     {

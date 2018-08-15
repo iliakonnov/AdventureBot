@@ -10,7 +10,6 @@ using Telegram.Bot.Args;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
-using Yandex.Metrica;
 using ChatId = Telegram.Bot.Types.ChatId;
 
 namespace Telegram
@@ -21,6 +20,7 @@ namespace Telegram
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
         private TelegramBotClient _bot;
+        private string _username;
 
         public TelegramBot(string token, bool reciveMessages)
         {
@@ -121,7 +121,6 @@ namespace Telegram
                 }
                 else
                 {
-                    YandexMetrica.ReportError("Error while sending message", e);
                     Logger.Error(e, "Error while sending message");
                 }
             }
@@ -151,15 +150,16 @@ namespace Telegram
             }
 
             var me = await _bot.GetMeAsync();
+            _username = me.Username;
             if (ReciveMessages)
             {
                 _bot.OnMessage += MessageRecivedHandler;
                 _bot.StartReceiving(Array.Empty<UpdateType>());
-                Logger.Info($"Start receiving for @{me.Username}");
+                Logger.Info("Start receiving for @{username}", _username);
             }
             else
             {
-                Logger.Info($"Start only sending for @{me.Username}");
+                Logger.Info("Start only sending for @{username}", _username);
             }
         }
 
@@ -178,6 +178,8 @@ namespace Telegram
                 replyId = null;
             }
 
+            var msgId = $"{_username}/{args.Message.MessageId}";
+
             // ReSharper disable once SwitchStatementMissingSomeCases
             switch (args.Message.Type)
             {
@@ -191,7 +193,8 @@ namespace Telegram
                             UserId = new UserId(MessengerId, args.Message.From.Id),
                             Text = "Available bots:",
                             Action = (msg, user) => Messenger.ListBots(user),
-                            ReplyUserId = replyId
+                            ReplyUserId = replyId,
+                            MessageId = msgId
                         };
                     }
                     else
@@ -201,7 +204,8 @@ namespace Telegram
                             ChatId = new AdventureBot.ChatId(MessengerId, args.Message.Chat.Id),
                             UserId = new UserId(MessengerId, args.Message.From.Id),
                             Text = args.Message.Text,
-                            ReplyUserId = replyId
+                            ReplyUserId = replyId,
+                            MessageId = msgId
                         };
                     }
 
@@ -221,7 +225,8 @@ namespace Telegram
                                     UserId = new UserId(MessengerId, args.Message.From.Id),
                                     Text = $"Hello, bot {member.Username}",
                                     ReplyUserId = replyId,
-                                    Action = (msg, user) => Messenger.NewBot(member.Id, args.Message.Chat.Id, user)
+                                    Action = (msg, user) => Messenger.NewBot(member.Id, args.Message.Chat.Id, user),
+                                    MessageId = msgId
                                 };
                             }
                         }
@@ -234,7 +239,8 @@ namespace Telegram
                                 UserId = new UserId(MessengerId, args.Message.From.Id),
                                 Text = $"Hello, player {member.Username}",
                                 ReplyUserId = replyId,
-                                Action = (msg, user) => Messenger.NewUser(args.Message.Chat.Id, user)
+                                Action = (msg, user) => Messenger.NewUser(args.Message.Chat.Id, user),
+                                MessageId = msgId
                             };
                         }
                     }
@@ -252,7 +258,8 @@ namespace Telegram
                             UserId = new UserId(MessengerId, args.Message.From.Id),
                             Text = $"Goodbye, {member.Username}",
                             ReplyUserId = replyId,
-                            Action = (msg, user) => Messenger.RemoveBot(member.Id, args.Message.Chat.Id, user)
+                            Action = (msg, user) => Messenger.RemoveBot(member.Id, args.Message.Chat.Id, user),
+                            MessageId = msgId
                         };
                     }
 

@@ -123,7 +123,7 @@ namespace AdventureBot.UserManager
             var count = QueryHelper(Query);
             if (count != 0)
             {
-                Logger.Info($"Flushed {count} users in {DateTimeOffset.Now - beginTime}");
+                Logger.Info("Flushed {count} users in {time}", count, DateTimeOffset.Now - beginTime);
             }
         }
 

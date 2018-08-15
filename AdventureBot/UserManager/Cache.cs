@@ -37,7 +37,7 @@ namespace AdventureBot.UserManager
                 {
                     var filename = $"{id.Messenger}_{id.Id}.userdump";
                     File.WriteAllBytes(filename, userdata);
-                    Logger.Error(e, $"Cannot deserialize user {id}. Dump saved to {filename}");
+                    Logger.Error(e, "Cannot deserialize user {userId}. Dump saved to {filename}", id, filename);
                 }
             }
 

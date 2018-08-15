@@ -9,7 +9,6 @@ namespace Content.Rooms.MegaMonster
 {
     public static class Generator
     {
-        private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
         public static ResultStats GenerateStats(Random random)
         {
             var stats = new BaseStats
@@ -21,9 +20,7 @@ namespace Content.Rooms.MegaMonster
             };
             var race = stats.LoadRace();
             Mutate(race, random);
-            _logger.Debug(race);
             var result = Shuffle(race, random);
-            _logger.Debug(result);
             return result;
         }
 

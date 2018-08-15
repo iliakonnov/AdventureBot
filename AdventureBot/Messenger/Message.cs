@@ -10,6 +10,7 @@ namespace AdventureBot.Messenger
 
         [IgnoreMember] [CanBeNull] public Handler Action;
         public ChatId ChatId;
+        public string MessageId;
         public long? ReplyUserId;
         public string Text;
         public UserId UserId;
