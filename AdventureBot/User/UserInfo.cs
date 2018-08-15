@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using AdventureBot.Analysis;
 using AdventureBot.Item;
 using AdventureBot.Messenger;
 using AdventureBot.User.Stats;
@@ -197,6 +196,8 @@ namespace AdventureBot.User
             return ChangeStats(set ? ChangeType.Set : ChangeType.Add, property, value);
         }
 
+        public static event GameEventHandler OnDead;
+
         /// <summary>
         ///     Просто напросто убивает игрока
         /// </summary>
@@ -221,7 +222,7 @@ namespace AdventureBot.User
                 return;
             }
 
-            Events.Dead(User);
+            OnDead?.Invoke(User);
             ChangeStats(ChangeType.Set, StatsProperty.Health, MinStats.Effect[StatsProperty.Health]);
             Dead = true;
             User.RoomManager.Go("_root", false);
