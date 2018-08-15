@@ -1,7 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using AdventureBot.Messenger;
-using JetBrains.Annotations;
+using AdventureBot.User;
 using Microsoft.Extensions.Configuration;
 using NLog;
 using Yandex.Metrica;
@@ -18,6 +19,11 @@ namespace AdventureBot.Analysis
             YandexMetricaFolder.SetCurrent(metrika.GetValue<string>("folder"));
             YandexMetrica.Config.CrashTracking = true;
             YandexMetrica.Activate(metrika.GetValue<string>("token"));
+
+            RoomManager.OnEnter += Go;
+            User.User.OnReset += Reset;
+            UserInfo.OnDead += Dead;
+            MessengerManager.OnReply += Message;
         }
 
         internal static void Start()
@@ -47,27 +53,27 @@ namespace AdventureBot.Analysis
             });
         }
 
-        public static void Go(User.User user, string identificator)
+        private static void Go(User.User user, string identificator)
         {
             Report(user, "go", new[] {new KeyValuePair<string, string>("room", identificator)});
         }
 
-        public static void Reset(User.User user)
+        private static void Reset(User.User user)
         {
             Report(user, "reset");
         }
 
-        public static void Dead(User.User user)
+        private static void Dead(User.User user)
         {
             Report(user, "dead");
         }
 
-        public static void Message(User.User user, SentMessage message, [CanBeNull] RecivedMessage recivedMessage)
+        private static void Message(User.User user, Tuple<SentMessage, RecivedMessage> message)
         {
-            Report(user, "message/" + message.Intent, new[]
+            Report(user, "message/" + message.Item1.Intent, new[]
             {
-                new KeyValuePair<string, string>("botMessage", message.Text),
-                new KeyValuePair<string, string>("userMessage", recivedMessage?.Text)
+                new KeyValuePair<string, string>("botMessage", message.Item1.Text),
+                new KeyValuePair<string, string>("userMessage", message.Item2?.Text)
             });
         }
     }

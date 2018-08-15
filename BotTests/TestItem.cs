@@ -39,10 +39,6 @@ namespace BotTests
             return true;
         }
 
-        public override void OnMessage(User user, ItemInfo info)
-        {
-        }
-
         public override void OnEnter(User user, ItemInfo info)
         {
         }

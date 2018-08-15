@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using AdventureBot.Analysis;
 using AdventureBot.ObjectManager;
 using AdventureBot.User;
 using JetBrains.Annotations;
@@ -191,9 +190,11 @@ namespace AdventureBot.Messenger
             messenger.BeginPolling();
         }
 
+        public static event GameEventHandler<Tuple<SentMessage, RecivedMessage>> OnReply;
+
         public void Reply(SentMessage message, [CanBeNull] RecivedMessage recievedMessage, User.User user)
         {
-            Events.Message(user, message, recievedMessage);
+            OnReply?.Invoke(user, new Tuple<SentMessage, RecivedMessage>(message, recievedMessage));
             foreach (var messenger in _messengers)
             {
                 messenger.Send(message, recievedMessage, user);
