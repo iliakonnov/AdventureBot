@@ -32,11 +32,9 @@ namespace Content.Quests
             var monsterId = GetMonsterId(user, questId);
             var monster = ObjectManager<IRoom>.Instance.Get<RoomManager>().Get(monsterId);
             var reward = GetReward(user, questId);
-            if (reward != 0)
-            {
-                return $"Убить {monster?.Name} за {GetReward(user, questId)}";
-            }
-            return $"Убить {monster?.Name}";
+            return reward != 0
+                ? $"Убить {monster?.Name} за {GetReward(user, questId)} золота"
+                : $"Убить {monster?.Name}";
         }
 
         public override decimal GetProgress(User user, Guid questId)

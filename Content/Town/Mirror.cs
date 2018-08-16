@@ -38,6 +38,18 @@ namespace Content.Town
                             }
                         },
                         {
+                            "Квесты", (user, message) =>
+                            {
+                                foreach (var quests in user.QuestManager.Quests.Values)
+                                {
+                                    foreach (var quest in quests.Values)
+                                    {
+                                        SendMessage(user, quest.Quest.GetName(user, quest.QuestId), GetButtons(user));
+                                    }
+                                }
+                            }
+                        },
+                        {
                             "Уйти", (user, message) => user.RoomManager.Leave()
                         }
                     }
