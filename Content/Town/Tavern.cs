@@ -108,7 +108,6 @@ namespace Content.Town
                     }
                 }
 
-                vars.Set("count", new Serializable.Int(requestsCount + 1));
                 var foundQuest = (Room as Tavern)?.TryFindQuest(user, KillMonster.Id, "_owner");
                 if (foundQuest != null)
                 {
@@ -128,6 +127,7 @@ namespace Content.Town
                     return;
                 }
 
+                vars.Set("count", new Serializable.Int(requestsCount + 1));
                 var questId = user.QuestManager.BeginQuest(KillMonster.Id);
                 var quest = user.QuestManager.Quests[KillMonster.Id][questId].Quest as KillMonster;
                 vars.Set("questId_owner", new Serializable.String(questId.ToString()));
