@@ -36,6 +36,7 @@ namespace AdventureBot.Room
             var hp = Health - user.Info.KarmaEffect(Health);
             variables.Set("old_hp", new Serializable.Decimal(hp));
             variables.Set("hp", new Serializable.Decimal(hp));
+            variables.Set("run", new Serializable.Bool(false));
 
             var buttons = GetActions(user);
             Enter(user, buttons);
@@ -49,10 +50,11 @@ namespace AdventureBot.Room
                 if (OnRunaway(user))
                 {
                     SendMessage(user, "Вы убежали от монстра.");
+                    GetRoomVariables(user).Set("run", new Serializable.Bool(true));
                     return base.OnLeave(user);
                 }
 
-                SendMessage(user, "Вы попытались убежать, но монстр вам не отпускает.");
+                SendMessage(user, "Вы попытались убежать, но монстр вас не отпускает.");
                 return false;
             }
 
@@ -77,7 +79,7 @@ namespace AdventureBot.Room
             {
                 NotHandled(user, message);
             }
-            else
+            else if (!(bool) GetRoomVariables(user).Get<Serializable.Bool>("run"))
             {
                 FinishTurn(user);
             }
