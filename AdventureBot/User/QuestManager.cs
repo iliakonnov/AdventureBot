@@ -65,6 +65,7 @@ namespace AdventureBot.User
             }
 
             info.Quest.Finish(User, info.QuestId);
+            quests.Remove(questId);
 
             return true;
         }

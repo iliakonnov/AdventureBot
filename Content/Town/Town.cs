@@ -21,6 +21,7 @@ namespace Content.Town
                         {"Приключения", (user, message) => user.RoomManager.Go("town/adventures")},
                         {"Зеркало", (user, message) => user.RoomManager.Go("town/mirror")},
                         {"Рынок", (user, message) => user.RoomManager.Go("town/market")},
+                        {"Таверна", (user, message) => user.RoomManager.Go("town/tavern")},
                         {"Гильдия магов", (user, message) => user.RoomManager.Go("town/guild")},
                         {"Спортзал", (user, message) => user.RoomManager.Go("town/gym")}
                     }

@@ -70,6 +70,11 @@ namespace AdventureBot.Room.BetterRoom
         {
             SwitchAction(user, _actions[action]);
         }
+        
+        public void SwitchAction<T>(User.User user) where T: ActionBase
+        {
+            SwitchAction(user, _actions[typeof(T)]);
+        }
 
         public override void OnMessage(User.User user, RecivedMessage message)
         {

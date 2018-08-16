@@ -1,7 +1,9 @@
 ﻿using System;
+using JetBrains.Annotations;
 
 namespace AdventureBot.Quest
 {
+    [PublicAPI]
     public interface IQuest
     {
         string Identifer { get; }

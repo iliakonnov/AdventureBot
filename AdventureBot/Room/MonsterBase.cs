@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using AdventureBot.Messenger;
+using AdventureBot.User;
 
 namespace AdventureBot.Room
 {
@@ -12,6 +13,7 @@ namespace AdventureBot.Room
     public abstract class MonsterBase : RoomBase, IMonster
     {
         protected abstract decimal Health { get; }
+        public static event GameEventHandler<IMonster> OnKilled;
 
         public virtual void MakeDamage(User.User user, decimal damage)
         {
@@ -96,6 +98,7 @@ namespace AdventureBot.Room
 
             if (hp <= 0)
             {
+                OnKilled?.Invoke(user, this);
                 user.RoomManager.Leave();
                 return;
             }

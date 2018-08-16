@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Immutable;
 
 namespace AdventureBot.Quest
 {
@@ -7,6 +8,11 @@ namespace AdventureBot.Quest
         protected VariableContainer GetQuestVariables(User.User user, Guid questId)
         {
             return user.VariableManager.GetQuestVariables(Identifer, questId);
+        }
+        
+        protected ImmutableDictionary<Guid, QuestInfo> GetQuestInstances(User.User user)
+        {
+            return user.QuestManager.Quests[Identifer];
         }
 
         public abstract string Identifer { get; }
