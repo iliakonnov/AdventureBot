@@ -44,7 +44,9 @@ namespace Content.Town
                                 {
                                     foreach (var quest in quests.Values)
                                     {
-                                        SendMessage(user, quest.Quest.GetName(user, quest.QuestId), GetButtons(user));
+                                        var msg = quest.Quest.GetName(user, quest.QuestId);
+                                        msg += $"\nВыполнено {quest.Quest.GetProgress(user, quest.QuestId).Format()}%";
+                                        SendMessage(user, msg, GetButtons(user));
                                     }
                                 }
                             }

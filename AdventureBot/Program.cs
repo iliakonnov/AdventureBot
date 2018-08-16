@@ -48,12 +48,11 @@ namespace AdventureBot
             ObjectManager<IMigrator>.Instance.RegisterManager<MigratorManager>();
 
             Logger.Debug("Loading objects...");
+            MainManager.Instance.LoadAssembly(Assembly.GetExecutingAssembly());
             foreach (var assembly in Configuration.Config.GetSection("assemblies").GetChildren())
             {
                 MainManager.Instance.LoadAssembly(assembly.Value);
             }
-
-            MainManager.Instance.LoadAssembly(Assembly.GetExecutingAssembly());
 
             Logger.Info("Working!");
 
