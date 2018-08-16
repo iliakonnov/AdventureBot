@@ -12,7 +12,11 @@ namespace AdventureBot.Quest
         
         protected ImmutableDictionary<Guid, QuestInfo> GetQuestInstances(User.User user)
         {
-            return user.QuestManager.Quests[Identifer];
+            if (user.QuestManager.Quests.TryGetValue(Identifer, out var result))
+            {
+                return result;
+            }
+            return ImmutableDictionary<Guid, QuestInfo>.Empty;
         }
 
         public abstract string Identifer { get; }
