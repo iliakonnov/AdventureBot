@@ -8,14 +8,15 @@ using AdventureBot.User.Stats;
 
 namespace Content.Items
 {
-    [Item("camper/awp")]
+    [Item(Id)]
     public class Awp : ItemBase
     {
+        public const string Id = "camper/awp";
         public override StructFlag<BuyGroup> Group => new StructFlag<BuyGroup>();
         public override string Name => "AWP";
         public override string Description => string.Empty;
         public override decimal? Price => null;
-        public override string Identifier => "camper/awp";
+        public override string Identifier => Id;
         public override StatsEffect Effect => null;
 
         public override bool CanUse(User user, ItemInfo info)
@@ -30,7 +31,7 @@ namespace Content.Items
                 return;
             }
 
-            var bullets = user.ItemManager.Get("item/bullet")?.Count;
+            var bullets = user.ItemManager.Get(Bullet.Id)?.Count;
             if (bullets == null)
             {
                 user.MessageManager.SendMessage(new SentMessage
@@ -40,7 +41,7 @@ namespace Content.Items
                 return;
             }
 
-            if (!user.ItemManager.Remove(new ItemInfo("item/bullet", 1)))
+            if (!user.ItemManager.Remove(new ItemInfo(Bullet.Id, 1)))
             {
                 user.MessageManager.SendMessage(new SentMessage
                 {

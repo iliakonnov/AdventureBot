@@ -1,14 +1,16 @@
 ﻿using AdventureBot.Item;
 using AdventureBot.Room;
 using AdventureBot.User;
+using Content.Items;
 
 namespace Content.Rooms
 {
-    [Available("monster/himen", Difficulity.Hard)]
+    [Available(Id, Difficulity.Hard)]
     public class HiMen : MonsterBase
     {
+        public const string Id = "monster/himen";
         public override string Name => "Хи-мен";
-        public override string Identifier => "monster/himen";
+        public override string Identifier => Id;
         protected override decimal Health => 1500;
 
         protected override decimal GetDamage(User user)
@@ -32,7 +34,7 @@ namespace Content.Rooms
 
         protected override void OnWon(User user)
         {
-            user.ItemManager.Add(new ItemInfo("himen/cat", 1));
+            user.ItemManager.Add(new ItemInfo(HiMenCat.Id, 1));
         }
     }
 }

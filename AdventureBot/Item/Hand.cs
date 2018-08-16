@@ -5,9 +5,10 @@ using AdventureBot.User.Stats;
 
 namespace AdventureBot.Item
 {
-    [Item("hand")]
+    [Item(Id)]
     public class Hand : ItemBase
     {
+        public const string Id = "hand";
         public override string Name => "Рука";
 
         public override string Description =>
@@ -15,8 +16,7 @@ namespace AdventureBot.Item
 
         public override decimal? Price => null;
         public override StructFlag<BuyGroup> Group => new StructFlag<BuyGroup>(new BuyGroup[0]);
-
-        public override string Identifier => "hand";
+        public override string Identifier => Id;
         public override StatsEffect Effect => null;
 
         public override void OnUse(User.User user, ItemInfo info)

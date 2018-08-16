@@ -8,14 +8,15 @@ using AdventureBot.User.Stats;
 
 namespace Content.Items
 {
-    [Item("item/golem_heart")]
+    [Item(Id)]
     public class GolemHeart : ItemBase
     {
+        public const string Id = "item/golem_heart";
         public override StructFlag<BuyGroup> Group => new StructFlag<BuyGroup>(BuyGroup.Market);
         public override string Name => "Сердце голема";
         public override string Description => "Делает кожу каменной";
         public override decimal? Price => 50;
-        public override string Identifier => "item/golem_heart";
+        public override string Identifier => Id;
         public override StatsEffect Effect => null;
 
         public override bool CanUse(User user, ItemInfo info)
@@ -28,19 +29,20 @@ namespace Content.Items
         {
             if (user.ItemManager.Remove(new ItemInfo(Identifier, 1)))
             {
-                user.ItemManager.Add(new ItemInfo("golem_heart/activated", 1));
+                user.ItemManager.Add(new ItemInfo(ActivatedGolemHeart.Id, 1));
             }
         }
     }
 
-    [Item("golem_heart/activated")]
+    [Item(Id)]
     public class ActivatedGolemHeart : ItemBase, IAdventureItem
     {
+        public const string Id = "golem_heart/activated";
         public override StructFlag<BuyGroup> Group => new StructFlag<BuyGroup>();
         public override string Name => "Активированное сердце голема";
         public override string Description => "Делает кожу каменной";
         public override decimal? Price => null;
-        public override string Identifier => "golem_heart/activated";
+        public override string Identifier => Id;
 
         public override StatsEffect Effect => new StatsEffect(ChangeType.Add, new Dictionary<StatsProperty, decimal>
         {

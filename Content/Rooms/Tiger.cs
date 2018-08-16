@@ -1,14 +1,16 @@
 ﻿using AdventureBot.Item;
 using AdventureBot.Room;
 using AdventureBot.User;
+using Content.Items;
 
 namespace Content.Rooms
 {
-    [Available("monster/tiger", Difficulity.Medium)]
+    [Available(Id, Difficulity.Medium)]
     public class Tiger : MonsterBase
     {
+        public const string Id = "monster/tiger";
         public override string Name => "Саблезубый тигр";
-        public override string Identifier => "monster/tiger";
+        public override string Identifier => Id;
         protected override decimal Health => 75;
 
         protected override decimal GetDamage(User user)
@@ -28,7 +30,7 @@ namespace Content.Rooms
 
         protected override void OnWon(User user)
         {
-            user.ItemManager.Add(new ItemInfo("tiger/tooth", 1));
+            user.ItemManager.Add(new ItemInfo(TigerTooth.Id, 1));
         }
     }
 }

@@ -4,12 +4,15 @@ using AdventureBot.Item;
 using AdventureBot.Messenger;
 using AdventureBot.Room;
 using AdventureBot.User;
+using Content.Items;
 
 namespace Content.Rooms
 {
-    [Available("room/appletree", Difficulity.Any)]
+    [Available(Id, Difficulity.Any)]
     public class AppleTree : RoomBase
     {
+        public const string Id = "room/appletree";
+
         public AppleTree()
         {
             Buttons = new NullableDictionary<MessageRecived, Dictionary<string, MessageRecived>>
@@ -24,7 +27,7 @@ namespace Content.Rooms
                                     user,
                                     "Ты стал карабкаться по веткам и случайно сбил одно яблоко. Оно упало на голову какому-то чудаковатому англичанина, сидевшему в тени ветвей. Вместо того, чтобы посмотреть наверх, он записал что-то в своей тетради и убежал куда-то в сторону Кембриджа. Тетрадь он оставил под яблоней."
                                 );
-                                user.ItemManager.Add(new ItemInfo("appletree/notebook", 1));
+                                user.ItemManager.Add(new ItemInfo(Notebook.Id, 1));
                                 user.RoomManager.Leave();
                             }
                         },
@@ -35,7 +38,7 @@ namespace Content.Rooms
         }
 
         public override string Name => "Яблоня";
-        public override string Identifier => "room/appletree";
+        public override string Identifier => Id;
 
         public override void OnEnter(User user)
         {

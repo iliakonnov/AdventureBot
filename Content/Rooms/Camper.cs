@@ -1,14 +1,16 @@
 ﻿using AdventureBot.Item;
 using AdventureBot.Room;
 using AdventureBot.User;
+using Content.Items;
 
 namespace Content.Rooms
 {
-    [Available("monster/camper", Difficulity.Medium)]
+    [Available(Id, Difficulity.Medium)]
     public class Camper : MonsterBase
     {
+        public const string Id = "monster/camper";
         public override string Name => "Кэмпер";
-        public override string Identifier => "monster/camper";
+        public override string Identifier => Id;
         protected override decimal Health => 70;
 
         protected override decimal GetDamage(User user)
@@ -28,7 +30,7 @@ namespace Content.Rooms
 
         protected override void OnWon(User user)
         {
-            user.ItemManager.Add(new ItemInfo("camper/awp", 1));
+            user.ItemManager.Add(new ItemInfo(Awp.Id, 1));
         }
     }
 }

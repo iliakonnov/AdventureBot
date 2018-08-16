@@ -4,12 +4,15 @@ using AdventureBot.Item;
 using AdventureBot.Messenger;
 using AdventureBot.Room;
 using AdventureBot.User;
+using Content.Items;
 
 namespace Content.Rooms
 {
-    [Available("room/wedding", Difficulity.Easy | Difficulity.Medium)]
+    [Available(Id, Difficulity.Easy | Difficulity.Medium)]
     public class Wedding : RoomBase
     {
+        public const string Id = "room/wedding";
+
         public Wedding()
         {
             Routes = new MessageRecived[] {TryLeave};
@@ -32,7 +35,7 @@ namespace Content.Rooms
         }
 
         public override string Name => "Грузинская свадьба";
-        public override string Identifier => "room/wedding";
+        public override string Identifier => Id;
 
         public override void OnEnter(User user)
         {
@@ -62,12 +65,12 @@ namespace Content.Rooms
         }
     }
 
-    [Available("room/hard_wedding", Difficulity.Hard)]
+    [Available(Id, Difficulity.Hard)]
     public class HardWedding : Wedding
     {
         public override bool OnLeave(User user)
         {
-            user.ItemManager.Add(new ItemInfo("wedding/narzan", 1));
+            user.ItemManager.Add(new ItemInfo(Narzan.Id, 1));
             return base.OnLeave(user);
         }
     }

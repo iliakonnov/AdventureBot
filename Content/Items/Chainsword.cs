@@ -8,14 +8,15 @@ using AdventureBot.User.Stats;
 
 namespace Content.Items
 {
-    [Item("spacemarine/chainsword")]
+    [Item(Id)]
     public class Chainsword : ItemBase
     {
+        public const string Id = "spacemarine/chainsword";
         public override string Name => "Цепной меч";
         public override string Description => "Cамый распространенный вид цепного оружия";
         public override decimal? Price => null;
         public override StructFlag<BuyGroup> Group => new StructFlag<BuyGroup>();
-        public override string Identifier => "spacemarine/chainsword";
+        public override string Identifier => Id;
         public override StatsEffect Effect => null;
 
         public override void OnUse(User user, ItemInfo info)

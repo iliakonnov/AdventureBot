@@ -10,9 +10,11 @@ using AdventureBot.User.Stats;
 
 namespace Content.Town
 {
-    [Room("town/mirror")]
+    [Room(Id)]
     public class Mirror : RoomBase
     {
+        public const string Id = "town/mirror";
+
         public Mirror()
         {
             Routes = new MessageRecived[] {EditStats, Inventory};
@@ -60,7 +62,7 @@ namespace Content.Town
         }
 
         public override string Name => "Зеркало";
-        public override string Identifier => "town/mirror";
+        public override string Identifier => Id;
 
         public override void OnEnter(User user)
         {

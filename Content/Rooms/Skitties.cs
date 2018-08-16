@@ -7,9 +7,11 @@ using AdventureBot.User;
 
 namespace Content.Rooms
 {
-    [Available("room/skitties", Difficulity.Any)]
+    [Available(Id, Difficulity.Any)]
     public class Skitties : RoomBase
     {
+        public const string Id = "room/skitties";
+
         public Skitties()
         {
             Buttons = new NullableDictionary<MessageRecived, Dictionary<string, MessageRecived>>
@@ -23,7 +25,7 @@ namespace Content.Rooms
                                 SendMessage(user,
                                     "Вполне себе обычные вкусненькие конфеты. Правда, ты не заметил, как съел полведра и теперь чувствуешь, как содержание глюкозы в твоей крови достигло критической отметки. Кажется, у тебя диабет. Но есть и плюсы: отойдя на метров двести, ты обнаружил у себя в кармане конфеты \"Skitties\". Да-да, те самые.");
                                 user.VariableManager.UserVariables.Set("skitties_diabetes", new Serializable.Int(10));
-                                user.ItemManager.Add(new ItemInfo("skitties/candy", 10));
+                                user.ItemManager.Add(new ItemInfo(Items.Skitties.Id, 10));
                                 user.RoomManager.Leave();
                             }
                         },
@@ -41,7 +43,7 @@ namespace Content.Rooms
         }
 
         public override string Name => "?";
-        public override string Identifier => "room/skitties";
+        public override string Identifier => Id;
 
         public override void OnEnter(User user)
         {

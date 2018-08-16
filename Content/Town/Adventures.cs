@@ -10,9 +10,11 @@ using AdventureBot.User.Stats;
 
 namespace Content.Town
 {
-    [Room("town/adventures")]
+    [Room(Id)]
     public class Adventures : RoomBase
     {
+        public const string Id = "town/adventures";
+
         public Adventures()
         {
             Routes = new MessageRecived[] {RoomSelection};
@@ -38,7 +40,7 @@ namespace Content.Town
         }
 
         public override string Name => "Приключения";
-        public override string Identifier => "town/adventures";
+        public override string Identifier => Id;
 
         public override void OnEnter(User user)
         {

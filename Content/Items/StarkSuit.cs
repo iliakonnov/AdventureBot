@@ -8,9 +8,10 @@ using AdventureBot.User.Stats;
 
 namespace Content.Items
 {
-    [Item("item/stark_suit")]
+    [Item(Id)]
     public class StarkSuit : ItemBase
     {
+        public const string Id = "item/stark_suit";
         public override StructFlag<BuyGroup> Group => new StructFlag<BuyGroup>(BuyGroup.Market);
         public override string Name => "Одноразовый костюм Старка";
 
@@ -18,7 +19,7 @@ namespace Content.Items
             "Его создал Старк когда-то для критических случаев, но ему так и не пришлось им пользоваться.";
 
         public override decimal? Price => 500;
-        public override string Identifier => "item/stark_suit";
+        public override string Identifier => Id;
         public override StatsEffect Effect => null;
 
         public override bool CanUse(User user, ItemInfo info)
@@ -31,19 +32,20 @@ namespace Content.Items
         {
             if (user.ItemManager.Remove(new ItemInfo(Identifier, 1)))
             {
-                user.ItemManager.Add(new ItemInfo("stark_suit/activated", 1));
+                user.ItemManager.Add(new ItemInfo(ActivatedStarkSuit.Id, 1));
             }
         }
     }
 
-    [Item("stark_suit/activated")]
+    [Item(Id)]
     public class ActivatedStarkSuit : ItemBase, IAdventureItem
     {
+        public const string Id = "stark_suit/activated";
         public override StructFlag<BuyGroup> Group => new StructFlag<BuyGroup>();
         public override string Name => "Активированное костюм Старка";
         public override string Description => "Надпись на этикетке: не рассчитан на продолжительное использование";
         public override decimal? Price => null;
-        public override string Identifier => "stark_suit/activated";
+        public override string Identifier => Id;
 
         public override StatsEffect Effect => new StatsEffect(ChangeType.Add, new Dictionary<StatsProperty, decimal>
         {
@@ -67,7 +69,7 @@ namespace Content.Items
                 {
                     Text = "Ты попытался надеть два костюма сразу, но у тебя не получилось"
                 });
-                user.ItemManager.Add(new ItemInfo("item/stark_suit", 1));
+                user.ItemManager.Add(new ItemInfo(StarkSuit.Id, 1));
             }
             else
             {

@@ -7,14 +7,15 @@ using AdventureBot.User.Stats;
 
 namespace Content.Items
 {
-    [Item("legolas/bow")]
+    [Item(Id)]
     public class Bow : ItemBase
     {
+        public const string Id = "legolas/bow";
         public override StructFlag<BuyGroup> Group => new StructFlag<BuyGroup>();
         public override string Name => "Эльфийский лук";
         public override string Description => "Этому луку стрелы не нужны!";
         public override decimal? Price => null;
-        public override string Identifier => "legolas/bow";
+        public override string Identifier => Id;
         public override StatsEffect Effect => null;
 
         public override bool CanUse(User user, ItemInfo info)

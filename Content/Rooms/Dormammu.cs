@@ -5,11 +5,12 @@ using AdventureBot.User;
 
 namespace Content.Rooms
 {
-    [Available("monster/dormammu", Difficulity.Hard)]
+    [Available(Id, Difficulity.Hard)]
     public class Dormammu : MonsterBase
     {
+        public const string Id = "monster/dormammu";
         public override string Name => "Дормамму";
-        public override string Identifier => "monster/dormammu";
+        public override string Identifier => Id;
         protected override decimal Health => 1_000_000;
 
         protected override decimal GetDamage(User user)

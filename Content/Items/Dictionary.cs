@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using AdventureBot;
 using AdventureBot.Item;
 using AdventureBot.ObjectManager;
@@ -8,14 +7,15 @@ using AdventureBot.User.Stats;
 
 namespace Content.Items
 {
-    [Item("grammar/dictionary_dahl")]
+    [Item(Id)]
     public class DictionaryDahl : ItemBase
     {
+        public const string Id = "grammar/dictionary_dahl";
         public override StructFlag<BuyGroup> Group => new StructFlag<BuyGroup>();
         public override string Name => "Словарь Даля";
         public override string Description => string.Empty;
         public override decimal? Price => null;
-        public override string Identifier => "grammar/dictionary_dahl";
+        public override string Identifier => Id;
 
         public override StatsEffect Effect => new StatsEffect(ChangeType.Add, new Dictionary<StatsProperty, decimal>
         {
@@ -28,14 +28,15 @@ namespace Content.Items
         }
     }
 
-    [Item("grammar/dictionary_ozhegov")]
+    [Item(Id)]
     public class DictionaryOzhegov : ItemBase
     {
+        public const string Id = "grammar/dictionary_ozhegov";
         public override StructFlag<BuyGroup> Group => new StructFlag<BuyGroup>();
         public override string Name => "Словарь Ожегова";
         public override string Description => string.Empty;
         public override decimal? Price => null;
-        public override string Identifier => "grammar/dictionary_ozhegov";
+        public override string Identifier => Id;
 
         public override StatsEffect Effect => new StatsEffect(ChangeType.Add, new Dictionary<StatsProperty, decimal>
         {

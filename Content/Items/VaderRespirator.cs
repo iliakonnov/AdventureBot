@@ -7,14 +7,15 @@ using AdventureBot.User.Stats;
 
 namespace Content.Items
 {
-    [Item("vader/respirator")]
+    [Item(Id)]
     public class VaderRespirator : ItemBase
     {
+        public const string Id = "Когда-то её носил великий человек";
         public override StructFlag<BuyGroup> Group => new StructFlag<BuyGroup>();
         public override string Name => "Респираторная маска";
         public override string Description => string.Empty;
         public override decimal? Price => null;
-        public override string Identifier => "Когда-то её носил великий человек";
+        public override string Identifier => Id;
 
         public override StatsEffect Effect => new StatsEffect(ChangeType.Add, new Dictionary<StatsProperty, decimal>
         {

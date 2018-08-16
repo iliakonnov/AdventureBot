@@ -7,12 +7,14 @@ using AdventureBot.User.Stats;
 
 namespace Content.Rooms
 {
-    [Available("monster/starlight", Difficulity.Hard)]
+    [Available(Id, Difficulity.Hard)]
     public class Starlight : MonsterBase
     {
+        public const string Id = "monster/starlight";
         public override string Name => "Старлайт";
-        public override string Identifier => "monster/starlight";
+        public override string Identifier => Id;
         protected override decimal Health => 1000;
+
         protected override decimal GetDamage(User user)
         {
             return 50;
@@ -49,7 +51,7 @@ namespace Content.Rooms
             variables.Set("prop", new Serializable.Int((int) prop));
             variables.Set("value", new Serializable.Decimal(backup));
             user.Info.ChangeStats(prop, Stats.DefaultStats[prop], true);
-            
+
             SendMessage(user, $"Старлайт Гриммер лишает вас {propText}!", buttons);
         }
 
@@ -65,7 +67,7 @@ namespace Content.Rooms
             var prop = (StatsProperty) (int) variables.Get<Serializable.Int>("prop");
             var backup = (decimal) variables.Get<Serializable.Decimal>("value");
             user.Info.ChangeStats(prop, backup, true);
-            user.ItemManager.Add(new ItemInfo("starlight/wand", 1));
+            user.ItemManager.Add(new ItemInfo(Wand.Id, 1));
         }
     }
 }

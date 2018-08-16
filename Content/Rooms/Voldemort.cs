@@ -5,11 +5,12 @@ using AdventureBot.User;
 
 namespace Content.Rooms
 {
-    [Available("monster/voldemort", Difficulity.Hard)]
+    [Available(Id, Difficulity.Hard)]
     public class Voldemort : MonsterBase
     {
+        public const string Id = "monster/voldemort";
         public override string Name => "Волан-де-Морт";
-        public override string Identifier => "monster/voldemort";
+        public override string Identifier => Id;
 
         protected override decimal Health
         {

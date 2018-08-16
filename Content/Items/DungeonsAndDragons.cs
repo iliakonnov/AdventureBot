@@ -7,14 +7,15 @@ using AdventureBot.User.Stats;
 
 namespace Content.Items
 {
-    [Item("geek/d&d")]
+    [Item(Id)]
     public class DungeonsAndDragons : ItemBase
     {
+        public const string Id = "geek/d&d";
         public override StructFlag<BuyGroup> Group => new StructFlag<BuyGroup>();
         public override string Name => "Dungeons and Dragons";
         public override string Description => string.Empty;
         public override decimal? Price => null;
-        public override string Identifier => "geek/d&d";
+        public override string Identifier => Id;
 
         public override StatsEffect Effect => new StatsEffect(ChangeType.Add, new Dictionary<StatsProperty, decimal>
         {

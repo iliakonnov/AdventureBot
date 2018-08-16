@@ -6,9 +6,11 @@ using AdventureBot.User;
 
 namespace Content.Rooms
 {
-    [Available("room/kiba", Difficulity.Any)]
+    [Available(Id, Difficulity.Any)]
     public class Kiba : RoomBase
     {
+        public const string Id = "room/kiba";
+
         public Kiba()
         {
             Buttons = new NullableDictionary<MessageRecived, Dictionary<string, MessageRecived>>
@@ -23,7 +25,7 @@ namespace Content.Rooms
         }
 
         public override string Name => "Киба";
-        public override string Identifier => "room/kiba";
+        public override string Identifier => Id;
 
         public override void OnEnter(User user)
         {

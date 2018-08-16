@@ -6,11 +6,10 @@ using AdventureBot.User;
 
 namespace Content.Rooms.MegaMonster.Room
 {
-    [Available("room/mega_monster", Difficulity.Medium)]
+    [Available(Id, Difficulity.Medium)]
     public partial class MegaMonsterRoom : RoomBase, IMonster
     {
-        public override string Name => "Монстр";
-        public override string Identifier => "room/mega_monster";
+        public const string Id = "room/mega_monster";
 
         public MegaMonsterRoom()
         {
@@ -45,7 +44,7 @@ namespace Content.Rooms.MegaMonster.Room
                         {"Артефакт", (user, message) => Artifact(user)},
                         {"Золото", (user, message) => Gold(user)},
                         {"Знания", (user, message) => Knowledge(user)},
-                        {"Тут не о чем говорить. Битва!", (user, message) => BeginBattle(user)},
+                        {"Тут не о чем говорить. Битва!", (user, message) => BeginBattle(user)}
                     }
                 },
                 {
@@ -58,7 +57,7 @@ namespace Content.Rooms.MegaMonster.Room
                 {
                     ArtifactNotFound, new Dictionary<string, MessageRecived>
                     {
-                        {"У меня такого нет", (user, message) => BeginTalk(user)},
+                        {"У меня такого нет", (user, message) => BeginTalk(user)}
                     }
                 },
                 {
@@ -71,7 +70,7 @@ namespace Content.Rooms.MegaMonster.Room
                 {
                     NotEnoughGold, new Dictionary<string, MessageRecived>
                     {
-                        {"У меня столько нет", (user, message) => BeginTalk(user)},
+                        {"У меня столько нет", (user, message) => BeginTalk(user)}
                     }
                 },
                 {
@@ -84,11 +83,14 @@ namespace Content.Rooms.MegaMonster.Room
                 {
                     NotEnoughKnowledge, new Dictionary<string, MessageRecived>
                     {
-                        {"Я недостаточно умен", (user, message) => BeginTalk(user)},
+                        {"Я недостаточно умен", (user, message) => BeginTalk(user)}
                     }
                 }
             };
         }
+
+        public override string Name => "Монстр";
+        public override string Identifier => Id;
 
         public override void OnEnter(User user)
         {

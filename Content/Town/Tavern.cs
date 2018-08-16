@@ -1,7 +1,6 @@
 ﻿using System;
 using AdventureBot;
 using AdventureBot.Messenger;
-using AdventureBot.ObjectManager;
 using AdventureBot.Room;
 using AdventureBot.Room.BetterRoom;
 using AdventureBot.User;
@@ -9,15 +8,17 @@ using Content.Quests;
 
 namespace Content.Town
 {
-    [Room("town/tavern")]
+    [Room(Id)]
     public class Tavern : BetterRoomBase
     {
+        public const string Id = "town/tavern";
+
         public Tavern() : base(typeof(Tavern))
         {
         }
 
         public override string Name => "Таверна";
-        public override string Identifier => "town/tavern";
+        public override string Identifier => Id;
 
         public override void OnEnter(User user)
         {
@@ -25,6 +26,25 @@ namespace Content.Town
             SendMessage(user,
                 "Дубовая нескладная дверь таверны отворилась перед тобой. Зайдя внутрь, ты понимаешь, что ничего не изменилось: горы мусора и битой посуды, невозмутимый хозяин, вопли пьянчуг и незнакомец в темном углу. Можешь пропустить стаканчик с каким-нибудь старым знакомым или же взяться за дело. Что выберешь?",
                 GetButtons(user));
+        }
+
+        private Tuple<Guid, KillMonsterBase> TryFindQuest(User user, string questId, string varSuffix)
+        {
+            var vars = GetRoomVariables(user);
+            var existingQuestId = vars.Get<Serializable.String>("questId" + varSuffix);
+            if (existingQuestId == null)
+            {
+                return null;
+            }
+
+            var quests = user.QuestManager.Quests[questId];
+            var questGuid = Guid.Parse(existingQuestId);
+            if (quests.TryGetValue(questGuid, out var questInfo))
+            {
+                return new Tuple<Guid, KillMonsterBase>(questGuid, questInfo.Quest as KillMonsterBase);
+            }
+
+            return null;
         }
 
         [Action]
@@ -55,25 +75,6 @@ namespace Content.Town
             {
                 user.RoomManager.Leave();
             }
-        }
-
-        private Tuple<Guid, KillMonsterBase> TryFindQuest(User user, string questId, string varSuffix)
-        {
-            var vars = GetRoomVariables(user);
-            var existingQuestId = vars.Get<Serializable.String>("questId" + varSuffix);
-            if (existingQuestId == null)
-            {
-                return null;
-            }
-
-            var quests = user.QuestManager.Quests[questId];
-            var questGuid = Guid.Parse(existingQuestId);
-            if (quests.TryGetValue(questGuid, out var questInfo))
-            {
-                return new Tuple<Guid, KillMonsterBase>(questGuid, questInfo.Quest as KillMonsterBase);
-            }
-
-            return null;
         }
 
         [Action(0)]
@@ -129,14 +130,14 @@ namespace Content.Town
 
                 vars.Set("count", new Serializable.Int(requestsCount + 1));
                 var questId = user.QuestManager.BeginQuest(KillMonster.Id);
-                var quest = user.QuestManager.Quests[KillMonster.Id][questId].Quest as KillMonster;
+                var quest = (KillMonster) user.QuestManager.Quests[KillMonster.Id][questId].Quest;
                 vars.Set("questId_owner", new Serializable.String(questId.ToString()));
 
-                var monsterId = quest?.GetMonsterId(user, questId);
+                var monsterId = quest.GetMonsterId(user, questId);
                 var monster = GetAllRooms().Get(monsterId);
 
                 Room.SendMessage(user,
-                    $"– Сейчас за голову {monster?.Name} назначена особая награда ценой в {quest?.GetReward(user, questId).Format()} золота. Как только разберёшься, приходи ко мне.",
+                    $"– Сейчас за голову {monster?.Name} назначена особая награда ценой в {quest.GetReward(user, questId).Format()} золота. Как только разберёшься, приходи ко мне.",
                     Room.GetButtons(user));
             }
 
@@ -160,14 +161,14 @@ namespace Content.Town
             public void Yes(User user, RecivedMessage message)
             {
                 Room.SwitchAction<MainAction>(user);
-                
+
                 var vars = Room.GetRoomVariables(user);
 
                 var questId = user.QuestManager.BeginQuest(KillMonsterFree.Id);
-                var quest = user.QuestManager.Quests[KillMonsterFree.Id][questId].Quest as KillMonsterFree;
+                var quest = (KillMonsterFree) user.QuestManager.Quests[KillMonsterFree.Id][questId].Quest;
                 vars.Set("questId_sergeant", new Serializable.String(questId.ToString()));
 
-                var monsterId = quest?.GetMonsterId(user, questId);
+                var monsterId = quest.GetMonsterId(user, questId);
                 var monster = GetAllRooms().Get(monsterId);
 
                 Room.SendMessage(user, $"– Пойди и убей {monster?.Name}", Room.GetButtons(user));
@@ -177,7 +178,7 @@ namespace Content.Town
             public void Reward(User user, RecivedMessage message)
             {
                 Room.SwitchAction<MainAction>(user);
-                
+
                 var existingQuest = (Room as Tavern)?.TryFindQuest(user, KillMonsterFree.Id, "_sergeant");
                 if (existingQuest != null)
                 {

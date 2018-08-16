@@ -1,14 +1,16 @@
 ﻿using AdventureBot.Item;
 using AdventureBot.Room;
 using AdventureBot.User;
+using Content.Items;
 
 namespace Content.Rooms
 {
-    [Available("monster/SpaceMarine", Difficulity.Hard)]
+    [Available(Id, Difficulity.Hard)]
     public class SpaceMarine : MonsterBase
     {
+        public const string Id = "monster/SpaceMarine";
         public override string Name => "Космодесантник";
-        public override string Identifier => "monster/SpaceMarine";
+        public override string Identifier => Id;
         protected override decimal Health => 1000;
 
         protected override decimal GetDamage(User user)
@@ -31,7 +33,7 @@ namespace Content.Rooms
         protected override void OnWon(User user)
         {
             SendMessage(user, "Победив космодесантника, ты подобрал *цепной меч*");
-            user.ItemManager.Add(new ItemInfo("spacemarine/chainsword", 1));
+            user.ItemManager.Add(new ItemInfo(Chainsword.Id, 1));
         }
     }
 }

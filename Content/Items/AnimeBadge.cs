@@ -7,14 +7,15 @@ using AdventureBot.User.Stats;
 
 namespace Content.Items
 {
-    [Item("anime/badge")]
+    [Item(Id)]
     public class AnimeBadge : ItemBase
     {
+        public const string Id = "anime/badge";
         public override StructFlag<BuyGroup> Group => new StructFlag<BuyGroup>();
         public override string Name => "Значок \"I ❤️ 宮崎 駿\"";
         public override string Description => "";
         public override decimal? Price => null;
-        public override string Identifier => "anime/badge";
+        public override string Identifier => Id;
 
         public override StatsEffect Effect => new StatsEffect(ChangeType.Set, new Dictionary<StatsProperty, decimal>
         {

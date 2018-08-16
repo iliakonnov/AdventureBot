@@ -3,14 +3,16 @@ using AdventureBot.Item;
 using AdventureBot.Room;
 using AdventureBot.User;
 using AdventureBot.User.Stats;
+using Content.Items;
 
 namespace Content.Rooms
 {
-    [Available("monster/sans", Difficulity.Hard)]
+    [Available(Id, Difficulity.Hard)]
     public class Sans : MonsterBase
     {
+        public const string Id = "monster/sans";
         public override string Name => "Санс";
-        public override string Identifier => "monster/sans";
+        public override string Identifier => Id;
         protected override decimal Health => 35;
 
         protected override decimal GetDamage(User user)
@@ -58,7 +60,7 @@ namespace Content.Rooms
 
         protected override void OnWon(User user)
         {
-            user.ItemManager.Add(new ItemInfo("sans/ketchup", 1));
+            user.ItemManager.Add(new ItemInfo(Ketchup.Id, 1));
         }
     }
 }

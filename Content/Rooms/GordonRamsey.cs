@@ -1,14 +1,16 @@
 ﻿using AdventureBot.Item;
 using AdventureBot.Room;
 using AdventureBot.User;
+using Content.Items;
 
 namespace Content.Rooms
 {
-    [Available("monster/gordonRamsey", Difficulity.Medium)]
+    [Available(Id, Difficulity.Medium)]
     public class GordonRamsey : MonsterBase
     {
+        public const string Id = "monster/gordonRamsey";
         public override string Name => "Гордон Рамзи";
-        public override string Identifier => "monster/gordonRamsey";
+        public override string Identifier => Id;
         protected override decimal Health => 200;
 
         protected override decimal GetDamage(User user)
@@ -28,7 +30,7 @@ namespace Content.Rooms
 
         protected override void OnWon(User user)
         {
-            user.ItemManager.Add(new ItemInfo("gordonRamsey/knife", 1));
+            user.ItemManager.Add(new ItemInfo(GordonKnife.Id, 1));
         }
     }
 }

@@ -11,7 +11,7 @@ namespace Content.Town
     [Room(Id)]
     public class Market : RoomBase
     {
-        private const string Id = "town/market";
+        public const string Id = "town/market";
 
         public Market()
         {
@@ -38,8 +38,8 @@ namespace Content.Town
             };
         }
 
-        public override string Identifier { get; } = Id;
-        public override string Name { get; } = "Рынок";
+        public override string Identifier => Id;
+        public override string Name => "Рынок";
 
         public override void OnEnter(User user)
         {

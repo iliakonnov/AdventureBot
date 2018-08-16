@@ -7,9 +7,11 @@ using AdventureBot.User.Stats;
 
 namespace Content.Town
 {
-    [Room("town/gym")]
+    [Room(Id)]
     public class Gym : RoomBase
     {
+        public const string Id = "town/gym";
+
         public Gym()
         {
             Buttons = new NullableDictionary<MessageRecived, Dictionary<string, MessageRecived>>
@@ -45,7 +47,7 @@ namespace Content.Town
         }
 
         public override string Name => "Спортзал";
-        public override string Identifier => "town/gym";
+        public override string Identifier => Id;
 
         public override void OnEnter(User user)
         {

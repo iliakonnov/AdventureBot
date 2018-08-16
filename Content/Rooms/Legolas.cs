@@ -1,14 +1,16 @@
 ﻿using AdventureBot.Item;
 using AdventureBot.Room;
 using AdventureBot.User;
+using Content.Items;
 
 namespace Content.Rooms
 {
-    [Available("monster/legolas", Difficulity.Hard)]
+    [Available(Id, Difficulity.Hard)]
     public class Legolas : MonsterBase
     {
+        public const string Id = "monster/legolas";
         public override string Name => "Леголас";
-        public override string Identifier => "monster/legolas";
+        public override string Identifier => Id;
         protected override decimal Health => 500;
 
         protected override decimal GetDamage(User user)
@@ -30,7 +32,7 @@ namespace Content.Rooms
 
         protected override void OnWon(User user)
         {
-            user.ItemManager.Add(new ItemInfo("legolas/bow", 1));
+            user.ItemManager.Add(new ItemInfo(Bow.Id, 1));
         }
     }
 }

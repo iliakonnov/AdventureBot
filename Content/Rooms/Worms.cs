@@ -4,12 +4,15 @@ using AdventureBot.Item;
 using AdventureBot.Messenger;
 using AdventureBot.Room;
 using AdventureBot.User;
+using Content.Items;
 
 namespace Content.Rooms
 {
-    [Available("room/worms", Difficulity.Any)]
+    [Available(Id, Difficulity.Any)]
     public class Worms : RoomBase
     {
+        public const string Id = "room/worms";
+
         public Worms()
         {
             Buttons = new NullableDictionary<MessageRecived, Dictionary<string, MessageRecived>>
@@ -26,7 +29,7 @@ namespace Content.Rooms
         }
 
         public override string Name => "Террариум";
-        public override string Identifier => "room/worms";
+        public override string Identifier => Id;
 
         public override void OnEnter(User user)
         {
@@ -43,7 +46,7 @@ namespace Content.Rooms
         {
             base.OnLeave(user);
 
-            user.ItemManager.Add(new ItemInfo("worms/worm", 3));
+            user.ItemManager.Add(new ItemInfo(Worm.Id, 3));
             SendMessage(user, "Перед уходом ты подобрал бездыханные тела бравых бойцов.");
             return true;
         }

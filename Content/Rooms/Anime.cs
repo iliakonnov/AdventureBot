@@ -1,14 +1,16 @@
 ﻿using AdventureBot.Item;
 using AdventureBot.Room;
 using AdventureBot.User;
+using Content.Items;
 
 namespace Content.Rooms
 {
-    [Available("monster/anime", Difficulity.Medium)]
+    [Available(Id, Difficulity.Medium)]
     public class Anime : MonsterBase
     {
+        public const string Id = "monster/anime";
         public override string Name => "Анимешник";
-        public override string Identifier => "monster/anime";
+        public override string Identifier => Id;
         protected override decimal Health => 150;
 
         protected override decimal GetDamage(User user)
@@ -28,7 +30,7 @@ namespace Content.Rooms
 
         protected override void OnWon(User user)
         {
-            user.ItemManager.Add(new ItemInfo("anime/badge", 1));
+            user.ItemManager.Add(new ItemInfo(AnimeBadge.Id, 1));
         }
     }
 }

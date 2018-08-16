@@ -5,12 +5,14 @@ using AdventureBot.Item;
 using AdventureBot.Messenger;
 using AdventureBot.Room;
 using AdventureBot.User;
+using Content.Items;
 
 namespace Content.Rooms
 {
-    [Available("monster/vader", Difficulity.Hard)]
+    [Available(Id, Difficulity.Hard)]
     public class DarthVader : RoomBase, IMonster
     {
+        public const string Id = "monster/vader";
         private readonly IMonster _battleRoom = new BattleRoom();
 
         public DarthVader()
@@ -49,7 +51,7 @@ namespace Content.Rooms
         }
 
         public override string Name => "Дарт Вейдер";
-        public override string Identifier => "monster/vader";
+        public override string Identifier => Id;
 
         public override void OnEnter(User user)
         {
@@ -97,8 +99,9 @@ namespace Content.Rooms
 
         private class BattleRoom : MonsterBase
         {
+            public const string Id = "monster/vader/battle";
             public override string Name => "Битва с отцом";
-            public override string Identifier => "monster/vader/battle";
+            public override string Identifier => Id;
             protected override decimal Health => 550;
 
             protected override decimal GetDamage(User user)
@@ -122,13 +125,13 @@ namespace Content.Rooms
                 switch (rand)
                 {
                     case 0:
-                        user.ItemManager.Add(new ItemInfo("vader/respirator", 1));
+                        user.ItemManager.Add(new ItemInfo(VaderRespirator.Id, 1));
                         break;
                     case 1:
-                        user.ItemManager.Add(new ItemInfo("vader/sword", 1));
+                        user.ItemManager.Add(new ItemInfo(VaderSword.Id, 1));
                         break;
                     case 2:
-                        user.ItemManager.Add(new ItemInfo("vader/cloak", 1));
+                        user.ItemManager.Add(new ItemInfo(VaderCloak.Id, 1));
                         break;
                     // ReSharper disable once RedundantEmptySwitchSection
                     default:

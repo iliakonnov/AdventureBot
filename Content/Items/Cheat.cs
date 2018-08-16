@@ -9,14 +9,15 @@ using AdventureBot.User.Stats;
 
 namespace Content.Items
 {
-    [Item("item/cheat")]
+    [Item(Id)]
     public class Cheat : ItemBase
     {
+        public const string Id = "item/cheat";
         public override StructFlag<BuyGroup> Group => new StructFlag<BuyGroup>();
         public override string Name => "Отладочный предмет";
         public override string Description => "Его у вас быть не должно.";
         public override decimal? Price => short.MaxValue;
-        public override string Identifier => "item/cheat";
+        public override string Identifier => Id;
 
         public override StatsEffect Effect => new StatsEffect(ChangeType.Set, new Dictionary<StatsProperty, decimal>
         {

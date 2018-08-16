@@ -152,7 +152,7 @@ namespace Content.Rooms.DeadlyBattle
             public void Mirror(User user, RecivedMessage message)
             {
                 Room.GetRoomVariables(user).Set("mirror", new Serializable.Bool(true));
-                user.RoomManager.Go("town/mirror");
+                user.RoomManager.Go(Town.Mirror.Id);
             }
         }
     }

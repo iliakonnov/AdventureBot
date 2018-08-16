@@ -3,14 +3,16 @@ using AdventureBot.Item;
 using AdventureBot.Messenger;
 using AdventureBot.Room;
 using AdventureBot.User;
+using Content.Items;
 
 namespace Content.Rooms
 {
-    [Available("monster/geek", Difficulity.Medium)]
+    [Available(Id, Difficulity.Medium)]
     public class Geek : MonsterBase
     {
+        public const string Id = "monster/geek";
         public override string Name => "Гик";
-        public override string Identifier => "monster/geek";
+        public override string Identifier => Id;
         protected override decimal Health => 150;
 
         protected override decimal GetDamage(User user)
@@ -55,7 +57,7 @@ namespace Content.Rooms
 
         protected override void OnWon(User user)
         {
-            user.ItemManager.Add(new ItemInfo("geek/d&d", 1));
+            user.ItemManager.Add(new ItemInfo(DungeonsAndDragons.Id, 1));
         }
     }
 }

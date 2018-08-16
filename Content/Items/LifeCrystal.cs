@@ -7,14 +7,15 @@ using AdventureBot.User.Stats;
 
 namespace Content.Items
 {
-    [Item("lifecrystal/shard")]
+    [Item(Id)]
     public class LifeCrystalShard : ItemBase
     {
+        public const string Id = "lifecrystal/shard";
         public override StructFlag<BuyGroup> Group => new StructFlag<BuyGroup>(BuyGroup.Merchant);
         public override string Name => "Осколок кристалла жизни";
         public override string Description => "Собери четыре";
         public override decimal? Price => 750;
-        public override string Identifier => "lifecrystal/shard";
+        public override string Identifier => Id;
         public override StatsEffect Effect => null;
 
         public override bool CanUse(User user, ItemInfo info)
@@ -27,19 +28,20 @@ namespace Content.Items
         {
             if (user.ItemManager.Remove(new ItemInfo(Identifier, 4)))
             {
-                user.ItemManager.Add(new ItemInfo("item/lifecrystal", 1));
+                user.ItemManager.Add(new ItemInfo(LifeCrystal.Id, 1));
             }
         }
     }
 
-    [Item("item/lifecrystal")]
+    [Item(Id)]
     public class LifeCrystal : ItemBase
     {
+        public const string Id = "item/lifecrystal";
         public override StructFlag<BuyGroup> Group => new StructFlag<BuyGroup>();
         public override string Name => "Кристалла жизни";
         public override string Description => "Просто активируй";
         public override decimal? Price => null;
-        public override string Identifier => "item/lifecrystal";
+        public override string Identifier => Id;
         public override StatsEffect Effect => null;
 
         public override bool CanUse(User user, ItemInfo info)

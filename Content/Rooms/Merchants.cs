@@ -9,10 +9,11 @@ using Content.Town;
 
 namespace Content.Rooms
 {
-    [Available("room/merchants", Difficulity.Any)]
+    [Available(Id, Difficulity.Any)]
     public class Merchants : RoomBase
     {
         private const int ItemCount = 3;
+        public const string Id = "room/merchants";
 
         public Merchants()
         {
@@ -47,7 +48,7 @@ namespace Content.Rooms
         }
 
         public override string Name => "Торговцы с Востока!";
-        public override string Identifier => "room/merchants";
+        public override string Identifier => Id;
 
         public override void OnEnter(User user)
         {

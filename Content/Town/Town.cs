@@ -18,19 +18,19 @@ namespace Content.Town
                 {
                     null, new Dictionary<string, MessageRecived>
                     {
-                        {"Приключения", (user, message) => user.RoomManager.Go("town/adventures")},
-                        {"Зеркало", (user, message) => user.RoomManager.Go("town/mirror")},
-                        {"Рынок", (user, message) => user.RoomManager.Go("town/market")},
-                        {"Таверна", (user, message) => user.RoomManager.Go("town/tavern")},
-                        {"Гильдия магов", (user, message) => user.RoomManager.Go("town/guild")},
-                        {"Спортзал", (user, message) => user.RoomManager.Go("town/gym")}
+                        {"Приключения", (user, message) => user.RoomManager.Go(Adventures.Id)},
+                        {"Зеркало", (user, message) => user.RoomManager.Go(Mirror.Id)},
+                        {"Рынок", (user, message) => user.RoomManager.Go(Market.Id)},
+                        {"Таверна", (user, message) => user.RoomManager.Go(Tavern.Id)},
+                        {"Гильдия магов", (user, message) => user.RoomManager.Go(Guild.Id)},
+                        {"Спортзал", (user, message) => user.RoomManager.Go(Gym.Id)}
                     }
                 }
             };
         }
 
-        public override string Identifier { get; } = Id;
-        public override string Name { get; } = "Город";
+        public override string Identifier => Id;
+        public override string Name => "Город";
 
         public override void OnReturn(User user)
         {

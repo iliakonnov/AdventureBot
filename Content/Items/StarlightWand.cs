@@ -10,14 +10,15 @@ using AdventureBot.User.Stats;
 
 namespace Content.Items
 {
-    [Item("starlight/wand")]
+    [Item(Id)]
     public class StarlightWand : ItemBase
     {
+        public const string Id = "starlight/wand";
         public override StructFlag<BuyGroup> Group => new StructFlag<BuyGroup>();
         public override string Name => "Посох Старлайт";
         public override string Description => string.Empty;
         public override decimal? Price => null;
-        public override string Identifier => "starlight/wand";
+        public override string Identifier => Id;
         public override StatsEffect Effect => null;
 
         public override bool CanUse(User user, ItemInfo info)
@@ -49,16 +50,16 @@ namespace Content.Items
                 case 0:
                     propText = "силу";
                     user.MessageManager.ShownStats |= ShownStats.Strength;
-                    user.ItemManager.Add(new ItemInfo("starlight/strength", 1));
+                    user.ItemManager.Add(new ItemInfo(StrongSoul.Id, 1));
                     break;
                 case 1:
                     propText = "интеллект";
-                    user.ItemManager.Add(new ItemInfo("starlight/intelligence", 1));
+                    user.ItemManager.Add(new ItemInfo(SmartSoul.Id, 1));
                     user.MessageManager.ShownStats |= ShownStats.Intelligence;
                     break;
                 case 2:
                     propText = "защиту";
-                    user.ItemManager.Add(new ItemInfo("starlight/defence", 1));
+                    user.ItemManager.Add(new ItemInfo(StoneSoul.Id, 1));
                     user.MessageManager.ShownStats |= ShownStats.Defence;
                     break;
                 default:
@@ -93,27 +94,30 @@ namespace Content.Items
         }
     }
 
-    [Item("starlight/intelligence")]
+    [Item(Id)]
     public class SmartSoul : BaseSoul
     {
+        public const string Id = "starlight/intelligence";
         public override string Name => "Умная душа монстра";
-        public override string Identifier => "starlight/intelligence";
+        public override string Identifier => Id;
         public override StatsProperty Property => StatsProperty.Intelligence;
     }
 
-    [Item("starlight/strength")]
+    [Item(Id)]
     public class StrongSoul : BaseSoul
     {
+        public const string Id = "starlight/strength";
         public override string Name => "Сильная душа монстра";
-        public override string Identifier => "starlight/strength";
+        public override string Identifier => Id;
         public override StatsProperty Property => StatsProperty.Strength;
     }
 
-    [Item("starlight/defence")]
+    [Item(Id)]
     public class StoneSoul : BaseSoul
     {
+        public const string Id = "starlight/defence";
         public override string Name => "Крепкая душа монстра";
-        public override string Identifier => "starlight/defence";
+        public override string Identifier => Id;
         public override StatsProperty Property => StatsProperty.Defence;
     }
 }

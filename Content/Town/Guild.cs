@@ -7,9 +7,11 @@ using AdventureBot.User.Stats;
 
 namespace Content.Town
 {
-    [Room("town/guild")]
+    [Room(Id)]
     public class Guild : RoomBase
     {
+        public const string Id = "town/guild";
+
         public Guild()
         {
             Buttons = new NullableDictionary<MessageRecived, Dictionary<string, MessageRecived>>
@@ -45,7 +47,7 @@ namespace Content.Town
         }
 
         public override string Name => "Гильдия магов";
-        public override string Identifier => "town/guild";
+        public override string Identifier => Id;
 
         public override void OnEnter(User user)
         {

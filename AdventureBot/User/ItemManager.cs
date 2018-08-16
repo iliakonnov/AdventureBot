@@ -12,8 +12,8 @@ namespace AdventureBot.User
     {
         [Key("Items")] private readonly List<ItemInfo> _items = new List<ItemInfo>
         {
-            new ItemInfo(new Hand()),
-            new ItemInfo(new Wand())
+            new ItemInfo(Hand.Id, 1),
+            new ItemInfo(Wand.Id, 1)
         };
 
         [IgnoreMember] internal User User;

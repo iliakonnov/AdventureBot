@@ -2,14 +2,16 @@
 using AdventureBot.Item;
 using AdventureBot.Room;
 using AdventureBot.User;
+using Content.Items;
 
 namespace Content.Rooms
 {
-    [Available("monster/jason", Difficulity.Hard)]
+    [Available(Id, Difficulity.Hard)]
     public class Jason : MonsterBase
     {
+        public const string Id = "monster/jason";
         public override string Name => "Джейсон Вурхиз";
-        public override string Identifier => "moster/jason";
+        public override string Identifier => Id;
 
         protected override decimal Health
         {
@@ -58,7 +60,7 @@ namespace Content.Rooms
 
         protected override void OnWon(User user)
         {
-            user.ItemManager.Add(new ItemInfo("jason/mask", 1));
+            user.ItemManager.Add(new ItemInfo(HockeyMask.Id, 1));
         }
     }
 }
