@@ -172,7 +172,11 @@ namespace AdventureBot.Messenger
         {
             messenger.MessageRecieved += MessageHandler;
             _messengers.Add(messenger);
-            messenger.BeginPolling();
+        }
+
+        public void BeginPolling()
+        {
+            _messengers.ForEach(m => m.BeginPolling());
         }
 
         public static event GameEventHandler<Tuple<SentMessage, RecivedMessage>> OnReply;
