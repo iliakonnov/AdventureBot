@@ -1,9 +1,12 @@
 ﻿using System;
+using System.Linq;
+using System.Text;
 using AdventureBot;
 using AdventureBot.Messenger;
 using AdventureBot.Room;
 using AdventureBot.Room.BetterRoom;
 using AdventureBot.User;
+using AdventureBot.UserManager;
 using Content.Quests;
 
 namespace Content.Town
@@ -68,6 +71,13 @@ namespace Content.Town
                 Room.SendMessage(user,
                     "– Эхехе, салага! Сильно же тебя разнесло! Протрястись не хочешь? А то есть пара незаконченных дел.",
                     Room.GetButtons(user));
+            }
+            
+            [Button("К доске почета")]
+            public void ToLeaderboard(User user, RecivedMessage message)
+            {
+                Room.SwitchAction<Leaderboard>(user);
+                Room.SendMessage(user, "Здесь есть все лучшие люди этого города", Room.GetButtons(user));
             }
 
             [Button("Уйти")]
@@ -207,6 +217,78 @@ namespace Content.Town
                 Room.SendMessage(user,
                     "– Муштровать не буду, не в армии. Но скажу, что ты очень многое упускаешь.",
                     Room.GetButtons(user));
+            }
+        }
+        
+        [Action(2)]
+        public class Leaderboard : ActionBase
+        {
+            public Leaderboard(BetterRoomBase room) : base(room)
+            {
+            }
+
+            [Button("Самые богатые")]
+            public void ByGold(User user, RecivedMessage message)
+            {
+                var top = new StringBuilder();
+                var cnt = 0;
+                foreach (var topPlayer in TopPlayers.Instance.Top[TopParam.Gold].Reverse())
+                {
+                    if (cnt++ > 10)
+                    {
+                        break;
+                    }
+
+                    var usr = UserProxy.GetUnsafe(topPlayer.Value);
+                    top.AppendLine($"У {usr.Info.Name} имеется {topPlayer.Key.Format(0)} золота");
+                }
+                
+                Room.SendMessage(user, top.ToString(), Room.GetButtons(user));
+            }
+            
+            [Button("Путешественники")]
+            public void ByRooms(User user, RecivedMessage message)
+            {
+                var top = new StringBuilder();
+                var cnt = 0;
+                foreach (var topPlayer in TopPlayers.Instance.Top[TopParam.Rooms].Reverse())
+                {
+                    if (cnt++ > 10)
+                    {
+                        break;
+                    }
+
+                    var usr = UserProxy.GetUnsafe(topPlayer.Value);
+                    top.AppendLine($"{usr.Info.Name} побывал в {topPlayer.Key.Format(0)} комнатах");
+                }
+                
+                Room.SendMessage(user, top.ToString(), Room.GetButtons(user));
+            }
+            
+            [Button("Убийцы монстров")]
+            public void ByMonsters(User user, RecivedMessage message)
+            {
+                var top = new StringBuilder();
+                var cnt = 0;
+                foreach (var topPlayer in TopPlayers.Instance.Top[TopParam.Monsters].Reverse())
+                {
+                    if (cnt++ > 10)
+                    {
+                        break;
+                    }
+
+                    var usr = UserProxy.GetUnsafe(topPlayer.Value);
+                    top.AppendLine($"{usr.Info.Name} убил {topPlayer.Key.Format(0)} монстров");
+                }
+                
+                Room.SendMessage(user, top.ToString(), Room.GetButtons(user));
+            }
+            
+            [Button("Отойти отсюда")]
+            public void Away(User user, RecivedMessage message)
+            {
+                Room.SwitchAction<MainAction>(user);
+                Room.SendMessage(user, string.Empty, Room.GetButtons(user));
             }
         }
     }

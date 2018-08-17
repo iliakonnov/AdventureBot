@@ -53,6 +53,9 @@ namespace AdventureBot
             {
                 MainManager.Instance.LoadAssembly(assembly.Value);
             }
+            
+            Logger.Debug("Loading other...");
+            TopPlayers.Instance.Initialize();
 
             Logger.Info("Working!");
 

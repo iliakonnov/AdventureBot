@@ -11,7 +11,13 @@ namespace AdventureBot.UserManager
 {
     public class UserData
     {
-        public const int LastVersion = 2;
+        private string[][] test = new string[][]
+        {
+            new [] {"123"},
+            new [] {"123"}
+        };
+        
+        public const int LastVersion = 3;
 
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 

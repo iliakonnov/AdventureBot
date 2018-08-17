@@ -74,6 +74,7 @@ namespace Content.Town
 
             SendMessage(user, "Вы вернулись в город, отдохнули и теперь лучше себя чувствуете.");
 
+            user.Info.Statistics.RoomTraveled();
             foreach (var info in user.ItemManager.Items)
             {
                 if (info.Item is IAdventureItem adventureItem)

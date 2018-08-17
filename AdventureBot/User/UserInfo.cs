@@ -1,7 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using AdventureBot.Item;
 using AdventureBot.Messenger;
+using AdventureBot.Room;
 using AdventureBot.User.Stats;
 using MessagePack;
 
@@ -11,12 +13,15 @@ namespace AdventureBot.User
     public class UserInfo
     {
         [SerializationConstructor]
-        public UserInfo(bool dead, UserId userId, Stats.Stats baseStats, Stats.Stats currentStats)
+        public UserInfo(bool dead, UserId userId, Stats.Stats baseStats, Stats.Stats currentStats, string name,
+            Statistics statistics)
         {
             Dead = dead;
             UserId = userId;
             BaseStats = baseStats;
             CurrentStats = currentStats;
+            Name = name;
+            Statistics = statistics;
         }
 
         public UserInfo(UserId userId, User user)
@@ -56,6 +61,8 @@ namespace AdventureBot.User
             ));
             UserId = userId;
             User = user;
+            Name = NameGenerator.Generator.Generate(User.Random);
+            Statistics = new Statistics(user);
             RecalculateStats();
         }
 
@@ -63,11 +70,24 @@ namespace AdventureBot.User
 
         public bool Dead { get; internal set; }
 
-        public decimal Gold { get; set; } = 100;
+        [Key("Gold")] private decimal _gold = 100;
+        [IgnoreMember] public decimal Gold
+        {
+            get => _gold;
+            set
+            {
+                _gold = value;
+                Statistics.GoldChanged();
+            }
+        }
 
         public decimal SellMultiplier { get; } = 0.75m;
 
         public UserId UserId { get; }
+
+        public string Name { get; set; }
+        
+        public Statistics Statistics { get; set; }
 
         /// <summary>
         ///     Характеристики без эффектов от предметов

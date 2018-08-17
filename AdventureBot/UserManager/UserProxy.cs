@@ -21,7 +21,7 @@ namespace AdventureBot.UserManager
             _id = id;
         }
 
-        public static UserProxy GetLoadedUser(UserId id)
+        private static UserProxy GetLoadedUser(UserId id)
         {
             lock (_proxies)
             {
@@ -41,6 +41,11 @@ namespace AdventureBot.UserManager
             return GetLoadedUser(id).Acquire();
         }
 
+        public static User.User GetUnsafe(UserId id)
+        {
+            return GetLoadedUser(id).GetUnsafe();
+        }
+
         public static void Save(User.User user)
         {
             GetLoadedUser(user.Info.UserId).Release(user);
@@ -56,6 +61,14 @@ namespace AdventureBot.UserManager
 
             _available.WaitOne(timeRemaining);
             return GetUser();
+        }
+        
+        public User.User GetUnsafe()
+        {
+            lock (_lock)
+            {
+                return Cache.Instance.Get(_id);
+            }
         }
 
         private User.User GetUser()

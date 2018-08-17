@@ -17,7 +17,7 @@ namespace Content.Town
 
         public Mirror()
         {
-            Routes = new MessageRecived[] {EditStats, Inventory};
+            Routes = new MessageRecived[] {EditStats, Inventory, ChangeName};
             Buttons = new NullableDictionary<MessageRecived, Dictionary<string, MessageRecived>>
             {
                 {
@@ -40,6 +40,13 @@ namespace Content.Town
                             }
                         },
                         {
+                            "Сменить имя", (user, message) =>
+                            {
+                                SwitchAction(user, ChangeName);
+                                SendMessage(user, "Какое имя вы желаете?", GetButtons(user));
+                            }
+                        },
+                        {
                             "Квесты", (user, message) =>
                             {
                                 foreach (var quests in user.QuestManager.Quests.Values)
@@ -55,6 +62,19 @@ namespace Content.Town
                         },
                         {
                             "Уйти", (user, message) => user.RoomManager.Leave()
+                        }
+                    }
+                },
+                {
+                    ChangeName,
+                    new Dictionary<string, MessageRecived>
+                    {
+                        {
+                            "Сгенерировать случайное",
+                            (user, message) =>
+                            {
+                                user.Info.Name = AdventureBot.NameGenerator.Generator.Generate(user.Random);
+                            }
                         }
                     }
                 }
@@ -84,9 +104,20 @@ namespace Content.Town
             }
         }
 
+        public void ChangeName(User user, RecivedMessage message)
+        {
+            if (!HandleButton(user, message))
+            {
+                user.Info.Name = message.Text;
+            }
+            SwitchAction(user, null);
+            SendMessage(user, $"Отныне вас зовут {user.Info.Name}", GetButtons(user));
+        }
+
         private void ShowStats(User user)
         {
-            var stats = new StringBuilder().AppendLine("Текущие характеристики:");
+            var stats = new StringBuilder().Append("Имя: ").AppendLine(user.Info.Name);
+            stats.AppendLine("Текущие характеристики:");
             foreach (var stat in user.Info.CurrentStats.Effect)
             {
                 var emoji = Stats.Emojis[stat.Key];
