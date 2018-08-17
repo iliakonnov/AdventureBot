@@ -14,7 +14,7 @@ namespace AdventureBot
 
     public class TopPlayers : Singleton<TopPlayers>
     {
-        public IReadOnlyDictionary<TopParam, IReadOnlyList<KeyValuePair<decimal, UserId>>> Top => _top.ToDictionary(
+        public IReadOnlyDictionary<TopParam, IReadOnlyList<KeyValuePair<UserId, decimal>>> Top => _top.ToDictionary(
             keyValue => keyValue.Key,
             keyValue => keyValue.Value.Sorted
         );

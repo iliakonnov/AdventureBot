@@ -232,15 +232,15 @@ namespace Content.Town
             {
                 var top = new StringBuilder();
                 var cnt = 0;
-                foreach (var topPlayer in TopPlayers.Instance.Top[TopParam.Gold].Reverse())
+                foreach (var topPlayer in TopPlayers.Instance.Top[TopParam.Gold])
                 {
                     if (cnt++ > 10)
                     {
                         break;
                     }
 
-                    var usr = UserProxy.GetUnsafe(topPlayer.Value);
-                    top.AppendLine($"У {usr.Info.Name} имеется {topPlayer.Key.Format(0)} золота");
+                    var usr = UserProxy.GetUnsafe(topPlayer.Key);
+                    top.AppendLine($"У {usr.Info.Name} имеется {topPlayer.Value.Format(0)} золота");
                 }
                 
                 Room.SendMessage(user, top.ToString(), Room.GetButtons(user));
@@ -251,15 +251,15 @@ namespace Content.Town
             {
                 var top = new StringBuilder();
                 var cnt = 0;
-                foreach (var topPlayer in TopPlayers.Instance.Top[TopParam.Rooms].Reverse())
+                foreach (var topPlayer in TopPlayers.Instance.Top[TopParam.Rooms])
                 {
                     if (cnt++ > 10)
                     {
                         break;
                     }
 
-                    var usr = UserProxy.GetUnsafe(topPlayer.Value);
-                    top.AppendLine($"{usr.Info.Name} побывал в {topPlayer.Key.Format(0)} комнатах");
+                    var usr = UserProxy.GetUnsafe(topPlayer.Key);
+                    top.AppendLine($"{usr.Info.Name} побывал в {topPlayer.Value.Format(0)} комнатах");
                 }
                 
                 Room.SendMessage(user, top.ToString(), Room.GetButtons(user));
@@ -270,15 +270,15 @@ namespace Content.Town
             {
                 var top = new StringBuilder();
                 var cnt = 0;
-                foreach (var topPlayer in TopPlayers.Instance.Top[TopParam.Monsters].Reverse())
+                foreach (var topPlayer in TopPlayers.Instance.Top[TopParam.Monsters])
                 {
                     if (cnt++ > 10)
                     {
                         break;
                     }
 
-                    var usr = UserProxy.GetUnsafe(topPlayer.Value);
-                    top.AppendLine($"{usr.Info.Name} убил {topPlayer.Key.Format(0)} монстров");
+                    var usr = UserProxy.GetUnsafe(topPlayer.Key);
+                    top.AppendLine($"{usr.Info.Name} убил {topPlayer.Value.Format(0)} монстров");
                 }
                 
                 Room.SendMessage(user, top.ToString(), Room.GetButtons(user));

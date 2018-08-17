@@ -87,7 +87,9 @@ namespace AdventureBot.User
 
         public string Name { get; set; }
         
-        public Statistics Statistics { get; set; }
+        public decimal CurrentLevel { get; set; }
+        
+        public Statistics Statistics { get; }
 
         /// <summary>
         ///     Характеристики без эффектов от предметов
