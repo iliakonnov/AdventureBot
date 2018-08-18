@@ -47,7 +47,7 @@ namespace AdventureBot.Room
             }
 
             user.Info.Dead = false;
-            user.RoomManager.Go("town");
+            user.RoomManager.ChangeRoot("root/town");
         }
 
         public override bool OnLeave(User.User user)
@@ -89,7 +89,7 @@ namespace AdventureBot.Room
             else
             {
                 SendMessage(user, "Живых не должно быть в мире метрвых.");
-                user.RoomManager.Go("town");
+                user.RoomManager.Go(user.RoomManager.CurrentRootRoom);
             }
         }
     }

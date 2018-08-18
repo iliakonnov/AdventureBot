@@ -42,6 +42,7 @@ namespace AdventureBot
             Logger.Debug("Loading...");
 
             ObjectManager<IRoom>.Instance.RegisterManager<RoomManager>();
+            ObjectManager<IRoot>.Instance.RegisterManager<RootManager>();
             ObjectManager<IItem>.Instance.RegisterManager<ItemManager>();
             ObjectManager<IQuest>.Instance.RegisterManager<QuestManager>();
             ObjectManager<IMessenger>.Instance.RegisterManager<MessengerManager>();

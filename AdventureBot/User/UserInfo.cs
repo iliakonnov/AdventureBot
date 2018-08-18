@@ -230,19 +230,14 @@ namespace AdventureBot.User
             if (CurrentStats.Effect[StatsProperty.Karma] == MaxStats.Effect[StatsProperty.Karma])
             {
                 ChangeStats(ChangeType.Set, StatsProperty.Karma, MinStats.Effect[StatsProperty.Karma]);
-                while (User.RoomManager.CurrentRoom?.Identifier != "town")
-                {
-                    // Leaving all rooms until town, without calling OnLeave and OnReturn
-                    User.RoomManager.Leave(false, false);
-                }
+                
+                User.RoomManager.ChangeRoot("root/town");
 
                 User.MessageManager.SendMessage(new SentMessage
                 {
                     Text = "Такой хороший человек не может так просто умереть"
                 });
 
-                // Now we need to "Enter" town to send message and update buttons
-                User.RoomManager.GetRoom()?.OnEnter(User);
                 return;
             }
 

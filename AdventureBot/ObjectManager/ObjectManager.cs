@@ -37,7 +37,7 @@ namespace AdventureBot.ObjectManager
             _managers[typeof(TMgr)] = new TMgr();
         }
 
-        public TMgr Get<TMgr>()
+        public TMgr Get<TMgr>() where TMgr : IManager<TObj>
         {
             return (TMgr) _managers[typeof(TMgr)];
         }

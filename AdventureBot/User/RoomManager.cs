@@ -30,6 +30,12 @@ namespace AdventureBot.User
         [CanBeNull] internal StackedRoom CurrentRoom { get; set; }
         internal Stack<StackedRoom> Rooms { get; } = new Stack<StackedRoom>();
 
+        private string _currentRootId;
+
+        [IgnoreMember]
+        public string CurrentRootRoom =>
+            ObjectManager<IRoot>.Instance.Get<RootManager>().Get(_currentRootId)?.RootRoomId;
+
         public static event GameEventHandler<string> OnEnter;
         public static event GameEventHandler OnLeave;
 
@@ -113,6 +119,25 @@ namespace AdventureBot.User
             CurrentRoom = Rooms.Pop();
             User.MessageManager.ShownStats = CurrentRoom?.ShownStats ?? ShownStats.Default;
             GetRoom()?.OnReturn(User);
+        }
+        
+        public void ChangeRoot(string rootIdentifier)
+        {
+            var root = ObjectManager<IRoot>.Instance.Get<RootManager>().Get(rootIdentifier);
+            if (root == null)
+            {
+                throw new ArgumentException($"Cannot find root '{rootIdentifier}'");
+            }
+            _currentRootId = rootIdentifier;
+            
+            while ((User.RoomManager.CurrentRoom?.Identifier ?? "_root") != "_root")
+            {
+                // Leaving all rooms until root, without calling OnLeave and OnReturn
+                User.RoomManager.Leave(false, false);
+            }
+            
+            // Now we need to enter root to send message and update buttons
+            User.RoomManager.Go(root.RootRoomId, false);
         }
 
         /// <summary>
