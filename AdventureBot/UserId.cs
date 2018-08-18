@@ -3,7 +3,7 @@
 namespace AdventureBot
 {
     [MessagePackObject]
-    public struct UserId
+    public struct UserId : ISerializable
     {
         [Key(0)] public int Messenger;
         [Key(1)] public long Id;

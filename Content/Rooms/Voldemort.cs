@@ -1,7 +1,10 @@
 ﻿using System;
 using AdventureBot;
+using AdventureBot.Item;
 using AdventureBot.Room;
 using AdventureBot.User;
+using AdventureBot.UserManager;
+using Content.Items;
 
 namespace Content.Rooms
 {
@@ -35,14 +38,20 @@ namespace Content.Rooms
             var no = (int?) (Serializable.Int) GlobalVariables.Variables.Get("voldemort_no") ?? 1;
             var time = DateTimeOffset.FromUnixTimeSeconds(
                 (int?) (Serializable.Long) GlobalVariables.Variables.Get("voldemort_time") ?? 0);
-            // var player = (string) (Serializable.String) GlobalVariables.Variables.Get("voldemort_killer");
+            
+            var name = "неизвестного";
+            var playerId = GlobalVariables.Variables.Get("voldemort_killer");
+            if (playerId != null)
+            {
+                name = UserProxy.GetUnsafe((UserId) playerId).Info.Name;
+            }
 
             var timeOffset = DateTimeOffset.Now - time;
 
             SendMessage(user,
                 "Одно его имя внушает страх, как и все трехстепенные имена, а отсутствие носа только усиливает это ощущение.");
             SendMessage(user,
-                $"Он воскресал уже {no} раз. Его реинкарнация длится уже {timeOffset.TotalMinutes:F2} минут, и снова умирать он не собирается.");
+                $"Он воскресал уже {no} раз. Его реинкарнация длится уже {timeOffset.TotalMinutes:F2} минут после убийства от руки {name}, и снова умирать он не собирается.");
             SendMessage(user, "Его взгляд совсем не кажется дружелюбным. Похоже, пора расчехлять оружие.", buttons);
         }
 
@@ -58,7 +67,9 @@ namespace Content.Rooms
             GlobalVariables.Variables.Set("voldemort_no", new Serializable.Int(no + 1));
             GlobalVariables.Variables.Set("voldemort_time",
                 new Serializable.Long(DateTimeOffset.Now.ToUnixTimeSeconds()));
-            // GlobalVariables.Variables.Set("voldemort_killer", new Serializable.Long(DateTimeOffset.Now.ToUnixTimeSeconds()));
+            GlobalVariables.Variables.Set("voldemort_killer", user.Info.UserId);
+            
+            user.ItemManager.Add(new ItemInfo(ElderWand.Id, 1));
         }
     }
 }

@@ -9,6 +9,7 @@ namespace AdventureBot
     [Union(2, typeof(Serializable.Double))]
     [Union(3, typeof(Serializable.Bool))]
     [Union(4, typeof(VariableContainer))]
+    [Union(5, typeof(UserId))]
     [Union(6, typeof(ItemInfo))]
     [Union(9, typeof(SerializableFlag<ISerializable>))]
     [Union(10, typeof(StatsProperty))]
