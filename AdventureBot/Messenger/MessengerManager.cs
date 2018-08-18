@@ -138,12 +138,23 @@ namespace AdventureBot.Messenger
                         }
                         case "/unlink":
                         {
-                            context.Unlink();
-                            user.MessageManager.SendImmediately(new SentMessage
+                            if (context.Unlink())
                             {
-                                Text = @"Готово!",
-                                Intent = "command-unlink"
-                            });
+                                user.MessageManager.SendImmediately(new SentMessage
+                                {
+                                    Text = @"Готово!",
+                                    Intent = "command-unlink"
+                                });
+                            }
+                            else
+                            {
+                                user.MessageManager.SendImmediately(new SentMessage
+                                {
+                                    Text = "Вы и так ни к кому не привязаны",
+                                    Intent = "command-unlink-fail"
+                                });
+                            }
+
                             break;
                         }
                         default:

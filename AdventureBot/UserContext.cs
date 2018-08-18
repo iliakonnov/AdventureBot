@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Timers;
+using AdventureBot.Messenger;
 using AdventureBot.UserManager;
 using NLog;
 
@@ -57,10 +58,15 @@ namespace AdventureBot
             InitializeTimer();
         }
 
-        internal void Unlink()
+        internal bool Unlink()
         {
+            if (_unlinked == null)
+            {
+                return false;
+            }
             _unlinked.LinkedTo = null;
             User = _unlinked;
+            return true;
         }
 
         private void InitializeTimer()
