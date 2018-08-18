@@ -13,7 +13,7 @@ namespace Content.Items
         public override StructFlag<BuyGroup> Group => new StructFlag<BuyGroup>();
         public override string Name => "Клык тигра";
         public override string Description => "Ты с трудом добыл его с невымершого тигра";
-        public override decimal? Price => null;
+        public override decimal? Price => 4;
         public override string Identifier => "tiger/tooth";
 
         public override StatsEffect Effect => new StatsEffect(ChangeType.Add, new Dictionary<StatsProperty, decimal>

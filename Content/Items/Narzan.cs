@@ -15,7 +15,7 @@ namespace Content.Items
         public override string Description =>
             "Она появилась в твоём рюкзаке после пьянки с твоими грузинскими друзьями. Отлично помогает от похмелья";
 
-        public override decimal? Price => null;
+        public override decimal? Price => 80;
         public override string Identifier => "wedding/narzan";
         public override StatsEffect Effect => null;
 
