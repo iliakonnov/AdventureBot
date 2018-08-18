@@ -28,7 +28,10 @@ namespace Content.Items
 
         public override void OnUse(User user, ItemInfo info)
         {
-            user.Info.ChangeStats(StatsProperty.Health, user.Info.MaxStats.GetStat(StatsProperty.Health), true);
+            if (user.ItemManager.Remove(new ItemInfo(Identifier, 1)))
+            {
+                user.Info.ChangeStats(StatsProperty.Health, user.Info.MaxStats.GetStat(StatsProperty.Health), true);
+            }
         }
     }
 }

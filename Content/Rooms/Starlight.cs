@@ -4,6 +4,7 @@ using AdventureBot.Item;
 using AdventureBot.Room;
 using AdventureBot.User;
 using AdventureBot.User.Stats;
+using Content.Items;
 
 namespace Content.Rooms
 {
@@ -67,7 +68,7 @@ namespace Content.Rooms
             var prop = (StatsProperty) (int) variables.Get<Serializable.Int>("prop");
             var backup = (decimal) variables.Get<Serializable.Decimal>("value");
             user.Info.ChangeStats(prop, backup, true);
-            user.ItemManager.Add(new ItemInfo(Wand.Id, 1));
+            user.ItemManager.Add(new ItemInfo(StarlightWand.Id, 1));
         }
     }
 }
