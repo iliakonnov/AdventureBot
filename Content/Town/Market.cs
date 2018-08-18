@@ -43,6 +43,13 @@ namespace Content.Town
 
         public override void OnEnter(User user)
         {
+            if (user.VariableManager.UserVariables.Get("merchants_disabled") != null)
+            {
+                SendMessage(user, "К сожалению, торговцы не смогли ничего привезти на рынок");
+                user.RoomManager.Leave();
+                return;
+            }
+            
             SwitchAction(user, null);
             user.MessageManager.ShownStats = ShownStats.Gold;
             SendMessage(user, "Вы пришли на рынок. Тут есть много всего.", GetButtons(user));

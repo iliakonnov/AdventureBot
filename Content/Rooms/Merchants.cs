@@ -5,6 +5,7 @@ using AdventureBot.Item;
 using AdventureBot.Messenger;
 using AdventureBot.Room;
 using AdventureBot.User;
+using AdventureBot.User.Stats;
 using Content.Town;
 
 namespace Content.Rooms
@@ -17,7 +18,7 @@ namespace Content.Rooms
 
         public Merchants()
         {
-            Routes = new MessageRecived[] {Shop, Shop2};
+            Routes = new MessageRecived[] {Shop, Shop2, Pay};
             Buttons = new NullableDictionary<MessageRecived, Dictionary<string, MessageRecived>>
             {
                 {
@@ -26,6 +27,11 @@ namespace Content.Rooms
                         {
                             "Закупиться", (user, message) =>
                             {
+                                if (!Nothing(user))
+                                {
+                                    return;
+                                }
+                                
                                 SwitchAction(user, Shop);
                                 HandleAction(user, message);
                             }
@@ -33,15 +39,56 @@ namespace Content.Rooms
                         {
                             "Ограбить", (user, message) =>
                             {
+                                if (!Nothing(user))
+                                {
+                                    return;
+                                }
+
                                 SendMessage(user,
                                     "Несмотря на их натренированные языки, сами купцы были довольно хилыми даже по твоим меркам. Поэтому на каждое из этих слащавых лиц пришлось всего по одному удару. Ты заработал немного монет и мое личное неуважение.");
-                                user.Info.Gold += user.Random.Next(500, 850);
+                                var gold = user.Random.Next(500, 850);
+                                user.Info.Gold += gold;
+                                user.Info.ChangeStats(StatsProperty.Karma, -5);
+                                user.VariableManager.UserVariables.Set("merchants_disabled",
+                                    new Serializable.Decimal(gold));
                                 user.RoomManager.Leave();
                             }
                         },
                         {
                             "Уйти", (user, message) => user.RoomManager.Leave()
                         }
+                    }
+                },
+                {
+                    Pay, new Dictionary<string, MessageRecived>
+                    {
+                        {
+                            "Да", (user, message) =>
+                            {
+                                var paySize = (user.VariableManager.UserVariables
+                                                   .Get<Serializable.Decimal>("merchants_disabled") ?? 0M
+                                              ) * 1.3M;
+                                if (user.Info.TryDecreaseGold(paySize))
+                                {
+                                    SendMessage(user, "Отлично! Теперь торговцы могут торговать дальше.");
+                                    user.VariableManager.UserVariables.Remove("merchants_disabled");
+                                    user.Info.ChangeStats(StatsProperty.Karma, +2);
+                                }
+                                else
+                                {
+                                    SendMessage(user, "К сожалению, у тебя нет таких денег");
+                                }
+
+                                user.RoomManager.Leave();
+                            }
+                        },
+                        {
+                            "Нет", (user, message) =>
+                            {
+                                SendMessage(user, "Торговцы грустно поплелись дальше");
+                                user.RoomManager.Leave();
+                            }
+                        },
                     }
                 }
             };
@@ -56,6 +103,12 @@ namespace Content.Rooms
 
             SwitchAction(user, null);
             user.MessageManager.ShownStats = ShownStats.Gold;
+
+            if (user.VariableManager.UserVariables.Get<Serializable.Decimal>("merchants_disabled") != null)
+            {
+                SendMessage(user, "Торговцы грустно бредут дальше и не обращают на тебя внимания", GetButtons(user));
+                return;
+            }
             SendMessage(
                 user,
                 "Перед тобой расположился небольшой караван, состоящий из трех верблюдов и нескольких купцов. Под листвой ветвистого дуба расположилась миниатюрная, но необыкновенно красивая палатка. От этого места так и веет восточным колоритом."
@@ -67,13 +120,35 @@ namespace Content.Rooms
             );
         }
 
-
         public override void OnMessage(User user, RecivedMessage message)
         {
             if (!HandleAction(user, message))
             {
                 HandleButtonAlways(user, message);
             }
+        }
+
+        private bool Nothing(User user)
+        {
+            var oldGold =
+                user.VariableManager.UserVariables.Get<Serializable.Decimal>("merchants_disabled");
+
+            if (oldGold == null)
+            {
+                return true;
+            }
+
+            var paySize = (decimal) oldGold * 1.3M;
+            SwitchAction(user, Pay);
+            SendMessage(user,
+                $"У них ничего нет, но может ты желаешь выплатить им компенсацию в {paySize.Format()} монет?",
+                GetButtons(user));
+            return false;
+        }
+
+        private void Pay(User user, RecivedMessage message)
+        {
+            HandleButtonAlways(user, message);
         }
 
         private void Shop(User user, RecivedMessage message)
