@@ -21,11 +21,6 @@ namespace AdventureBot.Room
             var variables = GetRoomVariables(user);
             var hp = (decimal) (Serializable.Decimal) variables.Get("hp");
             variables.Set("hp", new Serializable.Decimal(hp - damage));
-
-            var attacks = variables.Get<SerializableList>("user_attacks");
-            Debug.Assert(attacks != null, nameof(attacks) + " != null");
-            attacks.Add(new Serializable.Decimal(damage));
-            variables.Set("user_attacks", attacks);
         }
 
         public decimal GetCurrentHealth(User.User user)
@@ -79,9 +74,10 @@ namespace AdventureBot.Room
                 if (averageDamage >= 1)
                 {
                     var xp = variables.Get<Serializable.Decimal>("total_damage") / averageDamage;
-                    user.Info.Level.AddXp(xp);
+                    user.Info.Level.AddXp(xp * 4);
                 }
             }
+
             return base.OnLeave(user);
         }
 
@@ -113,6 +109,12 @@ namespace AdventureBot.Room
             var hp = (decimal) (Serializable.Decimal) variables.Get("hp");
 
             var diff = hp - (decimal) (Serializable.Decimal) variables.Get("old_hp");
+
+            var attacks = variables.Get<SerializableList>("user_attacks");
+            Debug.Assert(attacks != null, nameof(attacks) + " != null");
+            attacks.Add(new Serializable.Decimal(-diff));
+            variables.Set("user_attacks", attacks);
+
             SendMessage(
                 user,
                 $"HP: {hp} _{diff.Format()}_"
@@ -129,6 +131,7 @@ namespace AdventureBot.Room
 
             var dmg = GetDamage(user);
             dmg -= user.Info.KarmaEffect(dmg);
+
             variables.Set("total_damage",
                 new Serializable.Decimal(variables.Get<Serializable.Decimal>("total_damage") + dmg));
             SendMessage(
