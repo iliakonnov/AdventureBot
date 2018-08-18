@@ -72,7 +72,7 @@ namespace Content.Town
                     "– Эхехе, салага! Сильно же тебя разнесло! Протрястись не хочешь? А то есть пара незаконченных дел.",
                     Room.GetButtons(user));
             }
-            
+
             [Button("К доске почета")]
             public void ToLeaderboard(User user, RecivedMessage message)
             {
@@ -174,6 +174,15 @@ namespace Content.Town
 
                 var vars = Room.GetRoomVariables(user);
 
+                var existingQuest = (Room as Tavern)?.TryFindQuest(user, KillMonsterFree.Id, "_sergeant");
+                if (existingQuest != null)
+                {
+                    Room.SendMessage(user,
+                        "А не слишком ли много ты на себя берешь? Сначала с текущими делами разберись",
+                        Room.GetButtons(user));
+                    return;
+                }
+
                 var questId = user.QuestManager.BeginQuest(KillMonsterFree.Id);
                 var quest = (KillMonsterFree) user.QuestManager.Quests[KillMonsterFree.Id][questId].Quest;
                 vars.Set("questId_sergeant", new Serializable.String(questId.ToString()));
@@ -219,7 +228,7 @@ namespace Content.Town
                     Room.GetButtons(user));
             }
         }
-        
+
         [Action(2)]
         public class Leaderboard : ActionBase
         {
@@ -242,10 +251,10 @@ namespace Content.Town
                     var usr = UserProxy.GetUnsafe(topPlayer.Key);
                     top.AppendLine($"У {usr.Info.Name} имеется {topPlayer.Value.Format(0)} золота");
                 }
-                
+
                 Room.SendMessage(user, top.ToString(), Room.GetButtons(user));
             }
-            
+
             [Button("Путешественники")]
             public void ByRooms(User user, RecivedMessage message)
             {
@@ -261,10 +270,10 @@ namespace Content.Town
                     var usr = UserProxy.GetUnsafe(topPlayer.Key);
                     top.AppendLine($"{usr.Info.Name} побывал в {topPlayer.Value.Format(0)} комнатах");
                 }
-                
+
                 Room.SendMessage(user, top.ToString(), Room.GetButtons(user));
             }
-            
+
             [Button("Убийцы монстров")]
             public void ByMonsters(User user, RecivedMessage message)
             {
@@ -280,10 +289,10 @@ namespace Content.Town
                     var usr = UserProxy.GetUnsafe(topPlayer.Key);
                     top.AppendLine($"{usr.Info.Name} убил {topPlayer.Value.Format(0)} монстров");
                 }
-                
+
                 Room.SendMessage(user, top.ToString(), Room.GetButtons(user));
             }
-            
+
             [Button("Отойти отсюда")]
             public void Away(User user, RecivedMessage message)
             {

@@ -23,8 +23,7 @@ namespace Content.Town
                         {"Рынок", (user, message) => user.RoomManager.Go(Market.Id)},
                         {"Таверна", (user, message) => user.RoomManager.Go(Tavern.Id)},
                         {"Гильдия магов", (user, message) => user.RoomManager.Go(Guild.Id)},
-                        {"Спортзал", (user, message) => user.RoomManager.Go(Gym.Id)},
-                        {"Чертоги", (user, message) => user.RoomManager.ChangeRoot("root/halls")}
+                        {"Спортзал", (user, message) => user.RoomManager.Go(Gym.Id)}
                     }
                 }
             };
