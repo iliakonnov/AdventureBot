@@ -8,10 +8,12 @@ namespace AdventureBot.User.Stats
     [MessagePackObject(true)]
     public class UserLevel
     {
+        public static event GameEventHandler<UserLevel> OnChanged;
+        
         [IgnoreMember] internal User User;
         public int Level { get; private set; }
         public decimal ExpirenceRequired { get; private set; }
-        public decimal ExpirenceCollected { get; private set; }
+        public decimal ExpirenceCollected { get; private set; } 
 
         public UserLevel(User user)
         {
@@ -32,6 +34,7 @@ namespace AdventureBot.User.Stats
             ExpirenceCollected += xp;
             if (ExpirenceCollected < ExpirenceRequired)
             {
+                OnChanged?.Invoke(User, this);
                 return;
             }
 
@@ -49,6 +52,8 @@ namespace AdventureBot.User.Stats
             {
                 Text = $"*Вы достигли {Level} уровня! Доступно {available} предметов для распределения.*"
             });
+            
+            OnChanged?.Invoke(User, this);
         }
     }
 }

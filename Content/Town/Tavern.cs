@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using AdventureBot;
@@ -236,12 +237,11 @@ namespace Content.Town
             {
             }
 
-            [Button("Самые богатые")]
-            public void ByGold(User user, RecivedMessage message)
+            private void DisplayTop(StringBuilder sb, IEnumerable<KeyValuePair<UserId, decimal>> top,
+                Func<User, KeyValuePair<UserId, decimal>, string> formatter)
             {
-                var top = new StringBuilder();
                 var cnt = 0;
-                foreach (var topPlayer in TopPlayers.Instance.Top[TopParam.Gold])
+                foreach (var topPlayer in top)
                 {
                     if (cnt++ > 10)
                     {
@@ -249,8 +249,16 @@ namespace Content.Town
                     }
 
                     var usr = UserProxy.GetUnsafe(topPlayer.Key);
-                    top.AppendLine($"У {usr.Info.Name} имеется {topPlayer.Value.Format(0)} золота");
+                    sb.AppendLine($"*{cnt}*. {formatter(usr, topPlayer)}");
                 }
+            }
+
+            [Button("Самые богатые")]
+            public void ByGold(User user, RecivedMessage message)
+            {
+                var top = new StringBuilder();
+                DisplayTop(top, TopPlayers.Instance.Top[TopParam.Gold],
+                    (usr, topPlayer) => $"У {usr.Info.Name} имеется {topPlayer.Value.Format(0)} золота");
 
                 Room.SendMessage(user, top.ToString(), Room.GetButtons(user));
             }
@@ -259,17 +267,8 @@ namespace Content.Town
             public void ByRooms(User user, RecivedMessage message)
             {
                 var top = new StringBuilder();
-                var cnt = 0;
-                foreach (var topPlayer in TopPlayers.Instance.Top[TopParam.Rooms])
-                {
-                    if (cnt++ > 10)
-                    {
-                        break;
-                    }
-
-                    var usr = UserProxy.GetUnsafe(topPlayer.Key);
-                    top.AppendLine($"{usr.Info.Name} побывал в {topPlayer.Value.Format(0)} комнатах");
-                }
+                DisplayTop(top, TopPlayers.Instance.Top[TopParam.Rooms],
+                    (usr, topPlayer) => $"{usr.Info.Name} побывал в {topPlayer.Value.Format(0)} комнатах");
 
                 Room.SendMessage(user, top.ToString(), Room.GetButtons(user));
             }
@@ -278,17 +277,19 @@ namespace Content.Town
             public void ByMonsters(User user, RecivedMessage message)
             {
                 var top = new StringBuilder();
-                var cnt = 0;
-                foreach (var topPlayer in TopPlayers.Instance.Top[TopParam.Monsters])
-                {
-                    if (cnt++ > 10)
-                    {
-                        break;
-                    }
+                DisplayTop(top, TopPlayers.Instance.Top[TopParam.Monsters],
+                    (usr, topPlayer) => $"{usr.Info.Name} убил {topPlayer.Value.Format(0)} монстров");
 
-                    var usr = UserProxy.GetUnsafe(topPlayer.Key);
-                    top.AppendLine($"{usr.Info.Name} убил {topPlayer.Value.Format(0)} монстров");
-                }
+                Room.SendMessage(user, top.ToString(), Room.GetButtons(user));
+            }
+
+            [Button("Самые опытные")]
+            public void ByLevel(User user, RecivedMessage message)
+            {
+                var top = new StringBuilder();
+                DisplayTop(top, TopPlayers.Instance.Top[TopParam.Level],
+                    (usr, topPlayer) =>
+                        $"{usr.Info.Name} достиг {TopPlayers.UnpackLevel(topPlayer.Value).Item1} уровня");
 
                 Room.SendMessage(user, top.ToString(), Room.GetButtons(user));
             }
