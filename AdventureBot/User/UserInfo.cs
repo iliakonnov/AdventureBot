@@ -73,7 +73,9 @@ namespace AdventureBot.User
         public bool Dead { get; internal set; }
 
         private decimal _gold = 100;
-        [IgnoreMember] public decimal Gold
+
+        [IgnoreMember]
+        public decimal Gold
         {
             get => _gold;
             set
@@ -88,9 +90,9 @@ namespace AdventureBot.User
         public UserId UserId { get; }
 
         public string Name { get; set; }
-        
+
         public Statistics Statistics { get; }
-        
+
         public UserLevel Level { get; }
 
         /// <summary>
@@ -227,10 +229,17 @@ namespace AdventureBot.User
         /// </summary>
         public void Kill()
         {
-            if (CurrentStats.Effect[StatsProperty.Karma] == MaxStats.Effect[StatsProperty.Karma])
+            if (CurrentStats.Effect[StatsProperty.Karma] == MaxStats.GetStat(StatsProperty.Karma))
             {
-                ChangeStats(ChangeType.Set, StatsProperty.Karma, MinStats.Effect[StatsProperty.Karma]);
-                
+                ChangeStats(ChangeType.Set, StatsProperty.Karma, MinStats.GetStat(StatsProperty.Karma));
+                ChangeStats(
+                    ChangeType.Set,
+                    StatsProperty.Health,
+                    (MinStats.GetStat(StatsProperty.Health) + MaxStats.GetStat(StatsProperty.Health)) / 2
+                );
+                ChangeStats(ChangeType.Set, StatsProperty.Stamina, MinStats.GetStat(StatsProperty.Stamina));
+                ChangeStats(ChangeType.Set, StatsProperty.Mana, MinStats.GetStat(StatsProperty.Mana));
+
                 User.RoomManager.ChangeRoot("root/town");
 
                 User.MessageManager.SendMessage(new SentMessage
