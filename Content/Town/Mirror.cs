@@ -49,14 +49,21 @@ namespace Content.Town
                         {
                             "Квесты", (user, message) =>
                             {
+                                var found = false;
                                 foreach (var quests in user.QuestManager.Quests.Values)
                                 {
                                     foreach (var quest in quests.Values)
                                     {
+                                        found = true;
                                         var msg = quest.Quest.GetName(user, quest.QuestId);
                                         msg += $"\nВыполнено {quest.Quest.GetProgress(user, quest.QuestId).Format()}%";
                                         SendMessage(user, msg, GetButtons(user));
                                     }
+                                }
+
+                                if (!found)
+                                {
+                                    SendMessage(user, "У вас нет квестов", GetButtons(user));
                                 }
                             }
                         },
