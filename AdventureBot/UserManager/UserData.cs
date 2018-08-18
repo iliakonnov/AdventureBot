@@ -11,13 +11,7 @@ namespace AdventureBot.UserManager
 {
     public class UserData
     {
-        private string[][] test = new string[][]
-        {
-            new [] {"123"},
-            new [] {"123"}
-        };
-        
-        public const int LastVersion = 3;
+        public const int LastVersion = 4;
 
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
@@ -65,6 +59,7 @@ namespace AdventureBot.UserManager
 
                     var user = MessagePackSerializer.Deserialize<dynamic>(Data);
                     var migrated = Migrate(user);
+                    var test = MessagePackSerializer.Deserialize<dynamic>(MessagePackSerializer.Serialize(new User.User(new UserId(0,0))));
                     return MessagePackSerializer.Deserialize<User.User>(MessagePackSerializer.Serialize(migrated));
                 }
                 catch (Exception e)

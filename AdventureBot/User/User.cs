@@ -31,6 +31,7 @@ namespace AdventureBot.User
             Info = info;
             Info.User = this;
             Info.Statistics.User = this;
+            Info.Level.User = this;
 
             MessageManager = messageManager;
             MessageManager.User = this;

@@ -110,6 +110,7 @@ namespace Content.Town
             {
                 user.Info.Name = message.Text;
             }
+
             SwitchAction(user, null);
             SendMessage(user, $"Отныне вас зовут {user.Info.Name}", GetButtons(user));
         }
@@ -117,6 +118,8 @@ namespace Content.Town
         private void ShowStats(User user)
         {
             var stats = new StringBuilder().Append("Имя: ").AppendLine(user.Info.Name);
+            stats.AppendLine(
+                $"Уровень: {user.Info.Level.Level} ({user.Info.Level.ExpirenceCollected.Format()} / {user.Info.Level.ExpirenceRequired.Format()})");
             stats.AppendLine("Текущие характеристики:");
             foreach (var stat in user.Info.CurrentStats.Effect)
             {

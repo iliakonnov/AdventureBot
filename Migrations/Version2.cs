@@ -15,6 +15,7 @@ namespace Migrations
         {
             user["Info"]["Name"] = AdventureBot.NameGenerator.Generator.Generate(NamesRandom);
             user["Info"]["Statistics"] = new Dictionary<object, object>();
+            user["Info"]["_gold"] = user["Info"]["Gold"];
             return user;
         }
     }

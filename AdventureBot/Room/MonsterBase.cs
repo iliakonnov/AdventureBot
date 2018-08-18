@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Diagnostics;
+using System.Linq;
 using AdventureBot.Messenger;
 using AdventureBot.User;
 
@@ -20,6 +21,11 @@ namespace AdventureBot.Room
             var variables = GetRoomVariables(user);
             var hp = (decimal) (Serializable.Decimal) variables.Get("hp");
             variables.Set("hp", new Serializable.Decimal(hp - damage));
+
+            var attacks = variables.Get<SerializableList>("user_attacks");
+            Debug.Assert(attacks != null, nameof(attacks) + " != null");
+            attacks.Add(new Serializable.Decimal(damage));
+            variables.Set("user_attacks", attacks);
         }
 
         public decimal GetCurrentHealth(User.User user)
@@ -37,6 +43,8 @@ namespace AdventureBot.Room
             variables.Set("old_hp", new Serializable.Decimal(hp));
             variables.Set("hp", new Serializable.Decimal(hp));
             variables.Set("run", new Serializable.Bool(false));
+            variables.Set("user_attacks", new SerializableList());
+            variables.Set("total_damage", new Serializable.Decimal(0));
 
             var buttons = GetActions(user);
             Enter(user, buttons);
@@ -44,7 +52,8 @@ namespace AdventureBot.Room
 
         public override bool OnLeave(User.User user)
         {
-            var won = (decimal) (Serializable.Decimal) GetRoomVariables(user).Get("hp") <= 0;
+            var variables = GetRoomVariables(user);
+            var won = (decimal) variables.Get<Serializable.Decimal>("hp") <= 0;
             if (!won)
             {
                 if (OnRunaway(user))
@@ -60,6 +69,19 @@ namespace AdventureBot.Room
 
             OnWon(user);
             SendMessage(user, "Вы победили монстра!");
+
+            var userDamage = variables.Get<SerializableList>("user_attacks")
+                .Select(s => (decimal) (Serializable.Decimal) s)
+                .ToList();
+            if (userDamage.Count != 0)
+            {
+                var averageDamage = userDamage.Sum() / userDamage.Count;
+                if (averageDamage >= 1)
+                {
+                    var xp = variables.Get<Serializable.Decimal>("total_damage") / averageDamage;
+                    user.Info.Level.AddXp(xp);
+                }
+            }
             return base.OnLeave(user);
         }
 
@@ -107,6 +129,8 @@ namespace AdventureBot.Room
 
             var dmg = GetDamage(user);
             dmg -= user.Info.KarmaEffect(dmg);
+            variables.Set("total_damage",
+                new Serializable.Decimal(variables.Get<Serializable.Decimal>("total_damage") + dmg));
             SendMessage(
                 user,
                 $"Монстр бьет вас и вам становится нехоршо. Аж на {dmg} единиц здоровья хуже.",

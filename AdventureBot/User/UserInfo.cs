@@ -14,7 +14,7 @@ namespace AdventureBot.User
     {
         [SerializationConstructor]
         public UserInfo(bool dead, UserId userId, Stats.Stats baseStats, Stats.Stats currentStats, string name,
-            Statistics statistics)
+            Statistics statistics, UserLevel level)
         {
             Dead = dead;
             UserId = userId;
@@ -22,6 +22,7 @@ namespace AdventureBot.User
             CurrentStats = currentStats;
             Name = name;
             Statistics = statistics;
+            Level = level;
         }
 
         public UserInfo(UserId userId, User user)
@@ -63,6 +64,7 @@ namespace AdventureBot.User
             User = user;
             Name = NameGenerator.Generator.Generate(User.Random);
             Statistics = new Statistics(user);
+            Level = new UserLevel(user);
             RecalculateStats();
         }
 
@@ -70,7 +72,7 @@ namespace AdventureBot.User
 
         public bool Dead { get; internal set; }
 
-        [Key("Gold")] private decimal _gold = 100;
+        private decimal _gold = 100;
         [IgnoreMember] public decimal Gold
         {
             get => _gold;
@@ -87,9 +89,9 @@ namespace AdventureBot.User
 
         public string Name { get; set; }
         
-        public decimal CurrentLevel { get; set; }
-        
         public Statistics Statistics { get; }
+        
+        public UserLevel Level { get; }
 
         /// <summary>
         ///     Характеристики без эффектов от предметов

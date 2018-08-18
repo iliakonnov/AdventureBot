@@ -103,5 +103,10 @@ namespace Content.Quests
         {
             return 0;
         }
+
+        public override void Finish(User user, Guid questId)
+        {
+            user.Info.Level.AddXp(50);
+        }
     }
 }
