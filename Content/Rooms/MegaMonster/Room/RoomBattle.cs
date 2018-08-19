@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using AdventureBot;
 using AdventureBot.Messenger;
+using AdventureBot.Room;
 using AdventureBot.User;
 
 namespace Content.Rooms.MegaMonster.Room
@@ -65,6 +66,8 @@ namespace Content.Rooms.MegaMonster.Room
                 if (stats.Stats.Health <= 0)
                 {
                     // Won!
+                    MonsterBase.MonsterKilled(user, this);
+                    SendMessage(user, "Монстр не смог такого перенести и умер");
                     user.RoomManager.Leave();
                     return;
                 }

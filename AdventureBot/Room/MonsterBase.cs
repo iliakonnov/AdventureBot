@@ -16,6 +16,11 @@ namespace AdventureBot.Room
         protected abstract decimal Health { get; }
         public static event GameEventHandler<IMonster> OnKilled;
 
+        public static void MonsterKilled(User.User user, IMonster monster)
+        {
+            OnKilled?.Invoke(user, monster);
+        }
+
         public virtual void MakeDamage(User.User user, decimal damage)
         {
             var variables = GetRoomVariables(user);
@@ -124,7 +129,7 @@ namespace AdventureBot.Room
 
             if (hp <= 0)
             {
-                OnKilled?.Invoke(user, this);
+                MonsterKilled(user, this);
                 user.RoomManager.Leave();
                 return;
             }
