@@ -12,6 +12,7 @@ namespace Content.Rooms.DeadlyBattle
         public override string Name => "Острая шляпа";
         public override string Identifier => Id;
         public override StatsEffect Effect => null;
+        public override decimal? Price => 20;
         public override decimal Damage => 50;
         public override bool AddDamage => false;
     }
@@ -30,7 +31,8 @@ namespace Content.Rooms.DeadlyBattle
                 {StatsProperty.Defence, 10}
             }
         );
-
+        
+        public override decimal? Price => 15;
         public override decimal Damage => 0;
         public override bool AddDamage => false;
     }
@@ -43,6 +45,7 @@ namespace Content.Rooms.DeadlyBattle
         public override string Name => "Гарпун";
         public override string Identifier => Id;
         public override StatsEffect Effect => null;
+        public override decimal? Price => 10;
         public override decimal Damage => 25;
         public override bool AddDamage => false;
     }
@@ -55,6 +58,7 @@ namespace Content.Rooms.DeadlyBattle
         public override string Name => "Нунчаки";
         public override string Identifier => Id;
         public override StatsEffect Effect => null;
+        public override decimal? Price => 25;
         public override decimal Damage => 35;
         public override bool AddDamage => true;
     }
@@ -67,6 +71,7 @@ namespace Content.Rooms.DeadlyBattle
         public override string Name => "Солнечные очки";
         public override string Identifier => Id;
         public override StatsEffect Effect => null;
+        public override decimal? Price => 5;
         public override decimal Damage => 0;
         public override bool AddDamage => false;
     }
@@ -79,6 +84,7 @@ namespace Content.Rooms.DeadlyBattle
         public override string Name => "Сигара";
         public override string Identifier => Id;
         public override StatsEffect Effect => null;
+        public override decimal? Price => 8;
         public override decimal Damage => 15;
         public override bool AddDamage => false;
     }
@@ -91,6 +97,7 @@ namespace Content.Rooms.DeadlyBattle
         public override string Name => "Молот Шао Кана";
         public override string Identifier => Id;
         public override StatsEffect Effect => null;
+        public override decimal? Price => 9999;
         public override decimal Damage => 200;
         public override bool AddDamage => true;
     }

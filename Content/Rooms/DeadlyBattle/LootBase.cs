@@ -10,7 +10,6 @@ namespace Content.Rooms.DeadlyBattle
     {
         public override string Description => null;
         public override StructFlag<BuyGroup> Group => new StructFlag<BuyGroup>();
-        public override decimal? Price => 20;
         public abstract decimal Damage { get; }
         public abstract bool AddDamage { get; }
         
