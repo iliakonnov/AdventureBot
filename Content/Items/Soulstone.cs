@@ -9,7 +9,7 @@ namespace Content.Items
 {
     [Item(Id)]
     public class Soulstone : ItemBase
-    {   
+    {
         public const string Id = "portal/soulstone";
 
         public override StructFlag<BuyGroup> Group => new StructFlag<BuyGroup>();
@@ -21,15 +21,25 @@ namespace Content.Items
 
         public override bool CanUse(User user, ItemInfo info)
         {
-            return false;
+            return info.Count >= 6;
         }
 
         public override void OnAdd(User user, ItemInfo info, int count)
         {
-            if (info.Count == 6)
+            if (info.Count >= 6)
             {
                 user.RoomManager.Go(Thanos.Id);
             }
+        }
+
+        public override void OnUse(User user, ItemInfo info)
+        {
+            if (info.Count < 6)
+            {
+                return;
+            }
+
+            user.RoomManager.Go(Thanos.Id);
         }
     }
 }

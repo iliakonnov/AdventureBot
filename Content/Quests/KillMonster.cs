@@ -51,9 +51,13 @@ namespace Content.Quests
         {
             var mgr = ObjectManager<IRoom>.Instance.Get<RoomManager>();
             var monsters = new List<IMonster>();
-            foreach (var key in mgr.Keys())
+            foreach (var item in mgr.Items())
             {
-                var room = mgr.Get(key);
+                if (!(item.Attribute is AvailableAttribute))
+                {
+                    continue;
+                }
+                var room = mgr.Get(item.Identificator);
                 if (room is IMonster monster)
                 {
                     monsters.Add(monster);
