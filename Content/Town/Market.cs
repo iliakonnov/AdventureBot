@@ -143,7 +143,7 @@ namespace Content.Town
             }
             else
             {
-                var items = user.ItemManager.Items.AvailableToSell(new StructFlag<BuyGroup>(BuyGroup.Market));
+                var items = user.ItemManager.Items.AvailableToSell();
                 var dict = items.ToDictionary(i => i.Item.Name, i => new ItemInfo(i.Identifier, 1));
 
                 if (dict.TryGetValue(message.Text, out var item))
