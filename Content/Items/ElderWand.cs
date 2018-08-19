@@ -13,7 +13,7 @@ namespace Content.Items
         public override StructFlag<BuyGroup> Group => new StructFlag<BuyGroup>();
         public override string Name => "Бузиная палочка";
         public override string Description => string.Empty;
-        public override decimal? Price => null;
+        public override decimal? Price => 350;
         public override string Identifier => "voldemort/wand";
         public override StatsEffect Effect => null;
 

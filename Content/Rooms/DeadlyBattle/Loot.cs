@@ -64,7 +64,7 @@ namespace Content.Rooms.DeadlyBattle
     {
         public const string Id = "tournament/sunglasses";
 
-        public override string Name => "Слонечные очки";
+        public override string Name => "Солнечные очки";
         public override string Identifier => Id;
         public override StatsEffect Effect => null;
         public override decimal Damage => 0;
