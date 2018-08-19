@@ -59,5 +59,12 @@ namespace Content.Town
                 .Where(item => item.Item.Price != null && item.Item.Group.Intersects(filter))
                 .ToList();
         }
+        
+        public static List<ItemInfo> AvailableToSell(this IEnumerable<ItemInfo> items)
+        {
+            return items
+                .Where(item => item.Item.Price != null)
+                .ToList();
+        }
     }
 }

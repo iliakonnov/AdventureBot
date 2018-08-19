@@ -118,7 +118,7 @@ namespace Content.Town
 
         private void Sell(User user, RecivedMessage message)
         {
-            var items = user.ItemManager.Items.AvailableToSell(new StructFlag<BuyGroup>(BuyGroup.Market));
+            var items = user.ItemManager.Items.AvailableToSell();
             var buttons = items
                 .Select(item => new[] {item.Item.Name})
                 .Concat(new[] {new[] {"Ничего"}})
