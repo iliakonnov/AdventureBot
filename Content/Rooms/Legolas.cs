@@ -11,7 +11,7 @@ namespace Content.Rooms
         public const string Id = "monster/legolas";
         public override string Name => "Леголас";
         public override string Identifier => Id;
-        protected override decimal Health => 500;
+        protected override decimal Health => 1000;
 
         protected override decimal GetDamage(User user)
         {

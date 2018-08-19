@@ -11,12 +11,12 @@ namespace Content.Items
     {
         public const string Id = "wedding/narzan";
         public override StructFlag<BuyGroup> Group => new StructFlag<BuyGroup>();
-        public override string Name => "Буталка нарзани";
+        public override string Name => "Бутылка нарзани";
 
         public override string Description =>
             "Она появилась в твоём рюкзаке после пьянки с твоими грузинскими друзьями. Отлично помогает от похмелья";
 
-        public override decimal? Price => null;
+        public override decimal? Price => 80;
         public override string Identifier => Id;
         public override StatsEffect Effect => null;
 

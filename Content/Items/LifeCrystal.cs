@@ -38,7 +38,7 @@ namespace Content.Items
     {
         public const string Id = "item/lifecrystal";
         public override StructFlag<BuyGroup> Group => new StructFlag<BuyGroup>();
-        public override string Name => "Кристалла жизни";
+        public override string Name => "Кристалл жизни";
         public override string Description => "Просто активируй";
         public override decimal? Price => null;
         public override string Identifier => Id;

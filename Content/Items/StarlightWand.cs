@@ -17,7 +17,7 @@ namespace Content.Items
         public override StructFlag<BuyGroup> Group => new StructFlag<BuyGroup>();
         public override string Name => "Посох Старлайт";
         public override string Description => string.Empty;
-        public override decimal? Price => null;
+        public override decimal? Price => 300;
         public override string Identifier => Id;
         public override StatsEffect Effect => null;
 
