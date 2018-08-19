@@ -124,6 +124,9 @@ namespace AdventureBot.Room
                 user,
                 $"HP: {hp} <i>{diff.Format()}</i>"
             );
+            
+            var dmg = GetDamage(user);
+            dmg -= user.Info.KarmaEffect(dmg);
 
             variables.Set("old_hp", new Serializable.Decimal(hp));
 
@@ -133,9 +136,6 @@ namespace AdventureBot.Room
                 user.RoomManager.Leave();
                 return;
             }
-
-            var dmg = GetDamage(user);
-            dmg -= user.Info.KarmaEffect(dmg);
 
             variables.Set("total_damage",
                 new Serializable.Decimal(variables.Get<Serializable.Decimal>("total_damage") + dmg));

@@ -3,12 +3,13 @@ using AdventureBot.Item;
 using AdventureBot.ObjectManager;
 using AdventureBot.User;
 using AdventureBot.User.Stats;
+using Content.Rooms;
 
 namespace Content.Items
 {
     [Item(Id)]
     public class Soulstone : ItemBase
-    {
+    {   
         public const string Id = "portal/soulstone";
 
         public override StructFlag<BuyGroup> Group => new StructFlag<BuyGroup>();
@@ -21,6 +22,14 @@ namespace Content.Items
         public override bool CanUse(User user, ItemInfo info)
         {
             return false;
+        }
+
+        public override void OnAdd(User user, ItemInfo info, int count)
+        {
+            if (info.Count == 6)
+            {
+                user.RoomManager.Go(Thanos.Id);
+            }
         }
     }
 }

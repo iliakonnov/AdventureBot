@@ -47,13 +47,13 @@ namespace AdventureBot.User
             var found = _items.FirstOrDefault(x => x.Identifier == item.Identifier);
             if (found != null)
             {
-                found.Item.OnAdd(User, found, item.Count);
                 found.Count += item.Count;
+                found.Item.OnAdd(User, found, item.Count);
             }
             else
             {
-                item.Item.OnAdd(User, item, item.Count);
                 _items.Add(item);
+                item.Item.OnAdd(User, item, item.Count);
             }
 
             User.ActiveItemsManager.RecalculateActive();
