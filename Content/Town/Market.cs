@@ -81,7 +81,7 @@ namespace Content.Town
 
             foreach (var item in loaded)
             {
-                SendMessage(user, $"*{item.Name}* [{item.Price}]\n{item.Description}");
+                SendMessage(user, $"<b>{item.Name}</b> [{item.Price}]\n{item.Description}");
             }
 
             SwitchAction(user, Buy2);
@@ -107,7 +107,7 @@ namespace Content.Town
                 }
                 else
                 {
-                    SendMessage(user, "С вашими деньгами *этот* предмет купить не выйдет.");
+                    SendMessage(user, "С вашими деньгами <b>этот</b> предмет купить не выйдет.");
                 }
             }
             else
@@ -128,7 +128,7 @@ namespace Content.Town
             foreach (var item in items)
             {
                 SendMessage(user,
-                    $"*{item.Item.Name}* (x{item.Count}) [{item.Item.Price * user.Info.SellMultiplier}]\n{item.Item.Description}");
+                    $"<b>{item.Item.Name}</b> (x{item.Count}) [{item.Item.Price * user.Info.SellMultiplier}]\n{item.Item.Description}");
             }
 
             SwitchAction(user, Sell2);

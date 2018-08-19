@@ -81,7 +81,7 @@ namespace AdventureBot.Messenger
                             user.Token = Guid.NewGuid();
                             user.MessageManager.SendImmediately(new SentMessage
                             {
-                                Text = $"Ваш новый токен: `{user.Token}`.",
+                                Text = $"Ваш новый токен: <code>{user.Token}</code>.",
                                 Intent = "command-revoke"
                             });
                             break;
@@ -97,7 +97,7 @@ namespace AdventureBot.Messenger
                                 user.MessageManager.SendImmediately(new SentMessage
                                 {
                                     Text =
-                                        @"Чтобы связвть этот аккаунт с другим игровым персонажем используйте `/link <messenger_id> <user_id> <token>`",
+                                        @"Чтобы связвть этот аккаунт с другим игровым персонажем используйте <code>/link <messenger_id> <user_id> <token></code>",
                                     Intent = "command-link-error"
                                 });
                                 break;
@@ -131,7 +131,7 @@ namespace AdventureBot.Messenger
                             user.LinkedTo = new Tuple<UserId, Guid>(uid, token);
                             user.MessageManager.SendImmediately(new SentMessage
                             {
-                                Text = @"Отлично! Чтобы отвязать аккаунт используйте `/unlink`",
+                                Text = @"Отлично! Чтобы отвязать аккаунт используйте <code>/unlink</code>",
                                 Intent = "command-link"
                             });
                             break;
@@ -172,7 +172,7 @@ namespace AdventureBot.Messenger
                     var error = MessageManager.Escape(e.ToString());
                     user.MessageManager.SendImmediately(new SentMessage
                     {
-                        Text = $"Вы пошатнули мироздание и произошла ошибка:\n```{error}```",
+                        Text = $"Вы пошатнули мироздание и произошла ошибка:\n<pre>{error}</pre>",
                         Intent = "error"
                     });
                 }

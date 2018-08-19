@@ -56,8 +56,8 @@ namespace AdventureBot.Analysis
         private static void Sent(User.User user, Tuple<SentMessage, RecivedMessage> message)
         {
             Log("in reply to '{reply}': {message}", "messageSent", user,
-                message.Item1.Text,
-                message.Item2?.MessageId);
+                message.Item2?.MessageId,
+                message.Item1.Text);
         }
     }
 }

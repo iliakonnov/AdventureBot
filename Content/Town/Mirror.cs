@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using AdventureBot;
 using AdventureBot.Messenger;
@@ -115,7 +116,67 @@ namespace Content.Town
         {
             if (!HandleButton(user, message))
             {
-                user.Info.Name = message.Text;
+                var name = message.Text
+                    .Replace("<strong>", "<b>").Replace("</strong>", "</b>")
+                    .Replace("<em>", "<i>").Replace("</em>", "</i>");
+                var tags = new[] {"b", "i", "code", "pre"};
+                string openedTag = null;
+                var valid = true;
+                for (var i = 0; i < name.Length;)
+                {
+                    var tagFound = false;
+                    foreach (var tag in tags)
+                    {
+                        var opening = $"<{tag}>";
+                        if (i + opening.Length <= name.Length && name.Substring(i, opening.Length) == opening)
+                        {
+                            // Found opening tag
+                            if (openedTag != null)
+                            {
+                                // Nested tags: <i><b>
+                                valid = false;
+                                goto NameValidated;
+                            }
+
+                            openedTag = tag;
+                            tagFound = true;
+                            i += opening.Length;
+                            break;  // breaks out from inner loop: foreach (var tag in tags)
+                        }
+
+                        var closing = $"</{tag}>";
+                        if (i + closing.Length <= name.Length && name.Substring(i, closing.Length) == closing)
+                        {
+                            // Found closing tag
+                            if (openedTag != tag)
+                            {
+                                // wrong closing tag: <i></b>
+                                valid = false;
+                                goto NameValidated;
+                            }
+
+                            openedTag = null;
+                            tagFound = true;
+                            i += closing.Length;
+                            break;  // breaks out from inner loop: foreach (var tag in tags)
+                        }
+                    }
+
+                    if (!tagFound)
+                    {
+                        // No tag was found
+                        i++;
+                    }
+                }
+
+                NameValidated:
+                valid = valid && openedTag == null; // Every tag was closed
+                if (!valid)
+                {
+                    name = MessageManager.Escape(name);
+                }
+
+                user.Info.Name = name;
             }
 
             SwitchAction(user, null);
@@ -231,7 +292,7 @@ namespace Content.Town
                 current.Append(emoji).Append(": ").Append(proportion.Value);
                 if (changed && flag.Equals(proportion.Key))
                 {
-                    current.Append($" _({count:+#.##;-#.##;0})_");
+                    current.Append($" <i>({count:+#.##;-#.##;0})</i>");
                 }
 
                 current.AppendLine();
@@ -307,7 +368,7 @@ namespace Content.Town
             {
                 var active = user.ActiveItemsManager.ActiveItems
                     .FirstOrDefault(item => item.Identifier == info.Identifier);
-                var description = new StringBuilder($"*{info.Item.Name}* (x{info.Count})");
+                var description = new StringBuilder($"<b>{info.Item.Name}</b> (x{info.Count})");
 
                 if (info.CanUse(user))
                 {
@@ -334,7 +395,7 @@ namespace Content.Town
                         if (active != null)
                         {
                             description.Append(
-                                $" (*{(effect.Value * active.Count).Format()}*) ");
+                                $" (<b>{(effect.Value * active.Count).Format()}</b>) ");
                         }
                     }
                 }

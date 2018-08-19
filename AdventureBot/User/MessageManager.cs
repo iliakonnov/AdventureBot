@@ -125,7 +125,7 @@ namespace AdventureBot.User
                 case null when User.RoomManager.Rooms.Count == 0:
                     SendMessage(new SentMessage
                     {
-                        Text = "Вы находитесь в *нигде*. Попробуйте /start, только это вам поможет"
+                        Text = "Вы находитесь в <b>нигде</b>. Попробуйте /start, только это вам поможет"
                     });
                     break;
                 case null:
@@ -236,7 +236,7 @@ namespace AdventureBot.User
             }
 
             return string.Join("\n\n", Enumerable.Empty<string>()
-                .Concat(new[] {$"_{path}_"})
+                .Concat(new[] {$"<i>{path}</i>"})
                 .Concat(messages)
                 .Concat(new[] {stats.ToString()})
             );
@@ -284,14 +284,14 @@ namespace AdventureBot.User
         }
 
         /// <summary>
-        ///     Экранирует сообщение так, чтобы в нём не было симолов форматирования markdown'а
+        ///     Экранирует сообщение так, чтобы в нём не было симолов форматирования
         /// </summary>
         public static string Escape(string message)
         {
             return message
-                .Replace(@"`", @"\`")
-                .Replace(@"_", @"\_")
-                .Replace(@"*", @"\*");
+                .Replace("&", "&amp;")
+                .Replace("<", "&lt;")
+                .Replace(">", "&gt;");
         }
     }
 }

@@ -40,7 +40,7 @@ namespace Content.Rooms
                         {
                             "Достать оружие", (user, message) =>
                             {
-                                SendMessage(user, "*щелк*");
+                                SendMessage(user, "<b>щелк</b>");
                                 SwitchAction(user, Battle);
                                 _battleRoom.OnEnter(user);
                             }

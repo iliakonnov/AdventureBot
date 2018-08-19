@@ -95,7 +95,7 @@ namespace Telegram
                 }
             }
 
-            var parseMode = message.Formatted ? ParseMode.Markdown : ParseMode.Default;
+            var parseMode = message.Formatted ? ParseMode.Html : ParseMode.Default;
 
             var text = message.Text;
             if (recivedMessage?.ReplyUserId != null)

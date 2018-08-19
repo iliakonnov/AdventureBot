@@ -162,7 +162,7 @@ namespace Content.Rooms
 
             foreach (var item in available)
             {
-                SendMessage(user, $"*{item.Name}* (x{ItemCount}) [{item.Price * ItemCount}]\n{item.Description}");
+                SendMessage(user, $"<b>{item.Name}</b> (x{ItemCount}) [{item.Price * ItemCount}]\n{item.Description}");
             }
 
             SendMessage(

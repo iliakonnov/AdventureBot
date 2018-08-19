@@ -50,7 +50,7 @@ namespace AdventureBot.User.Stats
                             User.ActiveItemsManager.ActiveProportions.Values.Sum();
             User.MessageManager.SendMessage(new SentMessage
             {
-                Text = $"*Вы достигли {Level} уровня! Доступно {available} предметов для распределения.*"
+                Text = $"<b>Вы достигли {Level} уровня! Доступно {available} предметов для распределения.</b>"
             });
             
             OnChanged?.Invoke(User, this);

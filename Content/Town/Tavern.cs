@@ -249,7 +249,7 @@ namespace Content.Town
                     }
 
                     var usr = UserProxy.GetUnsafe(topPlayer.Key);
-                    sb.AppendLine($"*{cnt}*. {formatter(usr, topPlayer)}");
+                    sb.AppendLine($"<b>{cnt}</b>. {formatter(usr, topPlayer)}");
                 }
             }
 

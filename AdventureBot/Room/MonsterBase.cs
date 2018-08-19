@@ -117,7 +117,7 @@ namespace AdventureBot.Room
 
             SendMessage(
                 user,
-                $"HP: {hp} _{diff.Format()}_"
+                $"HP: {hp} <i>{diff.Format()}</i>"
             );
 
             variables.Set("old_hp", new Serializable.Decimal(hp));

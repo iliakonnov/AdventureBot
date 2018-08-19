@@ -106,7 +106,7 @@ namespace Content.Town
             var selectedRoom = GetRandomRoom(user, difficulity);
             GetRoomVariables(user).Set("room", new Serializable.String(selectedRoom));
             SendMessage(user,
-                $"Ты идешь по лесу и видишь на поляне *{GetAllRooms().Get(selectedRoom)?.Name}*",
+                $"Ты идешь по лесу и видишь на поляне <b>{GetAllRooms().Get(selectedRoom)?.Name}</b>",
                 GetButtons(user)
             );
         }

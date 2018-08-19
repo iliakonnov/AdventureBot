@@ -32,7 +32,7 @@ namespace Content.Rooms
 
         protected override void OnWon(User user)
         {
-            SendMessage(user, "Победив космодесантника, ты подобрал *цепной меч*");
+            SendMessage(user, "Победив космодесантника, ты подобрал <b>цепной меч</b>");
             user.ItemManager.Add(new ItemInfo(Chainsword.Id, 1));
         }
     }
