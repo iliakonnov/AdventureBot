@@ -63,13 +63,17 @@ namespace Content.Items
 
         public override void OnAdd(User user, ItemInfo info, int count)
         {
-            if (user.ItemManager.Remove(new ItemInfo(Identifier, 1)))
+            if (info.Count > 1)
             {
                 user.MessageManager.SendMessage(new SentMessage
                 {
                     Text = "Ты попытался надеть два костюма сразу, но у тебя не получилось"
                 });
-                user.ItemManager.Add(new ItemInfo(StarkSuit.Id, 1));
+
+                if (user.ItemManager.Remove(new ItemInfo(Identifier, 1)))
+                {
+                    user.ItemManager.Add(new ItemInfo(StarkSuit.Id, 1));
+                }
             }
             else
             {

@@ -60,16 +60,21 @@ namespace Content.Items
 
         public override void OnAdd(User user, ItemInfo info, int count)
         {
-            GetItemVariables(user).Set("counter", new Serializable.Int(2));
-            if (user.ItemManager.Remove(new ItemInfo(Identifier, 1)))
+            if (info.Count > 1)
             {
                 user.MessageManager.SendMessage(new SentMessage
                 {
-                    Text = "Твоя каменная кожа рассыпалась, чтобы собраться заново"
+                    Text = "Твоя каменная кожа не закаменела"
                 });
+                
+                if (user.ItemManager.Remove(new ItemInfo(Identifier, 1)))
+                {
+                    user.ItemManager.Add(new ItemInfo(GolemHeart.Id, 1));
+                }
             }
             else
             {
+                GetItemVariables(user).Set("counter", new Serializable.Int(2));
                 user.MessageManager.SendMessage(new SentMessage
                 {
                     Text = "Ты чувствуешь, как кожа каменеет"
