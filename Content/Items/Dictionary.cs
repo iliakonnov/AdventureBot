@@ -13,8 +13,8 @@ namespace Content.Items
     {
         public override StructFlag<BuyGroup> Group => new StructFlag<BuyGroup>();
         public override string Name => "Словарь Даля";
-        public override string Description => string.Empty;
-        public override decimal? Price => null;
+        public override string Description => "Говорят, что кто-то даже пытался себя убить этим словарем. Что ж, слово действительно может ранить.";
+        public override decimal? Price => 10;
         public override string Identifier => "grammar/dictionary_dahl";
 
         public override StatsEffect Effect => new StatsEffect(ChangeType.Add, new Dictionary<StatsProperty, decimal>
@@ -34,7 +34,7 @@ namespace Content.Items
         public override StructFlag<BuyGroup> Group => new StructFlag<BuyGroup>();
         public override string Name => "Словарь Ожегова";
         public override string Description => string.Empty;
-        public override decimal? Price => null;
+        public override decimal? Price => 5;
         public override string Identifier => "grammar/dictionary_ozhegov";
 
         public override StatsEffect Effect => new StatsEffect(ChangeType.Add, new Dictionary<StatsProperty, decimal>

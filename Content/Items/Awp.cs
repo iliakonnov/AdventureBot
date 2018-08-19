@@ -14,7 +14,7 @@ namespace Content.Items
         public override StructFlag<BuyGroup> Group => new StructFlag<BuyGroup>();
         public override string Name => "AWP";
         public override string Description => string.Empty;
-        public override decimal? Price => null;
+        public override decimal? Price => 25;
         public override string Identifier => "camper/awp";
         public override StatsEffect Effect => null;
 

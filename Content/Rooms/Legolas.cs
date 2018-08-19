@@ -9,7 +9,7 @@ namespace Content.Rooms
     {
         public override string Name => "Леголас";
         public override string Identifier => "monster/legolas";
-        protected override decimal Health => 500;
+        protected override decimal Health => 1000;
 
         protected override decimal GetDamage(User user)
         {
