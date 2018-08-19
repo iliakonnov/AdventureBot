@@ -10,7 +10,7 @@ namespace Content.Rooms
     {
         public const string Id = "room/church";
 
-        public Church() : base(typeof(BetterTest))
+        public Church() : base(typeof(Church))
         {
         }
 
