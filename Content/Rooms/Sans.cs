@@ -25,6 +25,7 @@ namespace Content.Rooms
             var variables = GetRoomVariables(user);
             var count = (int) variables.Get<Serializable.Int>("count");
             variables.Set("count", new Serializable.Int(count + 1));
+            
             if (count < 1)
             {
                 SendMessage(user, "– Ты действительно думал, что я просто буду стоять на месте?");
@@ -39,7 +40,7 @@ namespace Content.Rooms
             }
             else
             {
-                base.MakeDamage(user, Health);
+                base.MakeDamage(user, 9_999_999);
             }
         }
 
