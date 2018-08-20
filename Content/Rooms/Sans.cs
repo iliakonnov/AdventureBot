@@ -24,10 +24,10 @@ namespace Content.Rooms
         {
             var variables = GetRoomVariables(user);
             var count = (int) variables.Get<Serializable.Int>("count");
+            variables.Set("count", new Serializable.Int(count + 1));
             if (count < 1)
             {
                 SendMessage(user, "– Ты действительно думал, что я просто буду стоять на месте?");
-                variables.Set("count", new Serializable.Int(count + 1));
             }
             else if (count < 15)
             {
@@ -47,7 +47,7 @@ namespace Content.Rooms
         {
             var variables = GetRoomVariables(user);
             variables.Set("count", new Serializable.Int(0));
-            
+
             if (user.Info.CurrentStats.GetStat(StatsProperty.Karma) >= 15)
             {
                 SendMessage(user, "И тебе повезло, что его друзья не жаловались на тебя. Иди с миром.", buttons);
