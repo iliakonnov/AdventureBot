@@ -59,7 +59,8 @@ namespace AdventureBot.UserManager
 
                     var user = MessagePackSerializer.Deserialize<dynamic>(Data);
                     var migrated = Migrate(user);
-                    var test = MessagePackSerializer.Deserialize<dynamic>(MessagePackSerializer.Serialize(new User.User(new UserId(0,0))));
+                    var test = MessagePackSerializer.Deserialize<dynamic>(
+                        MessagePackSerializer.Serialize(new User.User(new UserId(0, 0))));
                     return MessagePackSerializer.Deserialize<User.User>(MessagePackSerializer.Serialize(migrated));
                 }
                 catch (Exception e)

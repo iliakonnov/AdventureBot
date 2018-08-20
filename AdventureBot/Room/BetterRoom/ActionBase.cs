@@ -5,13 +5,13 @@ using AdventureBot.Messenger;
 
 namespace AdventureBot.Room.BetterRoom
 {
-    public abstract class ActionBase
+    public abstract class ActionBase<T> where T : BetterRoomBase<T>
     {
-        protected readonly BetterRoomBase Room;
         private readonly MessageRecived _fallback;
         public readonly Dictionary<string, MessageRecived> Buttons;
+        protected readonly T Room;
 
-        protected ActionBase(BetterRoomBase room)
+        protected ActionBase(T room)
         {
             Room = room;
             var self = GetType();

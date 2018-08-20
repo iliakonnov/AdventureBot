@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using AdventureBot;
 using AdventureBot.Messenger;
@@ -13,13 +12,9 @@ using Content.Quests;
 namespace Content.Town
 {
     [Room(Id)]
-    public class Tavern : BetterRoomBase
+    public class Tavern : BetterRoomBase<Tavern>
     {
         public const string Id = "town/tavern";
-
-        public Tavern() : base(typeof(Tavern))
-        {
-        }
 
         public override string Name => "Таверна";
         public override string Identifier => Id;
@@ -52,9 +47,9 @@ namespace Content.Town
         }
 
         [Action]
-        public class MainAction : ActionBase
+        public class MainAction : ActionBase<Tavern>
         {
-            public MainAction(BetterRoomBase room) : base(room)
+            public MainAction(Tavern room) : base(room)
             {
             }
 
@@ -89,9 +84,9 @@ namespace Content.Town
         }
 
         [Action(0)]
-        public class Owner : ActionBase
+        public class Owner : ActionBase<Tavern>
         {
-            public Owner(BetterRoomBase room) : base(room)
+            public Owner(Tavern room) : base(room)
             {
             }
 
@@ -120,7 +115,7 @@ namespace Content.Town
                     }
                 }
 
-                var foundQuest = (Room as Tavern)?.TryFindQuest(user, KillMonster.Id, "_owner");
+                var foundQuest = Room.TryFindQuest(user, KillMonster.Id, "_owner");
                 if (foundQuest != null)
                 {
                     if (foundQuest.Item2.IsFinished(user, foundQuest.Item1))
@@ -162,9 +157,9 @@ namespace Content.Town
         }
 
         [Action(1)]
-        public class Sergeant : ActionBase
+        public class Sergeant : ActionBase<Tavern>
         {
-            public Sergeant(BetterRoomBase room) : base(room)
+            public Sergeant(Tavern room) : base(room)
             {
             }
 
@@ -175,7 +170,7 @@ namespace Content.Town
 
                 var vars = Room.GetRoomVariables(user);
 
-                var existingQuest = (Room as Tavern)?.TryFindQuest(user, KillMonsterFree.Id, "_sergeant");
+                var existingQuest = Room.TryFindQuest(user, KillMonsterFree.Id, "_sergeant");
                 if (existingQuest != null)
                 {
                     Room.SendMessage(user,
@@ -199,7 +194,7 @@ namespace Content.Town
             {
                 Room.SwitchAction<MainAction>(user);
 
-                var existingQuest = (Room as Tavern)?.TryFindQuest(user, KillMonsterFree.Id, "_sergeant");
+                var existingQuest = Room.TryFindQuest(user, KillMonsterFree.Id, "_sergeant");
                 if (existingQuest != null)
                 {
                     if (existingQuest.Item2.IsFinished(user, existingQuest.Item1))
@@ -231,9 +226,9 @@ namespace Content.Town
         }
 
         [Action(2)]
-        public class Leaderboard : ActionBase
+        public class Leaderboard : ActionBase<Tavern>
         {
-            public Leaderboard(BetterRoomBase room) : base(room)
+            public Leaderboard(Tavern room) : base(room)
             {
             }
 

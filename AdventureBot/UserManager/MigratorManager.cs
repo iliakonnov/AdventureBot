@@ -1,5 +1,4 @@
-﻿using AdventureBot.Item;
-using AdventureBot.ObjectManager;
+﻿using AdventureBot.ObjectManager;
 
 namespace AdventureBot.UserManager
 {
@@ -9,12 +8,12 @@ namespace AdventureBot.UserManager
         {
         }
     }
-    
+
     public interface IMigrator
     {
         dynamic Migrate(dynamic user);
     }
-    
+
     public class MigratorManager : StorageManager<IMigrator, MigratorAttribute>
     {
     }

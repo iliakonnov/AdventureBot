@@ -1,5 +1,4 @@
 ﻿#if false // Этот файл не должен компилироваться, он только в качестве шаблона
-
 using System.Collections.Generic;
 using AdventureBot;
 using AdventureBot.Item;

@@ -5,16 +5,16 @@ namespace Content.Rooms.MegaMonster
     public class ResultStats
     {
         public string ArtifactId;
+        public decimal Damage;
+        public decimal Defence;
+        public Place DefencedPlaces;
         public decimal Gold;
+        public decimal Health;
         public Knowledge KnowledgeGroup;
         public decimal KnowledgeMinimal;
         public decimal KnowledgeRequired;
 
         public string Name;
-        public decimal Defence;
-        public Place DefencedPlaces;
-        public decimal Damage;
-        public decimal Health;
 
         public void Serialize(VariableContainer container)
         {
@@ -51,7 +51,8 @@ namespace Content.Rooms.MegaMonster
 
         public override string ToString()
         {
-            return $"{nameof(ArtifactId)}: {ArtifactId}, {nameof(Gold)}: {Gold}, {nameof(KnowledgeGroup)}: {KnowledgeGroup}, {nameof(KnowledgeMinimal)}: {KnowledgeMinimal}, {nameof(KnowledgeRequired)}: {KnowledgeRequired}, {nameof(Name)}: {Name}, {nameof(Defence)}: {Defence}, {nameof(DefencedPlaces)}: {DefencedPlaces}, {nameof(Damage)}: {Damage}, {nameof(Health)}: {Health}";
+            return
+                $"{nameof(ArtifactId)}: {ArtifactId}, {nameof(Gold)}: {Gold}, {nameof(KnowledgeGroup)}: {KnowledgeGroup}, {nameof(KnowledgeMinimal)}: {KnowledgeMinimal}, {nameof(KnowledgeRequired)}: {KnowledgeRequired}, {nameof(Name)}: {Name}, {nameof(Defence)}: {Defence}, {nameof(DefencedPlaces)}: {DefencedPlaces}, {nameof(Damage)}: {Damage}, {nameof(Health)}: {Health}";
         }
     }
 }

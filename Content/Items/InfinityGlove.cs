@@ -12,12 +12,13 @@ namespace Content.Items
     public class InfinityGlove : ItemBase
     {
         public const string Id = "thanos/glove";
-        
+
         public override StructFlag<BuyGroup> Group => new StructFlag<BuyGroup>();
         public override string Name => "Перчатка Бесконечности";
         public override string Description => string.Empty;
         public override decimal? Price => 160000;
         public override string Identifier => Id;
+
         public override StatsEffect Effect => new StatsEffect(ChangeType.Add, new Dictionary<StatsProperty, decimal>
         {
             {StatsProperty.Defence, 150},
@@ -38,7 +39,7 @@ namespace Content.Items
             {
                 return;
             }
-            
+
             monster.MakeDamage(user, 250);
         }
     }

@@ -16,7 +16,7 @@ namespace Content.Rooms.MegaMonster.Room
                     BeginTalk(user);
                     return;
                 }
-                
+
                 var item = GetAllItems().Get(stats.Stats.ArtifactId);
                 if (user.ItemManager.Get(stats.Stats.ArtifactId) != null)
                 {
@@ -26,6 +26,7 @@ namespace Content.Rooms.MegaMonster.Room
                 {
                     SwitchAction(user, ArtifactNotFound);
                 }
+
                 SendMessage(user, $"Монстр желает заполучить {item?.Name}. Готовы его отдать?", GetButtons(user));
             }
         }
@@ -34,7 +35,7 @@ namespace Content.Rooms.MegaMonster.Room
         {
             HandleButtonAlways(user, message);
         }
-        
+
         private void ArtifactNotFound(User user, RecivedMessage message)
         {
             HandleButtonAlways(user, message);

@@ -1,5 +1,4 @@
 ﻿#if false // Этот файл не должен компилироваться, он только в качестве шаблона
-
 using AdventureBot.Item;
 using AdventureBot.Room;
 using AdventureBot.User;

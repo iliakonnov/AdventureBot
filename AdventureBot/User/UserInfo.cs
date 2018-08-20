@@ -1,9 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using AdventureBot.Item;
 using AdventureBot.Messenger;
-using AdventureBot.Room;
+using AdventureBot.NameGenerator;
 using AdventureBot.User.Stats;
 using MessagePack;
 
@@ -12,6 +11,8 @@ namespace AdventureBot.User
     [MessagePackObject(true)]
     public class UserInfo
     {
+        private decimal _gold = 100;
+
         [SerializationConstructor]
         public UserInfo(bool dead, UserId userId, Stats.Stats baseStats, Stats.Stats currentStats, string name,
             Statistics statistics, UserLevel level)
@@ -62,7 +63,7 @@ namespace AdventureBot.User
             ));
             UserId = userId;
             User = user;
-            Name = NameGenerator.Generator.Generate(User.Random);
+            Name = Generator.Generate(User.Random);
             Statistics = new Statistics(user);
             Level = new UserLevel(user);
             RecalculateStats();
@@ -71,8 +72,6 @@ namespace AdventureBot.User
         [IgnoreMember] internal User User { get; set; }
 
         public bool Dead { get; internal set; }
-
-        private decimal _gold = 100;
 
         [IgnoreMember]
         public decimal Gold
@@ -282,9 +281,14 @@ namespace AdventureBot.User
         ///     Наносит урон с учетом защиты игрока. Убивает при необходимости
         /// </summary>
         /// <param name="value">Какой урон нанесен</param>
-        public void MakeDamage(decimal value)
+        /// <param name="defence">Учитывать ли защиту игрока</param>
+        public void MakeDamage(decimal value, bool defence = true)
         {
-            value = CalculateDefence(value, CurrentStats.Effect[StatsProperty.Defence]);
+            if (defence)
+            {
+                value = CalculateDefence(value, CurrentStats.Effect[StatsProperty.Defence]);
+            }
+
             ChangeStats(ChangeType.Add, StatsProperty.Health, -value, true);
             if (CurrentStats.Effect[StatsProperty.Health] <= MinStats.Effect[StatsProperty.Health])
             {

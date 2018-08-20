@@ -19,7 +19,7 @@ namespace AdventureBot
         {
             _listImplementation = listImplementation;
         }
-        
+
         public IEnumerator<ISerializable> GetEnumerator()
         {
             return _listImplementation.GetEnumerator();

@@ -6,7 +6,7 @@ using AdventureBot.User;
 
 namespace Content.Rooms
 {
-    [Available(Id, Difficulity.Any)]
+    [Available(Id, Difficulity.Any, TownRoot.Id)]
     public class Kiba : RoomBase
     {
         public const string Id = "room/kiba";

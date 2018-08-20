@@ -1,10 +1,7 @@
-﻿using System;
-using AdventureBot;
+﻿using AdventureBot;
 using AdventureBot.Item;
 using AdventureBot.Room;
-using AdventureBot.Room.BetterRoom;
 using AdventureBot.User;
-using AdventureBot.User.Stats;
 using Content.Items;
 
 namespace Content.Rooms

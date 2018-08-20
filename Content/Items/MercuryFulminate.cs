@@ -20,6 +20,7 @@ namespace Content.Items
         public override decimal? Price => 100;
         public override string Identifier => Id;
         public override StatsEffect Effect => null;
+
         public override bool CanUse(User user, ItemInfo info)
         {
             return user.RoomManager.GetRoom() is IMonster;

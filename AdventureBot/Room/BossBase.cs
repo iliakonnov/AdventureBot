@@ -9,7 +9,6 @@ namespace AdventureBot.Room
         protected abstract decimal InitialGold { get; }
         protected abstract decimal Health { get; }
         private string GlobalVariablesKey => $"boss/{Identifier}";
-        protected abstract decimal GetDamage(User.User user);
 
         public void MakeDamage(User.User user, decimal damage)
         {
@@ -54,14 +53,6 @@ namespace AdventureBot.Room
         public decimal GetCurrentHealth(User.User user)
         {
             return Load().Health;
-        }
-
-        private string[][] GetActions(User.User user)
-        {
-            return GetItems(user)
-                .Concat(new[] {"Сбежать"})
-                .Select(i => new[] {i})
-                .ToArray();
         }
 
         public override void OnEnter(User.User user)
@@ -133,6 +124,16 @@ namespace AdventureBot.Room
             return base.OnLeave(user);
         }
 
+        protected abstract decimal GetDamage(User.User user);
+
+        private string[][] GetActions(User.User user)
+        {
+            return GetItems(user)
+                .Concat(new[] {"Сбежать"})
+                .Select(i => new[] {i})
+                .ToArray();
+        }
+
         private Variables Load()
         {
             lock (GlobalVariables.Variables)
@@ -174,10 +175,10 @@ namespace AdventureBot.Room
 
         private class Variables
         {
+            public List<Attacker> Attackers;
             public decimal Gold;
             public decimal Health;
             public decimal TotalDamage;
-            public List<Attacker> Attackers;
         }
 
         public class Attacker

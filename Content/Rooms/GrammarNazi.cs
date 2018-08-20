@@ -7,7 +7,7 @@ using Content.Items;
 
 namespace Content.Rooms
 {
-    [Available(Id, Difficulity.Lower)]
+    [Available(Id, Difficulity.Lower, TownRoot.Id)]
     public class GrammarNazi : MonsterBase
     {
         public const string Id = "monster/grammar";

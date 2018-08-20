@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using AdventureBot.Item;
 using AdventureBot.ObjectManager;
-using NLog;
 
 namespace Content.Rooms.MegaMonster
 {
@@ -109,6 +108,7 @@ namespace Content.Rooms.MegaMonster
                     .ToList();
                 artifact = items[random.Next(0, items.Count)].Identificator;
             }
+
             return new ResultStats
             {
                 Name = $"{string.Join(" ", stats.Modifiers)} {stats.Name}",

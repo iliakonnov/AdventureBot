@@ -6,14 +6,10 @@ using AdventureBot.User.Stats;
 
 namespace Content.Rooms
 {
-    [Available(Id, Difficulity.Any)]
-    public class Church : BetterRoomBase
+    [Available(Id, Difficulity.Any, TownRoot.Id)]
+    public class Church : BetterRoomBase<Church>
     {
         public const string Id = "room/church";
-
-        public Church() : base(typeof(Church))
-        {
-        }
 
         public override string Name => "Храм";
         public override string Identifier => Id;
@@ -36,9 +32,9 @@ namespace Content.Rooms
         }
 
         [Action]
-        public class MainHandler : ActionBase
+        public class MainHandler : ActionBase<Church>
         {
-            public MainHandler(BetterRoomBase room) : base(room)
+            public MainHandler(Church room) : base(room)
             {
             }
 
@@ -58,9 +54,9 @@ namespace Content.Rooms
         }
 
         [Action(0)]
-        public class Donat : ActionBase
+        public class Donat : ActionBase<Church>
         {
-            public Donat(BetterRoomBase room) : base(room)
+            public Donat(Church room) : base(room)
             {
             }
 

@@ -7,13 +7,9 @@ namespace Content.Rooms
 {
     // Disabled
     [Room(Id)]
-    public class BetterTest : BetterRoomBase
+    public class BetterTest : BetterRoomBase<BetterTest>
     {
         public const string Id = "better_test";
-
-        public BetterTest() : base(typeof(BetterTest))
-        {
-        }
 
         public override string Name => "testing";
         public override string Identifier => Id;
@@ -26,9 +22,9 @@ namespace Content.Rooms
         }
 
         [Action]
-        public class MainHandler : ActionBase
+        public class MainHandler : ActionBase<BetterTest>
         {
-            public MainHandler(BetterRoomBase room) : base(room)
+            public MainHandler(BetterTest room) : base(room)
             {
             }
 
@@ -54,9 +50,9 @@ namespace Content.Rooms
         }
 
         [Action(0)]
-        public class Asdf : ActionBase
+        public class Asdf : ActionBase<BetterTest>
         {
-            public Asdf(BetterRoomBase room) : base(room)
+            public Asdf(BetterTest room) : base(room)
             {
             }
 
@@ -81,9 +77,9 @@ namespace Content.Rooms
         }
 
         [Action(1)]
-        public class Qwer : ActionBase
+        public class Qwer : ActionBase<BetterTest>
         {
-            public Qwer(BetterRoomBase room) : base(room)
+            public Qwer(BetterTest room) : base(room)
             {
             }
 

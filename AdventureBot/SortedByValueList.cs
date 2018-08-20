@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Collections.Specialized;
 using System.Linq;
 
 namespace AdventureBot
@@ -22,7 +20,7 @@ namespace AdventureBot
             {
                 lock (_lock)
                 {
-                    return _dictionary.OrderByDescending(kv => kv.Value).ToList();                       
+                    return _dictionary.OrderByDescending(kv => kv.Value).ToList();
                 }
             }
         }

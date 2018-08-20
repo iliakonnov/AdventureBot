@@ -3,7 +3,7 @@ using AdventureBot.User;
 
 namespace Content.Rooms
 {
-    [Available(Id, Difficulity.Upper)]
+    [Available(Id, Difficulity.Upper, TownRoot.Id)]
     public class FirstBoss : BossBase
     {
         public const string Id = "boss/firstBoss";
@@ -11,6 +11,7 @@ namespace Content.Rooms
         public override string Identifier => Id;
         protected override decimal InitialGold => 1_000;
         protected override decimal Health => 500;
+
         protected override decimal GetDamage(User user)
         {
             return 35;

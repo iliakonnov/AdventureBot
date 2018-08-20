@@ -56,7 +56,7 @@ a = [list(i) for i in a]
 b = [list(i) for i in b]
 
 print('Generating code...')
-with open('NamesData.cs', 'w', encoding='utf-8') as f:
+with open('NamesData.g.cs', 'w', encoding='utf-8') as f:
     f.write('''namespace AdventureBot.NameGenerator
 {{
     public static class Names

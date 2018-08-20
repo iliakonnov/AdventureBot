@@ -57,6 +57,7 @@ namespace Content.Quests
                 {
                     continue;
                 }
+
                 var room = mgr.Get(item.Identificator);
                 if (room is IMonster monster)
                 {
@@ -66,7 +67,7 @@ namespace Content.Quests
 
             var vars = GetQuestVariables(user, questId);
             vars.Set("killed", new Serializable.Bool(false));
-            
+
             var rand = monsters[user.Random.Next(0, monsters.Count)];
             vars.Set("monster_id", new Serializable.String(rand.Identifier));
 
@@ -78,12 +79,12 @@ namespace Content.Quests
         {
             return GetQuestVariables(user, guid).Get<Serializable.String>("monster_id");
         }
-        
+
         public virtual decimal GetReward(User user, Guid guid)
         {
             return GetQuestVariables(user, guid).Get<Serializable.Decimal>("reward");
         }
-        
+
         public bool IsFinished(User user, Guid guid)
         {
             return GetQuestVariables(user, guid).Get<Serializable.Bool>("killed");
@@ -93,15 +94,15 @@ namespace Content.Quests
     [Quest(Id)]
     public class KillMonster : KillMonsterBase
     {
-        public override string Identifer => Id;
         public const string Id = "quest/kill_monster";
+        public override string Identifer => Id;
     }
-    
+
     [Quest(Id)]
     public class KillMonsterFree : KillMonsterBase
     {
-        public override string Identifer => Id;
         public const string Id = "quest/kill_monster/free";
+        public override string Identifer => Id;
 
         public override decimal GetReward(User user, Guid guid)
         {

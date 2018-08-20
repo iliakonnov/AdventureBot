@@ -9,7 +9,7 @@ using Content.Items;
 
 namespace Content.Rooms
 {
-    [Available(Id, Difficulity.Hard)]
+    [Available(Id, Difficulity.Hard, TownRoot.Id)]
     public class DarthVader : RoomBase
     {
         public const string Id = "monster/vader";
@@ -79,7 +79,7 @@ namespace Content.Rooms
             user.RoomManager.Go(VaderBattle.Id);
         }
     }
-    
+
     [Room(Id)]
     public class VaderBattle : MonsterBase
     {

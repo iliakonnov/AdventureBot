@@ -66,7 +66,7 @@ namespace Content.Items
                 {
                     Text = "Твоя каменная кожа не закаменела"
                 });
-                
+
                 if (user.ItemManager.Remove(new ItemInfo(Identifier, 1)))
                 {
                     user.ItemManager.Add(new ItemInfo(GolemHeart.Id, 1));

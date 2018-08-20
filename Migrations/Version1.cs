@@ -13,7 +13,7 @@ namespace Migrations
         {
             user["QuestManager"] = new Dictionary<object, object>
             {
-                {"quests", new Dictionary<string, Dictionary<Guid, QuestInfo>>()},
+                {"quests", new Dictionary<string, Dictionary<Guid, QuestInfo>>()}
             };
             user["VariableManager"]["QuestVariables"] = new Dictionary<string, Dictionary<Guid, VariableContainer>>();
             return user;

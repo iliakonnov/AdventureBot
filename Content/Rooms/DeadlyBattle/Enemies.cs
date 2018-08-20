@@ -1,5 +1,4 @@
 ﻿using AdventureBot.Room;
-using AdventureBot.User;
 
 namespace Content.Rooms.DeadlyBattle
 {
@@ -11,7 +10,7 @@ namespace Content.Rooms.DeadlyBattle
         public override string Identifier => Id;
         protected override string Loot => SharpHat.Id;
     }
-    
+
     [Room(Id)]
     public class SubZero : TournamentMonsterBase
     {
@@ -20,7 +19,7 @@ namespace Content.Rooms.DeadlyBattle
         public override string Identifier => Id;
         protected override string Loot => BlueMask.Id;
     }
-    
+
     [Room(Id)]
     public class Scorpio : TournamentMonsterBase
     {
@@ -29,7 +28,7 @@ namespace Content.Rooms.DeadlyBattle
         public override string Identifier => Id;
         protected override string Loot => Harpoon.Id;
     }
-    
+
     [Room(Id)]
     public class LiuKang : TournamentMonsterBase
     {
@@ -38,7 +37,7 @@ namespace Content.Rooms.DeadlyBattle
         public override string Identifier => Id;
         protected override string Loot => Nunchaku.Id;
     }
-    
+
     [Room(Id)]
     public class JohnnyCage : TournamentMonsterBase
     {
@@ -47,7 +46,7 @@ namespace Content.Rooms.DeadlyBattle
         public override string Identifier => Id;
         protected override string Loot => Sunglasses.Id;
     }
-    
+
     [Room(Id)]
     public class Jax : TournamentMonsterBase
     {

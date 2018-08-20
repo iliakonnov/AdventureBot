@@ -7,7 +7,7 @@ using Content.Items;
 
 namespace Content.Rooms
 {
-    [Available(Id, Difficulity.Medium)]
+    [Available(Id, Difficulity.Medium, TownRoot.Id)]
     public class Geek : MonsterBase
     {
         public const string Id = "monster/geek";

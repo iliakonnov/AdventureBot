@@ -14,12 +14,6 @@ namespace AdventureBot.Room
     public abstract class MonsterBase : RoomBase, IMonster
     {
         protected abstract decimal Health { get; }
-        public static event GameEventHandler<IMonster> OnKilled;
-
-        public static void MonsterKilled(User.User user, IMonster monster)
-        {
-            OnKilled?.Invoke(user, monster);
-        }
 
         public virtual void MakeDamage(User.User user, decimal damage)
         {
@@ -86,16 +80,6 @@ namespace AdventureBot.Room
             return base.OnLeave(user);
         }
 
-        protected virtual void NotHandled(User.User user, RecivedMessage message)
-        {
-            SendMessage(
-                user,
-                "Вы поискали в карманах необходимый предмет, но ничего не нашли",
-                GetActions(user),
-                "unknown_item"
-            );
-        }
-
         public override void OnMessage(User.User user, RecivedMessage message)
         {
             if (!UseItem(user, message))
@@ -106,6 +90,23 @@ namespace AdventureBot.Room
             {
                 FinishTurn(user);
             }
+        }
+
+        public static event GameEventHandler<IMonster> OnKilled;
+
+        public static void MonsterKilled(User.User user, IMonster monster)
+        {
+            OnKilled?.Invoke(user, monster);
+        }
+
+        protected virtual void NotHandled(User.User user, RecivedMessage message)
+        {
+            SendMessage(
+                user,
+                "Вы поискали в карманах необходимый предмет, но ничего не нашли",
+                GetActions(user),
+                "unknown_item"
+            );
         }
 
         protected void FinishTurn(User.User user)
@@ -124,7 +125,7 @@ namespace AdventureBot.Room
                 user,
                 $"HP: {hp} <i>{diff.Format()}</i>"
             );
-            
+
             var dmg = GetDamage(user);
             dmg -= user.Info.KarmaEffect(dmg);
 

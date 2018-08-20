@@ -8,7 +8,7 @@ namespace Migrations
     public class Version3 : IMigrator
     {
         private static readonly Random NamesRandom = new Random();
-        
+
         public dynamic Migrate(dynamic user)
         {
             user["Info"]["Level"] = new Dictionary<object, object>

@@ -8,7 +8,7 @@ using AdventureBot.ObjectManager;
 namespace AdventureBot.Room
 {
     public delegate void MessageRecived(User.User user, RecivedMessage message);
-    
+
     public abstract class RoomBase : IRoom
     {
         public VariableContainer GetRoomVariables(User.User user)
@@ -231,17 +231,17 @@ namespace AdventureBot.Room
         #endregion
 
         #region Small helpers
-        
+
         public void SendMessage(User.User user, string message)
         {
             SendMessage(user, message, null, null);
         }
-        
+
         public void SendMessage(User.User user, string message, string[][] buttons)
         {
             SendMessage(user, message, buttons, null);
         }
-        
+
         public void SendMessage(User.User user, string message, string intent)
         {
             SendMessage(user, message, null, intent);

@@ -9,10 +9,10 @@ namespace AdventureBot.UserManager
         private static readonly Dictionary<UserId, UserProxy> _proxies = new Dictionary<UserId, UserProxy>();
 
         private static readonly TimeSpan Timeout = new TimeSpan(0, 0, 5);
+        private readonly ManualResetEvent _available = new ManualResetEvent(true);
         private readonly UserId _id;
 
         private readonly object _lock = new object();
-        private readonly ManualResetEvent _available = new ManualResetEvent(true);
         private User.User _loaded;
         private DateTime _unlockAt;
 
@@ -62,7 +62,7 @@ namespace AdventureBot.UserManager
             _available.WaitOne(timeRemaining);
             return GetUser();
         }
-        
+
         public User.User GetUnsafe()
         {
             lock (_lock)

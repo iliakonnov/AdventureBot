@@ -1,5 +1,4 @@
-﻿using System;
-using AdventureBot.Item;
+﻿using AdventureBot.Item;
 using AdventureBot.Messenger;
 using AdventureBot.Room;
 using AdventureBot.Room.BetterRoom;
@@ -9,14 +8,10 @@ using Content.Items;
 
 namespace Content.Rooms
 {
-    [Available(Id, Difficulity.Any)]
-    public class Portal : BetterRoomBase
+    [Available(Id, Difficulity.Any, TownRoot.Id)]
+    public class Portal : BetterRoomBase<Portal>
     {
         public const string Id = "room/portal";
-
-        public Portal() : base(typeof(Portal))
-        {
-        }
 
         public override string Name => "Портал";
         public override string Identifier => Id;
@@ -31,9 +26,9 @@ namespace Content.Rooms
         }
 
         [Action]
-        public class MainAction : ActionBase
+        public class MainAction : ActionBase<Portal>
         {
-            public MainAction(BetterRoomBase room) : base(room)
+            public MainAction(Portal room) : base(room)
             {
             }
 
@@ -58,9 +53,9 @@ namespace Content.Rooms
         }
 
         [Action(0)]
-        public class BadUser : ActionBase
+        public class BadUser : ActionBase<Portal>
         {
-            public BadUser(BetterRoomBase room) : base(room)
+            public BadUser(Portal room) : base(room)
             {
             }
 
@@ -77,9 +72,9 @@ namespace Content.Rooms
         }
 
         [Action(1)]
-        public class GoodUser : ActionBase
+        public class GoodUser : ActionBase<Portal>
         {
-            public GoodUser(BetterRoomBase room) : base(room)
+            public GoodUser(Portal room) : base(room)
             {
             }
 

@@ -11,14 +11,10 @@ namespace AdventureBot.User
     [MessagePackObject]
     public class QuestManager
     {
-        [Key("quests")] private Dictionary<string, Dictionary<Guid, QuestInfo>> _quests =
+        [Key("quests")] private readonly Dictionary<string, Dictionary<Guid, QuestInfo>> _quests =
             new Dictionary<string, Dictionary<Guid, QuestInfo>>();
 
         [IgnoreMember] internal User User;
-
-        [IgnoreMember]
-        public ImmutableDictionary<string, ImmutableDictionary<Guid, QuestInfo>> Quests =>
-            _quests.ToDictionary(kv => kv.Key, kv => kv.Value.ToImmutableDictionary()).ToImmutableDictionary();
 
         [SerializationConstructor]
         public QuestManager(Dictionary<string, Dictionary<Guid, QuestInfo>> quests)
@@ -30,6 +26,10 @@ namespace AdventureBot.User
         {
             User = user;
         }
+
+        [IgnoreMember]
+        public ImmutableDictionary<string, ImmutableDictionary<Guid, QuestInfo>> Quests =>
+            _quests.ToDictionary(kv => kv.Key, kv => kv.Value.ToImmutableDictionary()).ToImmutableDictionary();
 
         public Guid BeginQuest(string id)
         {

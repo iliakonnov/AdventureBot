@@ -1,5 +1,4 @@
 ﻿using AdventureBot;
-using AdventureBot.Item;
 using AdventureBot.Messenger;
 using AdventureBot.User;
 
@@ -20,7 +19,8 @@ namespace Content.Rooms.MegaMonster.Room
                     SwitchAction(user, NotEnoughGold);
                 }
 
-                SendMessage(user, $"Монстр желает заполучить {stats.Stats.Gold.Format()} золота. Готовы попрощаться с деньгами?",
+                SendMessage(user,
+                    $"Монстр желает заполучить {stats.Stats.Gold.Format()} золота. Готовы попрощаться с деньгами?",
                     GetButtons(user));
             }
         }

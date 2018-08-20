@@ -3,7 +3,7 @@ using AdventureBot.User;
 
 namespace Content.Rooms
 {
-    [Available("monster/CreepMelee", Difficulity.Easy)]
+    [Available("monster/CreepMelee", Difficulity.Easy, TownRoot.Id)]
     public class MonsterTemplate : MonsterBase
     {
         public const string Id = "monster/CreepMelee";

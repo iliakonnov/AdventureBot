@@ -8,7 +8,7 @@ using Content.Items;
 
 namespace Content.Rooms
 {
-    [Available(Id, Difficulity.Easy | Difficulity.Medium)]
+    [Available(Id, Difficulity.Easy | Difficulity.Medium, TownRoot.Id)]
     public class Wedding : RoomBase
     {
         public const string Id = "room/wedding";
@@ -65,7 +65,7 @@ namespace Content.Rooms
         }
     }
 
-    [Available(Id, Difficulity.Hard)]
+    [Available(Id, Difficulity.Hard, TownRoot.Id)]
     public class HardWedding : Wedding
     {
         public override bool OnLeave(User user)

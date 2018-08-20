@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using AdventureBot.User.Stats;
 using AdventureBot.UserManager;
@@ -16,13 +15,14 @@ namespace AdventureBot
 
     public class TopPlayers : Singleton<TopPlayers>
     {
+        private const decimal LevelMultiplier = 1000000000000000000000M;
+
+        private Dictionary<TopParam, SortedByValueDictionary<UserId, decimal>> _top;
+
         public IReadOnlyDictionary<TopParam, IReadOnlyList<KeyValuePair<UserId, decimal>>> Top => _top.ToDictionary(
             keyValue => keyValue.Key,
             keyValue => keyValue.Value.Sorted
         );
-
-        private Dictionary<TopParam, SortedByValueDictionary<UserId, decimal>> _top;
-        private const decimal LevelMultiplier = 1000000000000000000000M;
 
         internal void Initialize()
         {
@@ -31,7 +31,7 @@ namespace AdventureBot
                 {TopParam.Gold, new SortedByValueDictionary<UserId, decimal>()},
                 {TopParam.Monsters, new SortedByValueDictionary<UserId, decimal>()},
                 {TopParam.Rooms, new SortedByValueDictionary<UserId, decimal>()},
-                {TopParam.Level, new SortedByValueDictionary<UserId, decimal>()},
+                {TopParam.Level, new SortedByValueDictionary<UserId, decimal>()}
             };
             foreach (var userId in DatabaseConnection.GetUsersList())
             {
@@ -44,7 +44,8 @@ namespace AdventureBot
 
             UserLevel.OnChanged += (user, level) =>
             {
-                _top[TopParam.Level].Add(user.Info.UserId, PackLevel(user.Info.Level.Level, user.Info.Level.ExpirenceCollected));
+                _top[TopParam.Level].Add(user.Info.UserId,
+                    PackLevel(user.Info.Level.Level, user.Info.Level.ExpirenceCollected));
             };
 
             Statistics.OnChanged += user =>
@@ -69,7 +70,7 @@ namespace AdventureBot
             // 10 772 173 lvl      =  999999874632709393373.6 exp, so multiply level by
             // 10^int(log10(exp)+1)= 1000000000000000000000
             // And 10 772 173 * 1000000000000000000000 + 999999874632709393373.6 is max possible decimal (lvl + 1 will overflow)
-            
+
             if (level > 10_772_173)
             {
                 return decimal.MaxValue;

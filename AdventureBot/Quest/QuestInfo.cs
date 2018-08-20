@@ -20,7 +20,7 @@ namespace AdventureBot.Quest
         {
             Identifier = identifier;
             QuestId = questId;
-            
+
             var quest = ObjectManager<IQuest>.Instance.Get<QuestManager>().Get(identifier);
             Quest = quest ?? throw new ArgumentException($"Quest with identifier '{identifier}' not found!");
         }

@@ -8,7 +8,7 @@ using Content.Items;
 
 namespace Content.Rooms
 {
-    [Available(Id, Difficulity.Hard)]
+    [Available(Id, Difficulity.Hard, TownRoot.Id)]
     public class Voldemort : MonsterBase
     {
         public const string Id = "monster/voldemort";
@@ -38,7 +38,7 @@ namespace Content.Rooms
             var no = (int?) (Serializable.Int) GlobalVariables.Variables.Get("voldemort_no") ?? 1;
             var time = DateTimeOffset.FromUnixTimeSeconds(
                 (int?) (Serializable.Long) GlobalVariables.Variables.Get("voldemort_time") ?? 0);
-            
+
             var name = "неизвестного";
             var playerId = GlobalVariables.Variables.Get("voldemort_killer");
             if (playerId != null)
@@ -68,7 +68,7 @@ namespace Content.Rooms
             GlobalVariables.Variables.Set("voldemort_time",
                 new Serializable.Long(DateTimeOffset.Now.ToUnixTimeSeconds()));
             GlobalVariables.Variables.Set("voldemort_killer", user.Info.UserId);
-            
+
             user.ItemManager.Add(new ItemInfo(ElderWand.Id, 1));
         }
     }

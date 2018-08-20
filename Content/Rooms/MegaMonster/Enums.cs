@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using AdventureBot;
 
 namespace Content.Rooms.MegaMonster
 {

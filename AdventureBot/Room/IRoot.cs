@@ -8,11 +8,11 @@ namespace AdventureBot.Room
         {
         }
     }
-    
+
     public class RootManager : StorageManager<IRoot, RootAttribute>
     {
     }
-    
+
     public interface IRoot
     {
         string Identifier { get; }

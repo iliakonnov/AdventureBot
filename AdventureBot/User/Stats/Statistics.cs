@@ -34,7 +34,7 @@ namespace AdventureBot.User.Stats
             RoomsCount += 1;
             OnChanged?.Invoke(User);
         }
-        
+
         public void MonsterKilled()
         {
             MonsterCount += 1;

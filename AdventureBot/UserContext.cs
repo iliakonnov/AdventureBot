@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Timers;
-using AdventureBot.Messenger;
 using AdventureBot.UserManager;
 using NLog;
 
@@ -64,6 +63,7 @@ namespace AdventureBot
             {
                 return false;
             }
+
             _unlinked.LinkedTo = null;
             User = _unlinked;
             return true;

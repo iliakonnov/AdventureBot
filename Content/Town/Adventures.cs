@@ -89,7 +89,9 @@ namespace Content.Town
         private static List<string> GetRooms(Difficulity difficulity)
         {
             return GetAllRooms().Items()
-                .Where(room => room.Attribute is AvailableAttribute attr && (attr.Difficulity & difficulity) != 0)
+                .Where(room => room.Attribute is AvailableAttribute attr
+                               && (attr.Difficulity & difficulity) != 0
+                               && attr.RootId == TownRoot.Id)
                 .OrderBy(room => room.Identificator)
                 .Select(room => room.Identificator)
                 .ToList();

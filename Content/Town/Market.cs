@@ -49,7 +49,7 @@ namespace Content.Town
                 user.RoomManager.Leave();
                 return;
             }
-            
+
             SwitchAction(user, null);
             user.MessageManager.ShownStats = ShownStats.Gold;
             SendMessage(user, "Вы пришли на рынок. Тут есть много всего.", GetButtons(user));

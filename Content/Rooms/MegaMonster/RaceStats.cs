@@ -65,12 +65,12 @@ namespace Content.Rooms.MegaMonster
             };
 
         public readonly List<string> Modifiers = new List<string>();
-
-        public string Name;
+        public decimal Damage;
         public Level Defence;
         public Place DefencedPlaces;
-        public decimal Damage;
         public decimal Health;
+
+        public string Name;
 
         private void Modify(MutateResult mutate, MonsterProperty property)
         {
@@ -224,6 +224,7 @@ namespace Content.Rooms.MegaMonster
                         default:
                             throw new ArgumentOutOfRangeException(nameof(newVal), newVal, null);
                     }
+
                     break;
                 case MonsterProperty.Artifact:
                 case MonsterProperty.DefenceLevel:
@@ -239,7 +240,8 @@ namespace Content.Rooms.MegaMonster
 
         public override string ToString()
         {
-            return $"{nameof(Modifiers)}: {Modifiers}, {nameof(Name)}: {Name}, {nameof(Defence)}: {Defence}, {nameof(DefencedPlaces)}: {DefencedPlaces}, {nameof(Damage)}: {Damage}, {nameof(Health)}: {Health}";
+            return
+                $"{nameof(Modifiers)}: {Modifiers}, {nameof(Name)}: {Name}, {nameof(Defence)}: {Defence}, {nameof(DefencedPlaces)}: {DefencedPlaces}, {nameof(Damage)}: {Damage}, {nameof(Health)}: {Health}";
         }
     }
 }

@@ -6,6 +6,7 @@ namespace AdventureBot.UserManager
     public static class Flusher
     {
         private static readonly TimeSpan FlushDelay = new TimeSpan(0, 0, 10);
+
         // ReSharper disable once PrivateFieldCanBeConvertedToLocalVariable (It must not be disposed by GC)
         private static Timer FlushTimer;
         private static DateTime _lastFlushed = DateTime.Now;
@@ -15,7 +16,7 @@ namespace AdventureBot.UserManager
             FlushTimer = new Timer(FlushDelay.TotalSeconds)
             {
                 AutoReset = true,
-                Interval = FlushDelay.TotalSeconds,
+                Interval = FlushDelay.TotalSeconds
             };
             FlushTimer.Elapsed += (sender, args) => Flush();
             FlushTimer.Start();
@@ -27,6 +28,7 @@ namespace AdventureBot.UserManager
             {
                 return;
             }
+
             _lastFlushed = DateTime.Now;
             Cache.Instance.FlushAll();
         }

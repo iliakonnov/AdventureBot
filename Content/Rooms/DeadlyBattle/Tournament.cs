@@ -9,13 +9,9 @@ using AdventureBot.User.Stats;
 
 namespace Content.Rooms.DeadlyBattle
 {
-    [Available(Id, Difficulity.Medium)]
-    public class Tournament : BetterRoomBase
+    [Available(Id, Difficulity.Medium, TownRoot.Id)]
+    public class Tournament : BetterRoomBase<Tournament>
     {
-        public Tournament() : base(typeof(Tournament))
-        {
-        }
-
         public const string Id = "room/deadly_battle";
         public override string Name => "Турнир \"Смертельная битва\"";
         public override string Identifier => Id;
@@ -45,7 +41,7 @@ namespace Content.Rooms.DeadlyBattle
         {
             if (GetRoomVariables(user).Get<Serializable.Bool>("mirror") == true)
             {
-                GetRoomVariables(user).Remove("mirror");    
+                GetRoomVariables(user).Remove("mirror");
                 SendMessage(user, "Хватит смотрется в зеркало!", GetButtons(user));
                 return;
             }
@@ -86,16 +82,16 @@ namespace Content.Rooms.DeadlyBattle
         }
 
         [Action]
-        public class Main : ActionBase
+        public class Main : ActionBase<Tournament>
         {
-            public Main(BetterRoomBase room) : base(room)
+            public Main(Tournament room) : base(room)
             {
             }
 
             [Button("Да")]
             public void Yes(User user, RecivedMessage message)
             {
-                ((Tournament) Room).BeginBattle(user);
+                Room.BeginBattle(user);
             }
 
             [Button("Нет")]
@@ -108,16 +104,16 @@ namespace Content.Rooms.DeadlyBattle
         }
 
         [Action(0)]
-        public class ConfirmExit : ActionBase
+        public class ConfirmExit : ActionBase<Tournament>
         {
-            public ConfirmExit(BetterRoomBase room) : base(room)
+            public ConfirmExit(Tournament room) : base(room)
             {
             }
 
             [Button("Давай-ка попробуем")]
             public void Yes(User user, RecivedMessage message)
             {
-                ((Tournament) Room).BeginBattle(user);
+                Room.BeginBattle(user);
             }
 
             [Button("Точно нет")]
@@ -128,16 +124,16 @@ namespace Content.Rooms.DeadlyBattle
         }
 
         [Action(1)]
-        public class Rest : ActionBase
+        public class Rest : ActionBase<Tournament>
         {
-            public Rest(BetterRoomBase room) : base(room)
+            public Rest(Tournament room) : base(room)
             {
             }
 
             [Button("Идти сражаться")]
             public void Continue(User user, RecivedMessage message)
             {
-                ((Tournament) Room).BeginBattle(user);
+                Room.BeginBattle(user);
             }
 
             [Button("Уйти отсюда")]

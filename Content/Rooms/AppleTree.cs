@@ -8,7 +8,7 @@ using Content.Items;
 
 namespace Content.Rooms
 {
-    [Available(Id, Difficulity.Any)]
+    [Available(Id, Difficulity.Any, TownRoot.Id)]
     public class AppleTree : RoomBase
     {
         public const string Id = "room/appletree";

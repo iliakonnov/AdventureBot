@@ -6,7 +6,7 @@ using AdventureBot.User;
 
 namespace Content.Rooms.MegaMonster.Room
 {
-    [Available(Id, Difficulity.Medium)]
+    [Available(Id, Difficulity.Medium, TownRoot.Id)]
     public partial class MegaMonsterRoom : RoomBase, IMonster
     {
         public const string Id = "room/mega_monster";

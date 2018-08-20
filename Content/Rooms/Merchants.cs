@@ -10,7 +10,7 @@ using Content.Town;
 
 namespace Content.Rooms
 {
-    [Available(Id, Difficulity.Any)]
+    [Available(Id, Difficulity.Any, TownRoot.Id)]
     public class Merchants : RoomBase
     {
         private const int ItemCount = 3;
@@ -31,7 +31,7 @@ namespace Content.Rooms
                                 {
                                     return;
                                 }
-                                
+
                                 SwitchAction(user, Shop);
                                 HandleAction(user, message);
                             }
@@ -88,7 +88,7 @@ namespace Content.Rooms
                                 SendMessage(user, "Торговцы грустно поплелись дальше");
                                 user.RoomManager.Leave();
                             }
-                        },
+                        }
                     }
                 }
             };
@@ -109,6 +109,7 @@ namespace Content.Rooms
                 SendMessage(user, "Торговцы грустно бредут дальше и не обращают на тебя внимания", GetButtons(user));
                 return;
             }
+
             SendMessage(
                 user,
                 "Перед тобой расположился небольшой караван, состоящий из трех верблюдов и нескольких купцов. Под листвой ветвистого дуба расположилась миниатюрная, но необыкновенно красивая палатка. От этого места так и веет восточным колоритом."

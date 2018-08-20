@@ -5,13 +5,13 @@ namespace Content.Rooms.MegaMonster
 {
     public class StatsContext : IDisposable
     {
-        public readonly ResultStats Stats;
         private readonly VariableContainer _roomVariables;
+        public readonly ResultStats Stats;
 
         public StatsContext(Random random, VariableContainer roomVariables)
         {
             _roomVariables = roomVariables;
-            
+
             var container = roomVariables.Get<VariableContainer>("monster_stats");
             Stats = container != null
                 ? ResultStats.Deserialize(container)

@@ -5,17 +5,17 @@ namespace AdventureBot.Room.BetterRoom
     [AttributeUsage(AttributeTargets.Class)]
     public class ActionAttribute : Attribute
     {
-        public int? Index { get; }
-
         public ActionAttribute(int index)
         {
             Index = index;
         }
-        
+
         public ActionAttribute()
         {
             Index = null;
         }
+
+        public int? Index { get; }
     }
 
     [AttributeUsage(AttributeTargets.Method)]
@@ -25,15 +25,15 @@ namespace AdventureBot.Room.BetterRoom
 
     public class ButtonAttribute : MessageHandlerAttribute
     {
-        public string Text { get; }
-        
         public ButtonAttribute(string text)
         {
             Text = text;
         }
+
+        public string Text { get; }
     }
-    
+
     public class FallbackAttribute : MessageHandlerAttribute
-    {   
+    {
     }
 }

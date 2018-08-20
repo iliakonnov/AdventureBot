@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Text;
 using AdventureBot;
 using AdventureBot.Messenger;
+using AdventureBot.NameGenerator;
 using AdventureBot.Room;
 using AdventureBot.User;
 using AdventureBot.User.Stats;
@@ -79,10 +79,7 @@ namespace Content.Town
                     {
                         {
                             "Сгенерировать случайное",
-                            (user, message) =>
-                            {
-                                user.Info.Name = AdventureBot.NameGenerator.Generator.Generate(user.Random);
-                            }
+                            (user, message) => { user.Info.Name = Generator.Generate(user.Random); }
                         }
                     }
                 }
@@ -141,7 +138,7 @@ namespace Content.Town
                             openedTag = tag;
                             tagFound = true;
                             i += opening.Length;
-                            break;  // breaks out from inner loop: foreach (var tag in tags)
+                            break; // breaks out from inner loop: foreach (var tag in tags)
                         }
 
                         var closing = $"</{tag}>";
@@ -158,7 +155,7 @@ namespace Content.Town
                             openedTag = null;
                             tagFound = true;
                             i += closing.Length;
-                            break;  // breaks out from inner loop: foreach (var tag in tags)
+                            break; // breaks out from inner loop: foreach (var tag in tags)
                         }
                     }
 
