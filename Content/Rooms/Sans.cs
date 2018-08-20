@@ -24,7 +24,12 @@ namespace Content.Rooms
         {
             var variables = GetRoomVariables(user);
             var count = (int) variables.Get<Serializable.Int>("count");
-            if (count < 15)
+            if (count < 1)
+            {
+                SendMessage(user, "– Ты действительно думал, что я просто буду стоять на месте?");
+                variables.Set("count", new Serializable.Int(count + 1));
+            }
+            else if (count < 15)
             {
                 SendMessage(user,
                     user.Random.Next(0, 2) == 0
@@ -40,6 +45,9 @@ namespace Content.Rooms
 
         protected override void Enter(User user, string[][] buttons)
         {
+            var variables = GetRoomVariables(user);
+            variables.Set("count", new Serializable.Int(0));
+            
             if (user.Info.CurrentStats.GetStat(StatsProperty.Karma) >= 15)
             {
                 SendMessage(user, "И тебе повезло, что его друзья не жаловались на тебя. Иди с миром.", buttons);
@@ -48,7 +56,7 @@ namespace Content.Rooms
             else
             {
                 SendMessage(user,
-                    "– Какой прекрасный день! Травка зеленеет, птички щебечут. В такой день дети вроде тебя должны... ГОРЕТЬ В АДУ",
+                    "– Какой прекрасный день! Травка зеленеет, птички щебечут. В такой день дети вроде тебя должны... <b>ГОРЕТЬ В АДУ</b>",
                     buttons);
             }
         }
