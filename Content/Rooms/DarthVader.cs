@@ -10,10 +10,9 @@ using Content.Items;
 namespace Content.Rooms
 {
     [Available(Id, Difficulity.Hard)]
-    public class DarthVader : RoomBase, IMonster
+    public class DarthVader : RoomBase
     {
         public const string Id = "monster/vader";
-        private readonly IMonster _battleRoom = new BattleRoom();
 
         public DarthVader()
         {
@@ -41,8 +40,7 @@ namespace Content.Rooms
                             "Достать оружие", (user, message) =>
                             {
                                 SendMessage(user, "<b>щелк</b>");
-                                SwitchAction(user, Battle);
-                                _battleRoom.OnEnter(user);
+                                user.RoomManager.Go(VaderBattle.Id);
                             }
                         }
                     }
@@ -62,29 +60,12 @@ namespace Content.Rooms
             SendMessage(user, "— Я твой отец!", GetButtons(user));
         }
 
-        public override bool OnLeave(User user)
-        {
-            base.OnLeave(user);
-
-            return _battleRoom.OnLeave(user);
-        }
-
         public override void OnMessage(User user, RecivedMessage message)
         {
             if (!HandleAction(user, message))
             {
                 HandleButtonAlways(user, message);
             }
-        }
-
-        public void MakeDamage(User user, decimal damage)
-        {
-            _battleRoom.MakeDamage(user, damage);
-        }
-
-        public decimal GetCurrentHealth(User user)
-        {
-            return _battleRoom.GetCurrentHealth(user);
         }
 
         private void PreBattle(User user, RecivedMessage message)
@@ -94,49 +75,50 @@ namespace Content.Rooms
 
         private void Battle(User user, RecivedMessage message)
         {
-            _battleRoom.OnMessage(user, message);
+            // For old users
+            user.RoomManager.Go(VaderBattle.Id);
+        }
+    }
+    
+    [Room(Id)]
+    public class VaderBattle : MonsterBase
+    {
+        public const string Id = "monster/vader/battle";
+        public override string Name => "Отец";
+        public override string Identifier => Id;
+        protected override decimal Health => 550;
+
+        protected override decimal GetDamage(User user)
+        {
+            return 40;
         }
 
-        private class BattleRoom : MonsterBase
+        protected override void Enter(User user, string[][] buttons)
         {
-            public const string Id = "monster/vader/battle";
-            public override string Name => "Битва с отцом";
-            public override string Identifier => Id;
-            protected override decimal Health => 550;
+            SendMessage(user, "Световой меч озарил все вокруг своим кроваво-красным светом.", buttons);
+        }
 
-            protected override decimal GetDamage(User user)
-            {
-                return 40;
-            }
+        protected override bool OnRunaway(User user)
+        {
+            return true;
+        }
 
-            protected override void Enter(User user, string[][] buttons)
+        protected override void OnWon(User user)
+        {
+            var rand = user.Random.Next(3);
+            switch (rand)
             {
-                SendMessage(user, "Световой меч озарил все вокруг своим кроваво-красным светом.", buttons);
-            }
-
-            protected override bool OnRunaway(User user)
-            {
-                return true;
-            }
-
-            protected override void OnWon(User user)
-            {
-                var rand = user.Random.Next(3);
-                switch (rand)
-                {
-                    case 0:
-                        user.ItemManager.Add(new ItemInfo(VaderRespirator.Id, 1));
-                        break;
-                    case 1:
-                        user.ItemManager.Add(new ItemInfo(VaderSword.Id, 1));
-                        break;
-                    case 2:
-                        user.ItemManager.Add(new ItemInfo(VaderCloak.Id, 1));
-                        break;
-                    // ReSharper disable once RedundantEmptySwitchSection
-                    default:
-                        throw new ArgumentOutOfRangeException(nameof(rand), rand, "rand > 2 || rand < 0");
-                }
+                case 0:
+                    user.ItemManager.Add(new ItemInfo(VaderRespirator.Id, 1));
+                    break;
+                case 1:
+                    user.ItemManager.Add(new ItemInfo(VaderSword.Id, 1));
+                    break;
+                case 2:
+                    user.ItemManager.Add(new ItemInfo(VaderCloak.Id, 1));
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(rand), rand, "rand > 2 || rand < 0");
             }
         }
     }
