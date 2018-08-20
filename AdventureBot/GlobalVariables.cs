@@ -34,7 +34,7 @@ namespace AdventureBot
 
         public static VariableContainer Variables { get; }
 
-        private static void Flush()
+        internal static void Flush()
         {
             File.WriteAllBytes(Filename, MessagePackSerializer.Serialize(Variables));
         }

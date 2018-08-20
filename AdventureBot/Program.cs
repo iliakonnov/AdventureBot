@@ -23,6 +23,8 @@ namespace AdventureBot
         {
             Logger.Info("Saving users...");
             Cache.Instance.FlushAll();
+            Logger.Info("Saving variables...");
+            GlobalVariables.Flush();
             Logger.Debug("Done!");
             LogManager.Shutdown();
             _work = false;
