@@ -100,7 +100,7 @@ namespace Telegram
             var text = message.Text;
             if (recivedMessage?.ReplyUserId != null)
             {
-                text += $"\n[@](tg://user?id={recivedMessage.ReplyUserId})";
+                text += $"\n<a href=\"tg://user?id={recivedMessage.ReplyUserId}\">@</a>";
             }
 
             try

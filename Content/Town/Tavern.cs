@@ -156,7 +156,7 @@ namespace Content.Town
             public void Gossip(User user, RecivedMessage message)
             {
                 Room.SendMessage(user,
-                    "– Знаешь, сплетни - это не мое, но зеваки шепчут, что самая достоверная информация о делах в городе есть в [@AdventureTavern](https://t.me/AdventureTavern)",
+                    "– Знаешь, сплетни - это не мое, но зеваки шепчут, что самая достоверная информация о делах в городе есть в <a href=\"https://t.me/AdventureTavern\">@AdventureTavern</a>",
                     Room.GetButtons(user));
             }
         }
