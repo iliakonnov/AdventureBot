@@ -6,8 +6,7 @@ using Content.Halls;
 
 namespace Content.Rooms
 {
-    //[Available(Id, Difficulity.Any, TownRoot.Id)]
-    [Room(Id)]
+    [Available(Id, Difficulity.Upper, TownRoot.Id)]
     public class Halls : BetterRoomBase<Halls>
     {
         public const string Id = "room/halls";
