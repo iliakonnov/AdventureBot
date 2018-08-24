@@ -13,7 +13,7 @@ namespace Content.Halls.Items
     public class Revolver : ItemBase
     {
         public const string Id = "halls/revolver";
-        public override StructFlag<BuyGroup> Group { get; }
+        public override StructFlag<BuyGroup> Group => new StructFlag<BuyGroup>();
         public override string Name => "Револьвер «Искупление»";
         public override string Description => string.Empty;
         public override decimal? Price => 600;
