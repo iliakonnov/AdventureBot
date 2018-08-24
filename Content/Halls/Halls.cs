@@ -3,6 +3,7 @@ using AdventureBot;
 using AdventureBot.Room;
 using AdventureBot.Room.BetterRoom;
 using AdventureBot.User;
+using Content.Halls.Items;
 
 namespace Content.Halls
 {
@@ -15,7 +16,7 @@ namespace Content.Halls
 
         public override void OnEnter(User user)
         {
-            SendMessage(user, "Добро пожаловать в Чертоги! Рады вас видеть!", GetButtons(user));
+            SendMessage(user, "<b>Добро пожаловать в Чертоги! Рады вас видеть!</b>", GetButtons(user));
             Explore(user);
         }
 
@@ -23,19 +24,29 @@ namespace Content.Halls
         {
             var currentRoom = GetRoomVariables(user).Get<Serializable.Int>("location") ?? 0;
             GetRoomVariables(user).Set("location", new Serializable.Int(currentRoom + 1));
-            SendMessage(user, "Рады вас видеть живыми!");
+            SendMessage(user, "<b>Рады вас видеть живыми!</b>");
             Explore(user);
         }
 
         private void Explore(User user)
-        {
+        {   
+            var difficulity = Difficulity.Any;
+            if (user.ItemManager.Get(NativeCross.Id) != null)
+            {
+                difficulity = Difficulity.Lower;
+            }
+
             var rooms = GetAllRooms().Items()
                 .Where(room => room.Attribute is AvailableAttribute attr
+                               && (attr.Difficulity & difficulity) != 0
                                && attr.RootId == HallsRoot.Id)
                 .OrderBy(room => room.Identificator)
                 .Select(room => room.Identificator)
                 .ToList();
-            user.RoomManager.Go(rooms[user.Random.Next(rooms.Count)]);
+            var selected = rooms[user.Random.Next(rooms.Count)];
+            var selectedRoom = GetAllRooms().Get(selected);
+            SendMessage(user, $"<b>Дальше вам прмиком к {selectedRoom?.Name}! Будем ждать!</b>");
+            user.RoomManager.Go(selected);
         }
     }
 }

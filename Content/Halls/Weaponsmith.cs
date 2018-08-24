@@ -1,22 +1,51 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using AdventureBot.Item;
 using AdventureBot.Messenger;
 using AdventureBot.Room;
 using AdventureBot.Room.BetterRoom;
 using AdventureBot.User;
+using AdventureBot.User.Stats;
+using Content.Halls.Items;
 using Content.Town;
 
 namespace Content.Halls
 {
-    [Room(Id)]
+    [Available(Id, Difficulity.Any, HallsRoot.Id)]
     public class Weaponsmith : BetterRoomBase<Weaponsmith>
     {
         public const string Id = "halls/weaponsmith";
 
-        private static readonly Recipe[] Recipes = { };
+        private static readonly Recipe[] Recipes =
+        {
+            new Recipe(600, Revolver.Id, new Dictionary<string, int>
+            {
+                {FallenAngelShard.Id, 20},
+                {DemonicEssence.Id, 5}
+            }),
+            new Recipe(100, DemonSlayer.Id, new Dictionary<string, int>
+            {
+                {ObsidianPlate.Id, 15},
+                {DemonicEssence.Id, 15},
+                {OutcastChain.Id, 1}
+            }),
+            new Recipe(1500, FighterArmor.Id, new Dictionary<string, int>
+            {
+                {FallenAngelShard.Id, 50},
+                {ObsidianPlate.Id, 20},
+                {DemonicEssence.Id, 20},
+                {OutcastChain.Id, 5}
+            }),
+        };
 
-        private static readonly string[] Stock = { };
+        private static readonly string[] Stock =
+        {
+            HolyBullet.Id,
+            BottleOfLight.Id,
+            NativeCross.Id,
+            HolyBomb.Id
+        };
 
         public override string Name => "Оружейник";
         public override string Identifier => Id;
@@ -24,6 +53,7 @@ namespace Content.Halls
         public override void OnEnter(User user)
         {
             SwitchAction<MainAction>(user);
+            user.MessageManager.ShownStats = ShownStats.Health | ShownStats.Gold;
             SendMessage(user,
                 "Бродя по окрестностям, ты наткнулся на ветхую мастерскую, однако ничуть не заброшенную, как все остальные одинокие строения в этих местах. Из дымохода валил густой дым, молот со звоном падал на наковальню. Дверь мастерской отворилась, и из хижины вышел огромный бородатый мужчина средних лет, опоясанный кожаным фартуком. Одна его рука сжимала рукоять молота, а другая утирала пот с лица.");
             SendMessage(user,
@@ -92,14 +122,14 @@ namespace Content.Halls
                 var itemManager = GetAllItems();
                 foreach (var recipe in Recipes)
                 {
-                    var requirements = new StringBuilder();
+                    var requirements = new List<string>();
                     foreach (var kv in recipe.Input)
                     {
-                        requirements.Append($"{itemManager.Get(kv.Key)?.Name} (x{kv.Value})");
+                        requirements.Add($"{itemManager.Get(kv.Key)?.Name} (x{kv.Value})");
                     }
 
                     Room.SendMessage(user,
-                        $"{itemManager.Get(recipe.Output)?.Name} за {recipe.Gold} золота\nТребуется {requirements}",
+                        $"{itemManager.Get(recipe.Output)?.Name} за {recipe.Gold} золота\nТребуется: {string.Join(", ", requirements)}",
                         buttons);
                 }
             }
@@ -107,8 +137,25 @@ namespace Content.Halls
             [Button("Мне нужно перераспределить предметы")]
             public void MirrorAction(User user, RecivedMessage message)
             {
-                Room.SendMessage(user, "-- В мастерской есть зеркало. Чувствуй себя как дома.");
+                Room.SendMessage(user, "— В мастерской есть зеркало. Чувствуй себя как дома.");
                 user.RoomManager.Go(Mirror.Id);
+            }
+
+            [Button("Как отсюда выбраться?!")]
+            public void LeaveHalls(User user, RecivedMessage message)
+            {
+                Room.SendMessage(user, "Оружейник ударил по вам своим молотом и...");
+                user.Info.ChangeStats(StatsProperty.Health, 1, true);
+                if (user.Random.NextDouble() < 0.05) // 5%
+                {
+                    Room.SendMessage(user, "... и вы чуть не умерли");
+                    user.RoomManager.Leave();
+                }
+                else
+                {
+                    Room.SendMessage(user, "... и вы перенеслись в Город!");
+                    user.RoomManager.ChangeRoot(TownRoot.Id);
+                }
             }
 
             [Button("Нет, мне нужно идти")]

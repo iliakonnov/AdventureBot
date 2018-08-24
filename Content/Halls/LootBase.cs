@@ -20,7 +20,7 @@ namespace Content.Halls
 
     public class Recipe
     {
-        public Recipe(decimal gold, Dictionary<string, int> input, string output)
+        public Recipe(decimal gold, string output, Dictionary<string, int> input)
         {
             Gold = gold;
             Input = input;

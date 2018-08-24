@@ -6,7 +6,7 @@ using AdventureBot.User;
 namespace Content.Halls
 {
     [Available(Id, Difficulity.Any, HallsRoot.Id)]
-    public class ObsidianGolem : MonsterBase
+    public class ObsidianGolem : EvilMonsterBase
     {
         public const string Id = "halls/ObsidianGolem";
 
@@ -24,11 +24,6 @@ namespace Content.Halls
             SendMessage(user,
                 "По пути ты оказался на широком плато, усеянном небольшими вулканоподобными кратерами. Один из таких кратеров в двух метрах от тебя с треском и скрипом собрался в огромного обсидианового голема, пылающего магмой. Начинает казаться, что все в Чертогах пытается тебя убить.",
                 buttons);
-        }
-
-        protected override bool OnRunaway(User user)
-        {
-            return false;
         }
 
         protected override void OnWon(User user)

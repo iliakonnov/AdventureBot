@@ -15,7 +15,7 @@ namespace Content.Rooms
         public override string Name => "Чертоги";
         public override string Identifier => Id;
 
-        public override void OnMessage(User user, RecivedMessage message)
+        public override void OnEnter(User user)
         {
             SwitchAction<MainAction>(user);
             SendMessage(user,
