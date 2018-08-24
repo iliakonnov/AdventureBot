@@ -33,6 +33,11 @@ namespace AdventureBot.Room
                     var reward = vars.Gold * percent;
                     using (var ctx = new UserContext(usr.UserId))
                     {
+                        if (percent > 0.3M)
+                        {
+                            MonsterBase.MonsterKilled(ctx, this);
+                        }
+
                         ctx.User.Info.Gold += reward;
                         SendMessage(ctx.User,
                             $"<b>Вы получаете {reward.Format()} ({(percent * 100).Format()}%) монет за вклад в убийство босса {Name}!</b>");
@@ -65,7 +70,8 @@ namespace AdventureBot.Room
                 DamageDealed = 0
             });
             Save(vars);
-            SendMessage(user, $"Вы попали к боссу! У него {vars.Gold} золота и {vars.Health} здоровья",
+            SendMessage(user,
+                $"Вы попали к боссу! У него {vars.Gold.Format()} золота и {vars.Health.Format()} здоровья",
                 GetActions(user));
         }
 
@@ -91,7 +97,7 @@ namespace AdventureBot.Room
                 user.Info.MakeDamage(damage);
 
                 SendMessage(user,
-                    $"Босс наносит вам {damage} урона! У него {vars.Gold} золота и {vars.Health} здоровья",
+                    $"Босс наносит вам {damage.Format()} урона! У него {vars.Gold.Format()} золота и {vars.Health.Format()} здоровья",
                     GetActions(user));
 
                 return;
