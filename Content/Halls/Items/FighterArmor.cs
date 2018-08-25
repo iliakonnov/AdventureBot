@@ -16,7 +16,7 @@ namespace Content.Halls.Items
         public override StructFlag<BuyGroup> Group => new StructFlag<BuyGroup>();
         public override string Name => "Броня истребителя нечисти";
         public override string Description => string.Empty;
-        public override decimal? Price => null;
+        public override decimal? Price => 2500;
         public override string Identifier => Id;
 
         public override StatsEffect Effect => new StatsEffect(ChangeType.Add, new Dictionary<StatsProperty, decimal>
