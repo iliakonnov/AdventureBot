@@ -191,12 +191,6 @@ namespace Content.Halls
                     return;
                 }
 
-                if (!user.Info.TryDecreaseGold(weapon.Gold))
-                {
-                    Room.SendMessage(user, "Сначала денег подкопи, а потом уже и приходи", Room.GetWeapons());
-                    return;
-                }
-
                 var canUse = true;
                 foreach (var kv in weapon.Input)
                 {
@@ -212,6 +206,12 @@ namespace Content.Halls
                 {
                     Room.SendMessage(user, "У тебя не хватает материалов для изготовления. Приходи, когда соберешь",
                         Room.GetWeapons());
+                    return;
+                }
+                
+                if (!user.Info.TryDecreaseGold(weapon.Gold))
+                {
+                    Room.SendMessage(user, "Сначала денег подкопи, а потом уже и приходи", Room.GetWeapons());
                     return;
                 }
 
