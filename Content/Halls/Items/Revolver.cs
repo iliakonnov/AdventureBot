@@ -16,7 +16,7 @@ namespace Content.Halls.Items
         public override StructFlag<BuyGroup> Group => new StructFlag<BuyGroup>();
         public override string Name => "Револьвер «Искупление»";
         public override string Description => string.Empty;
-        public override decimal? Price => 600;
+        public override decimal? Price => 1000;
         public override string Identifier => Id;
         public override StatsEffect Effect => null;
 
