@@ -96,30 +96,15 @@ namespace Content.Town
                 Room.SwitchAction<MainAction>(user);
 
                 var vars = Room.GetRoomVariables(user);
-                var requestedTime = DateTimeOffset.FromUnixTimeSeconds(vars.Get<Serializable.Long>("time"));
-                var requestsCount = (int) vars.Get<Serializable.Int>("count");
-
-                if (requestsCount > 3)
-                {
-                    if (DateTimeOffset.Now - requestedTime > new TimeSpan(6, 0, 0))
-                    {
-                        vars.Set("time", new Serializable.Long(DateTimeOffset.Now.ToUnixTimeSeconds()));
-                        requestsCount = 0;
-                    }
-                    else
-                    {
-                        Room.SendMessage(user,
-                            "– Похоже, ты разделался со всеми. Ничего, за 6 часов ещё какой-нибудь уродец найдется.",
-                            Room.GetButtons(user));
-                        return;
-                    }
-                }
 
                 var foundQuest = Room.TryFindQuest(user, KillMonster.Id, "_owner");
                 if (foundQuest != null)
                 {
+                    // Quest exists
+
                     if (foundQuest.Item2.IsFinished(user, foundQuest.Item1))
                     {
+                        // Quest exists and finished
                         vars.Remove("questId_owner");
                         user.QuestManager.FinishQuest(KillMonster.Id, foundQuest.Item1);
                         Room.SendMessage(user,
@@ -128,12 +113,39 @@ namespace Content.Town
                         return;
                     }
 
+                    // Quest exists but not finished
                     Room.SendMessage(user,
                         "Приходи за наградой когда выполнишь задание",
                         Room.GetButtons(user));
                     return;
                 }
 
+                // Quest does not exists
+
+                var requestedTime = DateTimeOffset.FromUnixTimeSeconds(vars.Get<Serializable.Long>("time"));
+                var requestsCount = (int) vars.Get<Serializable.Int>("count");
+
+                if (requestsCount > 3)
+                {
+                    // Quest does not exists and more than 3 tries
+
+                    if (DateTimeOffset.Now - requestedTime > new TimeSpan(6, 0, 0))
+                    {
+                        // Quest does not exists and more than 3 tries and time exceeded
+                        vars.Set("time", new Serializable.Long(DateTimeOffset.Now.ToUnixTimeSeconds()));
+                        requestsCount = 0;
+                    }
+                    else
+                    {
+                        // Quest does not exists and more than 3 tries in last 6 hours
+                        Room.SendMessage(user,
+                            "– Похоже, ты разделался со всеми. Ничего, за 6 часов ещё какой-нибудь уродец найдется.",
+                            Room.GetButtons(user));
+                        return;
+                    }
+                }
+
+                // Quest does not exists and *less* than 3 tries in last 6 hours
                 vars.Set("count", new Serializable.Int(requestsCount + 1));
                 var questId = user.QuestManager.BeginQuest(KillMonster.Id);
                 var quest = (KillMonster) user.QuestManager.Quests[KillMonster.Id][questId].Quest;
