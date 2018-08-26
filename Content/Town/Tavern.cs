@@ -6,6 +6,7 @@ using AdventureBot.Messenger;
 using AdventureBot.Room;
 using AdventureBot.Room.BetterRoom;
 using AdventureBot.User;
+using AdventureBot.User.Stats;
 using AdventureBot.UserManager;
 using Content.Quests;
 
@@ -244,8 +245,8 @@ namespace Content.Town
             {
             }
 
-            private void DisplayTop(StringBuilder sb, IEnumerable<KeyValuePair<UserId, decimal>> top,
-                Func<User, KeyValuePair<UserId, decimal>, string> formatter)
+            private static void DisplayTop(StringBuilder sb, IEnumerable<(UserId, DatabaseVariables)> top,
+                Func<User, (UserId, DatabaseVariables), string> formatter)
             {
                 var cnt = 0;
                 foreach (var topPlayer in top)
@@ -255,7 +256,7 @@ namespace Content.Town
                         break;
                     }
 
-                    var usr = UserProxy.GetUnsafe(topPlayer.Key);
+                    var usr = UserProxy.GetUnsafe(topPlayer.Item1);
                     sb.AppendLine($"<b>{cnt}</b>. {formatter(usr, topPlayer)}");
                 }
             }
@@ -264,8 +265,8 @@ namespace Content.Town
             public void ByGold(User user, RecivedMessage message)
             {
                 var top = new StringBuilder();
-                DisplayTop(top, TopPlayers.Instance.Top[TopParam.Gold],
-                    (usr, topPlayer) => $"У {usr.Info.Name} имеется {topPlayer.Value.Format(0)} золота");
+                DisplayTop(top, TopPlayers.GetTop(TopParam.Gold, 10),
+                    (usr, topPlayer) => $"У {usr.Info.Name} имеется {topPlayer.Item2.Gold.Format()} золота");
 
                 Room.SendMessage(user, top.ToString(), Room.GetButtons(user));
             }
@@ -274,8 +275,8 @@ namespace Content.Town
             public void ByRooms(User user, RecivedMessage message)
             {
                 var top = new StringBuilder();
-                DisplayTop(top, TopPlayers.Instance.Top[TopParam.Rooms],
-                    (usr, topPlayer) => $"{usr.Info.Name} побывал в {topPlayer.Value.Format(0)} комнатах");
+                DisplayTop(top, TopPlayers.GetTop(TopParam.Rooms, 10),
+                    (usr, topPlayer) => $"{usr.Info.Name} побывал в {topPlayer.Item2.Rooms} комнатах");
 
                 Room.SendMessage(user, top.ToString(), Room.GetButtons(user));
             }
@@ -284,8 +285,8 @@ namespace Content.Town
             public void ByMonsters(User user, RecivedMessage message)
             {
                 var top = new StringBuilder();
-                DisplayTop(top, TopPlayers.Instance.Top[TopParam.Monsters],
-                    (usr, topPlayer) => $"{usr.Info.Name} убил {topPlayer.Value.Format(0)} монстров");
+                DisplayTop(top, TopPlayers.GetTop(TopParam.Monsters, 10),
+                    (usr, topPlayer) => $"{usr.Info.Name} убил {topPlayer.Item2.Monsters} монстров");
 
                 Room.SendMessage(user, top.ToString(), Room.GetButtons(user));
             }
@@ -294,9 +295,9 @@ namespace Content.Town
             public void ByLevel(User user, RecivedMessage message)
             {
                 var top = new StringBuilder();
-                DisplayTop(top, TopPlayers.Instance.Top[TopParam.Level],
+                DisplayTop(top, TopPlayers.GetTop(TopParam.Level, 10),
                     (usr, topPlayer) =>
-                        $"{usr.Info.Name} достиг {TopPlayers.UnpackLevel(topPlayer.Value).Item1} уровня");
+                        $"{usr.Info.Name} достиг {topPlayer.Item2.Level} уровня");
 
                 Room.SendMessage(user, top.ToString(), Room.GetButtons(user));
             }

@@ -24,9 +24,26 @@ namespace AdventureBot.User.Stats
             ExpirenceCollected = expirenceCollected;
         }
 
-        public int Level { get; private set; }
+        public int Level
+        {
+            get => User.DatabaseVariables.Level;
+            private set
+            {
+                if (User != null) User.DatabaseVariables.Level = value;
+            }
+        }
+
         public decimal ExpirenceRequired { get; private set; }
-        public decimal ExpirenceCollected { get; private set; }
+
+        public decimal ExpirenceCollected
+        {
+            get => User.DatabaseVariables.Experience;
+            private set
+            {
+                if (User != null) User.DatabaseVariables.Experience = value;
+            }
+        }
+
         public static event GameEventHandler<UserLevel> OnChanged;
 
         public void AddXp(decimal xp)

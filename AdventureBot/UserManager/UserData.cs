@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.IO;
 using AdventureBot.ObjectManager;
+using AdventureBot.User;
 using MessagePack;
 using MessagePack.ImmutableCollection;
 using MessagePack.Resolvers;
@@ -11,7 +12,7 @@ namespace AdventureBot.UserManager
 {
     public class UserData
     {
-        public const int LastVersion = 5;
+        private const int LastVersion = 6;
 
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
@@ -23,10 +24,11 @@ namespace AdventureBot.UserManager
             );
         }
 
-        public UserData(UserId id, byte[] data, int version)
+        public UserData(UserId id, byte[] data, DatabaseVariables variables, int version)
         {
             Data = data;
             Id = id;
+            Variables = variables;
             Version = version;
         }
 
@@ -40,35 +42,45 @@ namespace AdventureBot.UserManager
         public byte[] Data { get; }
         public UserId Id { get; }
         public int Version { get; }
+        public DatabaseVariables Variables { get; }
 
         public static UserData Serialize(User.User user)
         {
-            return new UserData(user.Info.UserId, MessagePackSerializer.Serialize(user), LastVersion);
+            return new UserData(
+                user.Info.UserId,
+                MessagePackSerializer.Serialize(user),
+                user.DatabaseVariables,
+                LastVersion);
         }
 
         public User.User Deserialize()
         {
-            if (Data != null)
+            if (Data == null)
             {
-                try
-                {
-                    if (Version == LastVersion)
-                    {
-                        return MessagePackSerializer.Deserialize<User.User>(Data);
-                    }
+                return new User.User(Id);
+            }
 
-                    var user = MessagePackSerializer.Deserialize<dynamic>(Data);
-                    var migrated = Migrate(user);
-                    var test = MessagePackSerializer.Deserialize<dynamic>(
-                        MessagePackSerializer.Serialize(new User.User(new UserId(0, 0))));
-                    return MessagePackSerializer.Deserialize<User.User>(MessagePackSerializer.Serialize(migrated));
-                }
-                catch (Exception e)
+            try
+            {
+                User.User result;
+                if (Version == LastVersion)
                 {
-                    var filename = $"{Id.Messenger}_{Id.Id}.userdump";
-                    File.WriteAllBytes(filename, Data);
-                    Logger.Error(e, "Cannot deserialize user {userId}. Dump saved to {filename}", Id, filename);
+                    result = MessagePackSerializer.Deserialize<User.User>(Data);
+                    result.DatabaseVariables.Fill(Variables);
+                    return result;
                 }
+
+                var user = MessagePackSerializer.Deserialize<dynamic>(Data);
+                var migrated = Migrate(user);
+                result = MessagePackSerializer.Deserialize<User.User>(MessagePackSerializer.Serialize(migrated));
+                result.DatabaseVariables.Fill(Variables);
+                return result;
+            }
+            catch (Exception e)
+            {
+                var filename = $"{Id.Messenger}_{Id.Id}.userdump";
+                File.WriteAllBytes(filename, Data);
+                Logger.Error(e, "Cannot deserialize user {userId}. Dump saved to {filename}", Id, filename);
             }
 
             return new User.User(Id);

@@ -25,8 +25,24 @@ namespace AdventureBot.User.Stats
             User = user;
         }
 
-        public int MonsterCount { get; private set; }
-        public int RoomsCount { get; private set; }
+        public int MonsterCount
+        {
+            get => User.DatabaseVariables.Monsters;
+            private set
+            {
+                if (User != null) User.DatabaseVariables.Monsters = value;
+            }
+        }
+
+        public int RoomsCount
+        {
+            get => User.DatabaseVariables.Rooms;
+            private set
+            {
+                if (User != null) User.DatabaseVariables.Rooms = value;
+            }
+        }
+
         public static event GameEventHandler OnChanged;
 
         public void RoomTraveled()
@@ -35,7 +51,7 @@ namespace AdventureBot.User.Stats
             OnChanged?.Invoke(User);
         }
 
-        public void MonsterKilled()
+        private void MonsterKilled()
         {
             MonsterCount += 1;
             OnChanged?.Invoke(User);
