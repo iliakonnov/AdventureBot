@@ -59,7 +59,6 @@ namespace AdventureBot
 
             Logger.Debug("Loading other...");
 
-            TopPlayers.Instance.Initialize();
             ObjectManager<IMessenger>.Instance.Get<MessengerManager>().BeginPolling();
 
             Logger.Info("Working!");

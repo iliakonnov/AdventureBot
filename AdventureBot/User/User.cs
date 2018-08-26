@@ -78,6 +78,8 @@ namespace AdventureBot.User
         public MessageManager MessageManager { get; private set; }
 
         public QuestManager QuestManager { get; private set; }
+        
+        [IgnoreMember] internal DatabaseVariables DatabaseVariables { get; } = new DatabaseVariables();
 
         public Guid Token { get; set; } = Guid.Empty;
         internal Tuple<UserId, Guid> LinkedTo { get; set; }

@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
+using System.Text;
+using AdventureBot.User;
 using Mono.Data.Sqlite;
 using NLog;
 
@@ -43,7 +46,7 @@ namespace AdventureBot.UserManager
                 var result = new List<UserId>();
 
                 command.CommandText =
-                    "SELECT id, messenger FROM users WHERE (@messenger is null or messenger = @messenger)";
+                    "SELECT * FROM users WHERE (@messenger is null or messenger = @messenger)";
                 command.Parameters.AddWithValue("@messenger", messengerId);
                 using (var reader = command.ExecuteReader())
                 {
@@ -61,16 +64,86 @@ namespace AdventureBot.UserManager
             return QueryHelper(Query);
         }
 
+        public static List<UserData> QueryUsers(List<(DbColumnAttribute, bool)> order,
+            Dictionary<DbColumnAttribute, object> filter,
+            int? limit)
+        {
+            List<UserData> Query(SqliteCommand command)
+            {
+                var result = new List<UserData>();
+
+                command.CommandText = "SELECT * FROM users";
+
+                var cmd = new StringBuilder("SELECT * FROM users");
+                var param = 0;
+                if (filter != null && filter.Count != 0)
+                {
+                    cmd.Append(" WHERE");
+                    foreach (var kv in filter)
+                    {
+                        var paramName = $"@param{param++}";
+                        cmd.Append($" {kv.Key.Name}={paramName}");
+                        command.Parameters.AddWithValue(paramName, kv.Value);
+                    }
+                }
+
+                if (order != null && order.Count != 0)
+                {
+                    cmd.Append(" ORDER BY");
+                    var orderSql = new List<string>();
+                    foreach (var kv in order)
+                    {
+                        var direction = kv.Item2 ? "ASC" : "DESC";
+                        orderSql.Add($" {kv.Item1.Name} {direction}");
+                    }
+
+                    cmd.Append(string.Join(",", orderSql));
+                }
+
+                if (limit != null && limit != 0)
+                {
+                    cmd.Append($" LIMIT {limit}");
+                }
+
+                command.CommandText = cmd.ToString();
+
+                using (var reader = command.ExecuteReader())
+                {
+                    var idPos = reader.GetOrdinal("id");
+                    var dataPos = reader.GetOrdinal("data");
+                    var messengerPos = reader.GetOrdinal("messenger");
+                    var versionPos = reader.GetOrdinal("version");
+                    var deserializer = DatabaseVariables.Deserializer.Create(reader);
+
+                    while (reader.Read())
+                    {
+                        result.Add(new UserData(
+                            new UserId(reader.GetInt32(messengerPos), reader.GetInt64(idPos)),
+                            (byte[]) reader[dataPos],
+                            deserializer.Deserialize(reader),
+                            reader.GetInt32(versionPos)
+                        ));
+                    }
+                }
+
+
+                return result;
+            }
+
+            return QueryHelper(Query);
+        }
+
         public static UserData LoadUserData(UserId id)
         {
             UserData Query(SqliteCommand command)
             {
-                command.CommandText = "SELECT data, version FROM users WHERE id=@user_id AND messenger=@messenger";
+                command.CommandText = "SELECT * FROM users WHERE id=@user_id AND messenger=@messenger";
                 command.Parameters.AddWithValue("@messenger", id.Messenger);
                 command.Parameters.AddWithValue("@user_id", id.Id);
 
                 using (var reader = command.ExecuteReader())
                 {
+                    var variablesDeserializer = DatabaseVariables.Deserializer.Create(reader);
                     var dataPos = reader.GetOrdinal("data");
                     var versionPos = reader.GetOrdinal("version");
                     if (!reader.Read())
@@ -84,7 +157,10 @@ namespace AdventureBot.UserManager
                         goto NotFound;
                     }
 
-                    return new UserData(id, (byte[]) value, reader.GetInt32(versionPos));
+                    return new UserData(id,
+                        (byte[]) value,
+                        variablesDeserializer.Deserialize(reader),
+                        reader.GetInt32(versionPos));
                 }
 
                 NotFound:
@@ -99,9 +175,22 @@ namespace AdventureBot.UserManager
         {
             int Query(SqliteCommand command)
             {
+                var columns = DatabaseVariables.GetColumns();
+                var varNames = new List<string>();
+                var varValues = new List<string>();
+                var parameters = new List<(SqliteParameter, Func<DatabaseVariables, object>)>();
+                for (var i = 0; i < columns.Length; i++)
+                {
+                    var column = columns[i];
+                    varNames.Add($"{column.Item1.Name}");
+                    var paramName = $"@param{i}";
+                    varValues.Add(paramName);
+                    parameters.Add((command.Parameters.Add(paramName, column.Item1.Type), column.Item2));
+                }
+
                 command.CommandText =
-                    "INSERT OR REPLACE INTO users (messenger, id, data, version) " +
-                    "VALUES (@messenger, @user_id, @data, @version)";
+                    $"INSERT OR REPLACE INTO users (messenger, id, data, version, {string.Join(", ", varNames)}) " +
+                    $"VALUES (@messenger, @user_id, @data, @version, {string.Join(", ", varValues)})";
 
                 var messengerParam = command.Parameters.Add("@messenger", DbType.Int32);
                 var idParam = command.Parameters.Add("@user_id", DbType.Int64);
@@ -112,6 +201,11 @@ namespace AdventureBot.UserManager
                 foreach (var user in users)
                 {
                     cnt++;
+
+                    foreach (var param in parameters)
+                    {
+                        param.Item1.Value = param.Item2(user.Variables);
+                    }
 
                     messengerParam.Value = user.Id.Messenger;
                     idParam.Value = user.Id.Id;
@@ -133,14 +227,20 @@ namespace AdventureBot.UserManager
 
         private static Void InitailizeTables(SqliteCommand command)
         {
+            var variables = string.Join(
+                ", ",
+                DatabaseVariables.GetColumns()
+                    .Select(db => $"`{db.Item1.Name}` {db.Item1.TypeString}")
+            );
             command.CommandText =
-                @"CREATE TABLE IF NOT EXISTS `users` (
-                    `messenger`	INTEGER,
-                    `id`	    INTEGER,
-                    `data`	    BLOB,
-                    `version`	INTEGER,
-                    PRIMARY KEY(`messenger`, `id`)
-                );";
+                "CREATE TABLE IF NOT EXISTS `users` (" +
+                "    `messenger`	INTEGER," +
+                "    `id`		INTEGER," +
+                "    `data`		BLOB," +
+                "    `version`	INTEGER," +
+                $"    {variables}," +
+                "    PRIMARY KEY(`messenger`, `id`)" +
+                ");";
             command.ExecuteNonQuery();
             return new Void();
         }

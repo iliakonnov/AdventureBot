@@ -11,8 +11,6 @@ namespace AdventureBot.User
     [MessagePackObject(true)]
     public class UserInfo
     {
-        private decimal _gold = 100;
-
         [SerializationConstructor]
         public UserInfo(bool dead, UserId userId, Stats.Stats baseStats, Stats.Stats currentStats, string name,
             Statistics statistics, UserLevel level)
@@ -73,13 +71,12 @@ namespace AdventureBot.User
 
         public bool Dead { get; internal set; }
 
-        [IgnoreMember]
         public decimal Gold
         {
-            get => _gold;
+            get => User.DatabaseVariables.Gold;
             set
             {
-                _gold = value;
+                if (User != null) User.DatabaseVariables.Gold = value;
                 Statistics.GoldChanged();
             }
         }
