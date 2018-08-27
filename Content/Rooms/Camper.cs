@@ -2,16 +2,17 @@
 using AdventureBot.Room;
 using AdventureBot.User;
 using Content.Items;
+using Content.Quests;
 
 namespace Content.Rooms
 {
     [Available(Id, Difficulity.Medium, TownRoot.Id)]
-    public class Camper : MonsterBase
+    public class Camper : MonsterBase, IQuestMonster
     {
         public const string Id = "monster/camper";
+        protected override decimal Health => 70;
         public override string Name => "Кэмпер";
         public override string Identifier => Id;
-        protected override decimal Health => 70;
 
         protected override decimal GetDamage(User user)
         {

@@ -38,7 +38,11 @@ namespace AdventureBot.User
         public static event GameEventHandler<string> OnEnter;
         public static event GameEventHandler OnLeave;
 
-        internal void Go(string roomIdentifier, bool leave = true)
+        /// <summary>
+        ///     Переходит в указанную комнату
+        /// </summary>
+        /// <param name="roomIdentifier"></param>
+        public void Go(string roomIdentifier, bool leave = true)
         {
             if (!ObjectManager<IRoom>.Instance.Get<Room.RoomManager>().Contains(roomIdentifier))
             {
@@ -67,15 +71,9 @@ namespace AdventureBot.User
         }
 
         /// <summary>
-        ///     Переходит в указанную комнату
+        ///     Покидает текущую комнату
         /// </summary>
-        /// <param name="roomIdentifier"></param>
-        public void Go(string roomIdentifier)
-        {
-            Go(roomIdentifier, true);
-        }
-
-        internal void Leave(bool doReturn = true, bool checkLeave = true)
+        public void Leave(bool doReturn = true, bool checkLeave = true)
         {
             if (checkLeave)
             {
@@ -102,22 +100,6 @@ namespace AdventureBot.User
             {
                 GetRoom()?.OnReturn(User);
             }
-        }
-
-        /// <summary>
-        ///     Покидает текущую комнату
-        /// </summary>
-        public void Leave()
-        {
-            var allowLeave = GetRoom()?.OnLeave(User);
-            if (allowLeave == false)
-            {
-                return;
-            }
-
-            CurrentRoom = Rooms.Pop();
-            User.MessageManager.ShownStats = CurrentRoom?.ShownStats ?? ShownStats.Default;
-            GetRoom()?.OnReturn(User);
         }
 
         public void ChangeRoot(string rootIdentifier)

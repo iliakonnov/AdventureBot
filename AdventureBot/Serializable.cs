@@ -11,6 +11,7 @@ namespace AdventureBot
     [Union(4, typeof(VariableContainer))]
     [Union(5, typeof(UserId))]
     [Union(6, typeof(ItemInfo))]
+    [Union(7, typeof(StatsEffect))]
     [Union(9, typeof(SerializableFlag<ISerializable>))]
     [Union(10, typeof(StatsProperty))]
     [Union(11, typeof(Serializable.Long))]

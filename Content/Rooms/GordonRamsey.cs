@@ -2,16 +2,17 @@
 using AdventureBot.Room;
 using AdventureBot.User;
 using Content.Items;
+using Content.Quests;
 
 namespace Content.Rooms
 {
     [Available(Id, Difficulity.Medium, TownRoot.Id)]
-    public class GordonRamsey : MonsterBase
+    public class GordonRamsey : MonsterBase, IQuestMonster
     {
         public const string Id = "monster/gordonRamsey";
+        protected override decimal Health => 200;
         public override string Name => "Гордон Рамзи";
         public override string Identifier => Id;
-        protected override decimal Health => 200;
 
         protected override decimal GetDamage(User user)
         {

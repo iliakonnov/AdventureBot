@@ -23,7 +23,7 @@ namespace AdventureBot.User.Stats
     }
 
     [MessagePackObject(true)]
-    public class StatsEffect
+    public class StatsEffect : ISerializable
     {
         [SerializationConstructor]
         public StatsEffect(ChangeType changeType, IReadOnlyDictionary<StatsProperty, decimal> effect)

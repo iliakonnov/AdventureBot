@@ -30,6 +30,11 @@ namespace AdventureBot
             _work = false;
         }
 
+        private static InteractiveInterpreterConsole GetConsole()
+        {
+            return new InteractiveInterpreterConsole {DisableAutocompletion = false};
+        }
+
         private static void Main()
         {
             Events.Start();
@@ -69,11 +74,21 @@ namespace AdventureBot
                 false,
                 16384));
 
+            var console = GetConsole();
+            var forceContinue = false;
+            Console.CancelKeyPress += (sender, args) =>
+            {
+                args.Cancel = true;
+                Console.WriteLine("\nUse `quit()` to stop. Press Enter to continue");
+                console.Quit();
+                console = GetConsole();
+                forceContinue = true;
+            };
+
             while (_work)
             {
                 try
                 {
-                    var console = new InteractiveInterpreterConsole();
                     console.ReadEvalPrintLoop();
                 }
                 catch (Exception e)
@@ -82,7 +97,15 @@ namespace AdventureBot
                     continue;
                 }
 
-                break;
+                if (forceContinue)
+                {
+                    Console.WriteLine("Restarting interpreter...");
+                    forceContinue = false;
+                }
+                else
+                {
+                    break;
+                }
             }
 
             Exit();

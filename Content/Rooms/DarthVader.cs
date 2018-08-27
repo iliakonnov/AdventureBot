@@ -6,6 +6,7 @@ using AdventureBot.Messenger;
 using AdventureBot.Room;
 using AdventureBot.User;
 using Content.Items;
+using Content.Quests;
 
 namespace Content.Rooms
 {
@@ -81,12 +82,12 @@ namespace Content.Rooms
     }
 
     [Room(Id)]
-    public class VaderBattle : MonsterBase
+    public class VaderBattle : MonsterBase, IQuestMonster
     {
         public const string Id = "monster/vader/battle";
+        protected override decimal Health => 550;
         public override string Name => "Отец";
         public override string Identifier => Id;
-        protected override decimal Health => 550;
 
         protected override decimal GetDamage(User user)
         {

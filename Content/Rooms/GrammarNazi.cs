@@ -4,16 +4,17 @@ using AdventureBot.Room;
 using AdventureBot.User;
 using AdventureBot.User.Stats;
 using Content.Items;
+using Content.Quests;
 
 namespace Content.Rooms
 {
     [Available(Id, Difficulity.Lower, TownRoot.Id)]
-    public class GrammarNazi : MonsterBase
+    public class GrammarNazi : MonsterBase, IQuestMonster
     {
         public const string Id = "monster/grammar";
+        protected override decimal Health => 65;
         public override string Name => "Граммар-наци";
         public override string Identifier => Id;
-        protected override decimal Health => 65;
 
         protected override decimal GetDamage(User user)
         {

@@ -50,7 +50,7 @@ namespace Content.Quests
         public override void Begin(User user, Guid questId)
         {
             var mgr = ObjectManager<IRoom>.Instance.Get<RoomManager>();
-            var monsters = new List<IMonster>();
+            var monsters = new List<IQuestMonster>();
             foreach (var item in mgr.Items())
             {
                 if (!(item.Attribute is AvailableAttribute))
@@ -59,7 +59,7 @@ namespace Content.Quests
                 }
 
                 var room = mgr.Get(item.Identificator);
-                if (room is IMonster monster)
+                if (room is IQuestMonster monster)
                 {
                     monsters.Add(monster);
                 }

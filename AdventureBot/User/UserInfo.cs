@@ -51,14 +51,7 @@ namespace AdventureBot.User
                     {StatsProperty.Karma, -100}
                 }
             ));
-            BaseStats = new Stats.Stats(new ReadOnlyDictionary<StatsProperty, decimal>(
-                new Dictionary<StatsProperty, decimal>
-                {
-                    {StatsProperty.Health, MaxStats.Effect[StatsProperty.Health]},
-                    {StatsProperty.Mana, MaxStats.Effect[StatsProperty.Mana]},
-                    {StatsProperty.Stamina, MaxStats.Effect[StatsProperty.Stamina]}
-                }
-            ));
+            BaseStats = new Stats.Stats(Stats.Stats.DefaultStats);
             UserId = userId;
             User = user;
             Name = Generator.Generate(User.Random);
@@ -76,7 +69,11 @@ namespace AdventureBot.User
             get => User.DatabaseVariables.Gold;
             set
             {
-                if (User != null) User.DatabaseVariables.Gold = value;
+                if (User != null)
+                {
+                    User.DatabaseVariables.Gold = value;
+                }
+
                 Statistics.GoldChanged();
             }
         }
@@ -178,8 +175,8 @@ namespace AdventureBot.User
                 // При понижении статов, нужно проверять с учетом предметов.
                 // (базовое здоровье может быть меньше нуля, т.к. предметы тебя спасут)
                 var changed = ApplyItems(changedBase, User.ActiveItemsManager.ActiveItems);
-                var newValue = changed.Effect[property];
-                if (!allowLess && newValue < MinStats.Effect[property])
+                var newValue = changed.GetStat(property);
+                if (!allowLess && newValue < MinStats.GetStat(property))
                 {
                     return false;
                 }
@@ -188,8 +185,8 @@ namespace AdventureBot.User
             {
                 // При повышении статов, нужно проверять без учета предметов.
                 // (базовое здоровье не может быть больше максимума, но предметы могут повысить за пределы максимума)
-                var newValue = changedBase.Effect[property];
-                var maxValue = MaxStats.Effect[property];
+                var newValue = changedBase.GetStat(property);
+                var maxValue = MaxStats.GetStat(property);
                 if (newValue > maxValue)
                 {
                     // Если результат получился больше мсаксимума, то устанавливается максимум
@@ -225,7 +222,7 @@ namespace AdventureBot.User
         /// </summary>
         public void Kill()
         {
-            if (CurrentStats.Effect[StatsProperty.Karma] == MaxStats.GetStat(StatsProperty.Karma))
+            if (CurrentStats.GetStat(StatsProperty.Karma) == MaxStats.GetStat(StatsProperty.Karma))
             {
                 ChangeStats(ChangeType.Set, StatsProperty.Karma, MinStats.GetStat(StatsProperty.Karma));
                 ChangeStats(
@@ -247,7 +244,7 @@ namespace AdventureBot.User
             }
 
             OnDead?.Invoke(User);
-            ChangeStats(ChangeType.Set, StatsProperty.Health, MinStats.Effect[StatsProperty.Health]);
+            ChangeStats(ChangeType.Set, StatsProperty.Health, MinStats.GetStat(StatsProperty.Health));
             Dead = true;
             User.RoomManager.Go("_root", false);
         }
@@ -279,15 +276,15 @@ namespace AdventureBot.User
         /// </summary>
         /// <param name="value">Какой урон нанесен</param>
         /// <param name="defence">Учитывать ли защиту игрока</param>
-        public void MakeDamage(decimal value, bool defence = true)
+        public void MakeDamage(decimal value, bool defence = true, bool kill = true)
         {
             if (defence)
             {
-                value = CalculateDefence(value, CurrentStats.Effect[StatsProperty.Defence]);
+                value = CalculateDefence(value, CurrentStats.GetStat(StatsProperty.Defence));
             }
 
             ChangeStats(ChangeType.Add, StatsProperty.Health, -value, true);
-            if (CurrentStats.Effect[StatsProperty.Health] <= MinStats.Effect[StatsProperty.Health])
+            if (kill && CurrentStats.GetStat(StatsProperty.Health) <= MinStats.GetStat(StatsProperty.Health))
             {
                 Kill();
             }
@@ -297,7 +294,7 @@ namespace AdventureBot.User
         {
             // 100 Karma = 15%
             const decimal step = 0.15m / 100;
-            var percent = step * CurrentStats.Effect[StatsProperty.Karma];
+            var percent = step * CurrentStats.GetStat(StatsProperty.Karma);
             return value * percent;
         }
     }

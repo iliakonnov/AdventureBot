@@ -33,7 +33,7 @@ namespace AdventureBot.Room.BetterRoom
                 var ctor = type.GetConstructor(new[] {typeof(T)});
                 if (ctor == null)
                 {
-                    throw new Exception("Action must have constructor with single BetterRoomBase argument");
+                    throw new Exception("Action must have constructor without parameters");
                 }
 
                 var instance = (ActionBase<T>) ctor.Invoke(new object[] {this});
@@ -62,6 +62,11 @@ namespace AdventureBot.Room.BetterRoom
 
                 _actions[type] = handler;
                 Buttons[handler] = instance.Buttons;
+            }
+
+            if (_rootAction == null)
+            {
+                throw new Exception("Default action not found");
             }
 
             Routes = routes.OrderBy(r => r.Item1).Select(r => (MessageRecived) r.Item2.OnMessage).ToArray();

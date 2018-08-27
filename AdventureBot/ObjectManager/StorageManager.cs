@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using JetBrains.Annotations;
 
 namespace AdventureBot.ObjectManager
@@ -24,7 +25,16 @@ namespace AdventureBot.ObjectManager
                 Creator = creator,
                 Attribute = identifiableAttribute
             };
-            creator.Invoke();
+
+            Get(identifier);
+        }
+
+        internal void InitializeAll()
+        {
+            foreach (var key in Keys())
+            {
+                Get(key);
+            }
         }
 
         [CanBeNull]
@@ -42,6 +52,7 @@ namespace AdventureBot.ObjectManager
 
             var res = item.Creator();
             _cache[identifier] = res;
+            item.Creator = () => throw new Exception("This item already initialized!");
             return res;
         }
 

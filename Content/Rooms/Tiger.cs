@@ -2,16 +2,17 @@
 using AdventureBot.Room;
 using AdventureBot.User;
 using Content.Items;
+using Content.Quests;
 
 namespace Content.Rooms
 {
     [Available(Id, Difficulity.Medium, TownRoot.Id)]
-    public class Tiger : MonsterBase
+    public class Tiger : MonsterBase, IQuestMonster
     {
         public const string Id = "monster/tiger";
+        protected override decimal Health => 75;
         public override string Name => "Саблезубый тигр";
         public override string Identifier => Id;
-        protected override decimal Health => 75;
 
         protected override decimal GetDamage(User user)
         {

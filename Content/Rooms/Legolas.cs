@@ -2,16 +2,17 @@
 using AdventureBot.Room;
 using AdventureBot.User;
 using Content.Items;
+using Content.Quests;
 
 namespace Content.Rooms
 {
     [Available(Id, Difficulity.Hard, TownRoot.Id)]
-    public class Legolas : MonsterBase
+    public class Legolas : MonsterBase, IQuestMonster
     {
         public const string Id = "monster/legolas";
+        protected override decimal Health => 1000;
         public override string Name => "Леголас";
         public override string Identifier => Id;
-        protected override decimal Health => 1000;
 
         protected override decimal GetDamage(User user)
         {

@@ -2,16 +2,17 @@
 using AdventureBot.Room;
 using AdventureBot.User;
 using Content.Items;
+using Content.Quests;
 
 namespace Content.Rooms
 {
     [Available(Id, Difficulity.Hard, TownRoot.Id)]
-    public class Beorn : MonsterBase
+    public class Beorn : MonsterBase, IQuestMonster
     {
         public const string Id = "monster/beorn";
+        protected override decimal Health => 1500;
         public override string Name => "Беорн";
         public override string Identifier => Id;
-        protected override decimal Health => 1500;
 
         protected override decimal GetDamage(User user)
         {

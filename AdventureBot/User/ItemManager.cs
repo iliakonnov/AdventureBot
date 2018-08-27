@@ -79,6 +79,10 @@ namespace AdventureBot.User
 
             found.Item.OnRemove(User, found, item.Count);
             found.Count -= item.Count;
+            if (found.Count == 0)
+            {
+                _items.Remove(found);
+            }
 
             User.ActiveItemsManager.RecalculateActive();
 
