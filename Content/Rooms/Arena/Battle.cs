@@ -135,9 +135,6 @@ namespace Content.Rooms.Arena
                     Win(user, ctx.User);
                     Lose(user, ctx.User);
                 }
-
-                // Force send message to damaged user
-                ctx.User.MessageManager.Finish();
             }
         }
 
@@ -218,7 +215,15 @@ namespace Content.Rooms.Arena
                     variables.Set("lastMessage", new Serializable.Long(DateTimeOffset.Now.ToUnixTimeSeconds()));
                 }
 
+                // Must be outside of ctx (up to 3 user deserialization!)
                 itemToUse.OnUse(user);
+
+                using (var ctx = new UserContext((UserId) variables.Get("enemy")))
+                {
+                    Room.SendMessage(ctx, "Ваш ход! Чем же вы ответите?");
+                    // Force send message to damaged user
+                    ctx.User.MessageManager.Finish();
+                }
             }
         }
     }

@@ -13,11 +13,6 @@ namespace Content.Rooms.Arena
         public override string Name => "Арена";
         public override string Identifier => Id;
 
-        public Arena() : base()
-        {
-            
-        }
-
         public override void OnEnter(User user)
         {
             SwitchAction<MainAction>(user);

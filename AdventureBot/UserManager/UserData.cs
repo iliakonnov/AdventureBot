@@ -12,7 +12,7 @@ namespace AdventureBot.UserManager
 {
     public class UserData
     {
-        private const int LastVersion = 6;
+        private const int LastVersion = 8;
 
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 

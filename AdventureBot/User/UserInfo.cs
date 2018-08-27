@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using AdventureBot.Item;
 using AdventureBot.Messenger;
@@ -12,14 +13,14 @@ namespace AdventureBot.User
     public class UserInfo
     {
         [SerializationConstructor]
-        public UserInfo(bool dead, UserId userId, Stats.Stats baseStats, Stats.Stats currentStats, string name,
+        public UserInfo(bool dead, UserId userId, Stats.Stats baseStats, Stats.Stats currentStats, string _name,
             Statistics statistics, UserLevel level)
         {
             Dead = dead;
             UserId = userId;
             BaseStats = baseStats;
             CurrentStats = currentStats;
-            Name = name;
+            this._name = _name;
             Statistics = statistics;
             Level = level;
         }
@@ -54,7 +55,7 @@ namespace AdventureBot.User
             BaseStats = new Stats.Stats(Stats.Stats.DefaultStats);
             UserId = userId;
             User = user;
-            Name = Generator.Generate(User.Random);
+            _name = Generator.Generate(User.Random);
             Statistics = new Statistics(user);
             Level = new UserLevel(user);
             RecalculateStats();
@@ -82,7 +83,34 @@ namespace AdventureBot.User
 
         public UserId UserId { get; }
 
-        public string Name { get; set; }
+        private string _name;
+
+        [IgnoreMember]
+        public string Name
+        {
+            get
+            {
+                var modifiers = new List<string>();
+                if (Dead)
+                {
+                    modifiers.Add("[Мертв]");
+                }
+                else if (DateTime.Now - User.MessageManager.LastMessageRecived > TimeSpan.FromDays(7))
+                {
+                    modifiers.Add("[Спит]");
+                }
+
+                if (UserId.Messenger == 3) // Api messenger
+                {
+                    modifiers.Add("[Бот]");
+                }
+
+                return modifiers.Count == 0
+                    ? _name
+                    : $"{_name} <b>{string.Join(" ", modifiers)}</b>";
+            }
+            set => _name = value;
+        }
 
         public Statistics Statistics { get; }
 
