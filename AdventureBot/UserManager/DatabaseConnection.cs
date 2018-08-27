@@ -16,7 +16,7 @@ namespace AdventureBot.UserManager
 
         static DatabaseConnection()
         {
-            var connectionString = $"Data Source = {Configuration.Config["database"]};";
+            var connectionString = $"Data Source = {Configuration.Config["database"]}";
             Connection = new SqliteConnection(connectionString);
             Connection.Open();
             QueryHelper(InitailizeTables);
@@ -65,7 +65,7 @@ namespace AdventureBot.UserManager
         }
 
         public static List<UserData> QueryUsers(List<(DbColumnAttribute, bool)> order,
-            Dictionary<DbColumnAttribute, object> filter,
+            List<(DbColumnAttribute, string, object)> filter,
             int? limit)
         {
             List<UserData> Query(SqliteCommand command)
@@ -79,12 +79,15 @@ namespace AdventureBot.UserManager
                 if (filter != null && filter.Count != 0)
                 {
                     cmd.Append(" WHERE");
-                    foreach (var kv in filter)
+                    var filterSql = new List<string>();
+                    foreach (var condition in filter)
                     {
                         var paramName = $"@param{param++}";
-                        cmd.Append($" {kv.Key.Name}={paramName}");
-                        command.Parameters.AddWithValue(paramName, kv.Value);
+                        filterSql.Add($" {condition.Item1.Name}{condition.Item2}{paramName}");
+                        command.Parameters.AddWithValue(paramName, condition.Item3);
                     }
+
+                    cmd.Append(string.Join(" AND ", filterSql));
                 }
 
                 if (order != null && order.Count != 0)

@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using AdventureBot;
+using AdventureBot.Messenger;
 using AdventureBot.Room;
 using AdventureBot.Room.BetterRoom;
 using AdventureBot.User;
@@ -29,7 +30,7 @@ namespace Content.Halls
         }
 
         private void Explore(User user)
-        {   
+        {
             var difficulity = Difficulity.Any;
             if (user.ItemManager.Get(NativeCross.Id) != null)
             {
@@ -47,6 +48,20 @@ namespace Content.Halls
             var selectedRoom = GetAllRooms().Get(selected);
             SendMessage(user, $"<b>Дальше вам прмиком к {selectedRoom?.Name}! Будем ждать!</b>");
             user.RoomManager.Go(selected);
+        }
+
+        [Action]
+        public class MainAction : ActionBase<Halls>
+        {
+            public MainAction(Halls room) : base(room)
+            {
+            }
+
+            [Button("Исследовать Чертоги")]
+            public void Explore(User user, RecivedMessage message)
+            {
+                Room.Explore(user);
+            }
         }
     }
 }

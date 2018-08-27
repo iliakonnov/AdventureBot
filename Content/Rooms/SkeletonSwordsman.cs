@@ -1,15 +1,16 @@
 using AdventureBot.Room;
 using AdventureBot.User;
+using Content.Quests;
 
 namespace Content.Rooms
 {
     [Available(Id, Difficulity.Easy, TownRoot.Id)]
-    public class SkeletonSwordsman : MonsterBase
+    public class SkeletonSwordsman : MonsterBase, IQuestMonster
     {
         public const string Id = "monster/SkeletonSwordsman";
+        protected override decimal Health => 35;
         public override string Name => "Скелет-воин";
         public override string Identifier => Id;
-        protected override decimal Health => 35;
 
         protected override decimal GetDamage(User user)
         {

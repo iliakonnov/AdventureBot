@@ -3,6 +3,7 @@ using AdventureBot;
 using AdventureBot.Item;
 using AdventureBot.Room;
 using AdventureBot.User;
+using Content.Quests;
 
 namespace Content.Halls
 {
@@ -11,7 +12,7 @@ namespace Content.Halls
         decimal DamageMultiplier { get; }
     }
 
-    public abstract class EvilMonsterBase : MonsterBase
+    public abstract class EvilMonsterBase : MonsterBase, IQuestMonster
     {
         public override void MakeDamage(User user, decimal damage)
         {

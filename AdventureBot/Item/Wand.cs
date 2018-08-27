@@ -29,7 +29,7 @@ namespace AdventureBot.Item
                     Text =
                         $"Ты что-то колдуешь и монстр, скрывающийся под псевдонмом {monsterRoom.Name}, уменьшается в размерах."
                 });
-                monsterRoom.MakeDamage(user, user.Info.CurrentStats.Effect[StatsProperty.Intelligence]);
+                monsterRoom.MakeDamage(user, user.Info.CurrentStats.GetStat(StatsProperty.Intelligence));
             }
             else
             {

@@ -4,21 +4,17 @@ using AdventureBot.Room;
 using AdventureBot.User;
 using AdventureBot.User.Stats;
 using Content.Items;
+using Content.Quests;
 
 namespace Content.Rooms
 {
     [Available(Id, Difficulity.Hard, TownRoot.Id)]
-    public class Sans : MonsterBase
+    public class Sans : MonsterBase, IQuestMonster
     {
         public const string Id = "monster/sans";
+        protected override decimal Health => 35;
         public override string Name => "Санс";
         public override string Identifier => Id;
-        protected override decimal Health => 35;
-
-        protected override decimal GetDamage(User user)
-        {
-            return 70;
-        }
 
         public override void MakeDamage(User user, decimal damage)
         {
@@ -42,6 +38,11 @@ namespace Content.Rooms
             {
                 base.MakeDamage(user, 9_999_999);
             }
+        }
+
+        protected override decimal GetDamage(User user)
+        {
+            return 70;
         }
 
         protected override void Enter(User user, string[][] buttons)

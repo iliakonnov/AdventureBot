@@ -3,15 +3,14 @@ using AdventureBot.Item;
 using AdventureBot.Room;
 using AdventureBot.User;
 using Content.Items;
+using Content.Quests;
 
 namespace Content.Rooms
 {
     [Available(Id, Difficulity.Hard, TownRoot.Id)]
-    public class Jason : MonsterBase
+    public class Jason : MonsterBase, IQuestMonster
     {
         public const string Id = "monster/jason";
-        public override string Name => "Джейсон Вурхиз";
-        public override string Identifier => Id;
 
         protected override decimal Health
         {
@@ -25,6 +24,9 @@ namespace Content.Rooms
                 return 1500;
             }
         }
+
+        public override string Name => "Джейсон Вурхиз";
+        public override string Identifier => Id;
 
         private static bool IsFriday()
         {

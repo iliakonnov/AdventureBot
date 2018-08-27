@@ -72,11 +72,27 @@ namespace AdventureBot.User
             ChatId = chatId;
             ShownStats = shownStats;
             _intent = intent;
+            LastMessage = LastMessages.ToArray().Last();
         }
+
+        [IgnoreMember] public SentMessage LastMessage { get; private set; }
 
         [Key("queue")] private List<SentMessage> Queue { get; } = new List<SentMessage>();
         [Key("buttons")] private string[][] Buttons { get; set; }
         [Key(nameof(RecievedMessage))] internal RecivedMessage RecievedMessage { get; set; }
+
+        [Key(nameof(LastMessageRecived))]
+        public DateTime LastMessageRecived
+        {
+            get => User.DatabaseVariables.LastMessageRecived;
+            private set
+            {
+                if (User != null)
+                {
+                    User.DatabaseVariables.LastMessageRecived = value;
+                }
+            }
+        }
 
 
         /// <summary>
@@ -120,6 +136,7 @@ namespace AdventureBot.User
         internal void OnRecieved(RecivedMessage message)
         {
             var room = User.RoomManager.GetRoom();
+            User.DatabaseVariables.LastMessageRecived = DateTime.Now;
             switch (room)
             {
                 case null when User.RoomManager.Rooms.Count == 0:
@@ -144,6 +161,12 @@ namespace AdventureBot.User
 
         private string AddInfo(IEnumerable<string> messages)
         {
+            void AddStat(StringBuilder stringBuilder, StatsProperty property)
+            {
+                stringBuilder.Append(
+                    $" {Stats.Stats.Emojis[property]}{User.Info.CurrentStats.GetStat(property).Format()}");
+            }
+
             // Path
             var roomMgr = ObjectManager<IRoom>.Instance.Get<Room.RoomManager>();
             var path = string.Join(">", User.RoomManager.Rooms
@@ -167,8 +190,8 @@ namespace AdventureBot.User
                     case ShownStats.Health:
                     {
                         var heart = "♥️";
-                        var percent = User.Info.CurrentStats.Effect[StatsProperty.Health] /
-                                      User.Info.MaxStats.Effect[StatsProperty.Health];
+                        var percent = User.Info.CurrentStats.GetStat(StatsProperty.Health) /
+                                      User.Info.MaxStats.GetStat(StatsProperty.Health);
                         if (percent < 1m / 3)
                         {
                             heart = "🖤️"; // black
@@ -182,48 +205,42 @@ namespace AdventureBot.User
                             heart = "❤️"; // red
                         }
 
-                        stats.Append($"{heart}{User.Info.CurrentStats.Effect[StatsProperty.Health]:F2}");
+                        stats.Append($"{heart}{User.Info.CurrentStats.GetStat(StatsProperty.Health).Format()}");
                         break;
                     }
                     case ShownStats.Intelligence:
                     {
-                        const StatsProperty prop = StatsProperty.Intelligence;
-                        stats.Append($" {Stats.Stats.Emojis[prop]}{User.Info.CurrentStats.Effect[prop]:F2}");
+                        AddStat(stats, StatsProperty.Intelligence);
                         break;
                     }
                     case ShownStats.Strength:
                     {
-                        const StatsProperty prop = StatsProperty.Strength;
-                        stats.Append($" {Stats.Stats.Emojis[prop]}{User.Info.CurrentStats.Effect[prop]:F2}");
+                        AddStat(stats, StatsProperty.Strength);
                         break;
                     }
                     case ShownStats.Mana:
                     {
-                        const StatsProperty prop = StatsProperty.Mana;
-                        stats.Append($" {Stats.Stats.Emojis[prop]}{User.Info.CurrentStats.Effect[prop]:F2}");
+                        AddStat(stats, StatsProperty.Mana);
                         break;
                     }
                     case ShownStats.Stamina:
                     {
-                        const StatsProperty prop = StatsProperty.Stamina;
-                        stats.Append($" {Stats.Stats.Emojis[prop]}{User.Info.CurrentStats.Effect[prop]:F2}");
+                        AddStat(stats, StatsProperty.Stamina);
                         break;
                     }
                     case ShownStats.Defence:
                     {
-                        const StatsProperty prop = StatsProperty.Defence;
-                        stats.Append($" {Stats.Stats.Emojis[prop]}{User.Info.CurrentStats.Effect[prop]:F2}");
+                        AddStat(stats, StatsProperty.Defence);
                         break;
                     }
                     case ShownStats.Karma:
                     {
-                        const StatsProperty prop = StatsProperty.Karma;
-                        stats.Append($" {Stats.Stats.Emojis[prop]}{User.Info.CurrentStats.Effect[prop]:F2}");
+                        AddStat(stats, StatsProperty.Karma);
                         break;
                     }
                     case ShownStats.Gold:
                     {
-                        stats.Append($" 💰{User.Info.Gold:F2}");
+                        stats.Append($" 💰{User.Info.Gold.Format()}");
                         break;
                     }
                     case ShownStats.Default:
@@ -242,7 +259,7 @@ namespace AdventureBot.User
             );
         }
 
-        internal void Finish()
+        public void Finish()
         {
             if (Queue.Count == 0)
             {
@@ -277,6 +294,7 @@ namespace AdventureBot.User
             }
 
             LastMessages.Enqueue(message);
+            LastMessage = message;
 
             Queue.Clear();
             Buttons = null;

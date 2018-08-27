@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using MessagePack;
 
@@ -17,7 +18,8 @@ namespace AdventureBot
         [SerializationConstructor]
         public SerializableList(List<ISerializable> listImplementation)
         {
-            _listImplementation = listImplementation;
+            _listImplementation = listImplementation
+                                  ?? throw new ArgumentNullException(nameof(listImplementation));
         }
 
         public IEnumerator<ISerializable> GetEnumerator()

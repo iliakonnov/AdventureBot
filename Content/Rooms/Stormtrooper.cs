@@ -1,15 +1,16 @@
 ﻿using AdventureBot.Room;
 using AdventureBot.User;
+using Content.Quests;
 
 namespace Content.Rooms
 {
     [Available(Id, Difficulity.Lower, TownRoot.Id)]
-    public class Stormtrooper : MonsterBase
+    public class Stormtrooper : MonsterBase, IQuestMonster
     {
         public const string Id = "monster/stormtrooper";
+        protected override decimal Health => 40;
         public override string Name => "Штурмовик";
         public override string Identifier => Id;
-        protected override decimal Health => 40;
 
         protected override decimal GetDamage(User user)
         {

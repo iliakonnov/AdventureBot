@@ -15,7 +15,6 @@ namespace AdventureBot
         public static string SerializeJson<T>(T obj)
         {
             var data = Serialize(obj);
-            File.WriteAllBytes("test1.bin", data);
             return MessagePackSerializer.ToJson(data);
         }
 
@@ -47,7 +46,6 @@ namespace AdventureBot
         public static T DeserializeJson<T>(string json)
         {
             var data = MessagePackSerializer.FromJson(json);
-            File.WriteAllBytes("test2.bin", data);
             return MessagePackSerializer.Deserialize<T>(data);
         }
     }

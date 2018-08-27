@@ -28,7 +28,7 @@ namespace AdventureBot.Item
                 {
                     Text = $"Ты бьешь ужасного монстра, известного как {monsterRoom.Name} своей рукой!"
                 });
-                monsterRoom.MakeDamage(user, user.Info.CurrentStats.Effect[StatsProperty.Strength]);
+                monsterRoom.MakeDamage(user, user.Info.CurrentStats.GetStat(StatsProperty.Strength));
             }
             else
             {

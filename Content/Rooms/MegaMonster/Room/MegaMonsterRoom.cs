@@ -3,11 +3,12 @@ using AdventureBot;
 using AdventureBot.Messenger;
 using AdventureBot.Room;
 using AdventureBot.User;
+using Content.Quests;
 
 namespace Content.Rooms.MegaMonster.Room
 {
     [Available(Id, Difficulity.Medium, TownRoot.Id)]
-    public partial class MegaMonsterRoom : RoomBase, IMonster
+    public partial class MegaMonsterRoom : RoomBase, IQuestMonster
     {
         public const string Id = "room/mega_monster";
 
