@@ -3,6 +3,7 @@ using AdventureBot;
 using AdventureBot.Messenger;
 using AdventureBot.Room;
 using AdventureBot.User;
+using Content.Town.Auction;
 
 namespace Content.Town
 {
@@ -20,7 +21,8 @@ namespace Content.Town
                     {
                         {"Приключения", (user, message) => user.RoomManager.Go(Adventures.Id)},
                         {"Зеркало", (user, message) => user.RoomManager.Go(Mirror.Id)},
-                        {"Рынок", (user, message) => user.RoomManager.Go(Market.Id)},
+                        {"Рынок", (user, message) => user.RoomManager.Go(AuctionRoom.Id)},
+                        {"Магазин", (user, message) => user.RoomManager.Go(Market.Id)},
                         {"Таверна", (user, message) => user.RoomManager.Go(Tavern.Id)},
                         {"Гильдия магов", (user, message) => user.RoomManager.Go(Guild.Id)},
                         {"Спортзал", (user, message) => user.RoomManager.Go(Gym.Id)}
