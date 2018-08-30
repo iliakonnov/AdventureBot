@@ -8,8 +8,8 @@ namespace AdventureBot.Room.BetterRoom
 {
     public abstract class BetterRoomBase<T> : RoomBase where T : BetterRoomBase<T>
     {
-        private Dictionary<Type, MessageRecived> _actions = new Dictionary<Type, MessageRecived>();
-        private MessageRecived _rootAction;
+        private Dictionary<Type, ActionBase<T>> _actions = new Dictionary<Type, ActionBase<T>>();
+        private ActionBase<T> _rootAction;
 
         protected BetterRoomBase()
         {
@@ -38,7 +38,7 @@ namespace AdventureBot.Room.BetterRoom
 
                 var instance = (ActionBase<T>) ctor.Invoke(new object[] {this});
 
-                MessageRecived handler = null;
+                ActionBase<T> handler = null;
                 if (action.Index != null)
                 {
                     var index = (int) action.Index;
@@ -47,8 +47,9 @@ namespace AdventureBot.Room.BetterRoom
                         throw new Exception($"Muliply definition of action with index {action.Index}");
                     }
 
+                    indexes.Add((int) action.Index);
                     routes.Add(new Tuple<int, ActionBase<T>>(index, instance));
-                    handler = instance.OnMessage;
+                    handler = instance;
                 }
                 else
                 {
@@ -57,11 +58,11 @@ namespace AdventureBot.Room.BetterRoom
                         throw new Exception("Muliply definition of default action");
                     }
 
-                    _rootAction = instance.OnMessage;
+                    _rootAction = instance;
                 }
 
                 _actions[type] = handler;
-                Buttons[handler] = instance.Buttons;
+                Buttons[handler.OnMessage] = instance.Buttons;
             }
 
             if (_rootAction == null)
@@ -69,17 +70,25 @@ namespace AdventureBot.Room.BetterRoom
                 throw new Exception("Default action not found");
             }
 
-            Routes = routes.OrderBy(r => r.Item1).Select(r => (MessageRecived) r.Item2.OnMessage).ToArray();
+            Routes = routes
+                .OrderBy(r => r.Item1)
+                .Select(r => (MessageRecived) r.Item2.OnMessage)
+                .ToArray();
         }
 
         public void SwitchAction(User.User user, Type action)
         {
-            SwitchAction(user, _actions[action]);
+            SwitchAction(user, _actions[action].OnMessage);
         }
 
         public void SwitchAction<TAction>(User.User user) where TAction : ActionBase<T>
         {
-            SwitchAction(user, _actions[typeof(TAction)]);
+            SwitchAction(user, _actions[typeof(TAction)].OnMessage);
+        }
+
+        public TAction GetAction<TAction>() where TAction : ActionBase<T>
+        {
+            return (TAction) _actions[typeof(TAction)];
         }
 
         public override void OnMessage(User.User user, RecivedMessage message)
@@ -87,7 +96,7 @@ namespace AdventureBot.Room.BetterRoom
             if (!HandleAction(user, message))
             {
                 // Null action
-                _rootAction(user, message);
+                _rootAction.OnMessage(user, message);
             }
         }
     }

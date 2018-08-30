@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using AdventureBot;
 
@@ -28,12 +29,28 @@ namespace Content.Town.Auction
 
             return result;
         }
+
+        public void Save()
+        {
+            lock (GlobalVariables.Variables)
+            {
+                GlobalVariables.Variables.Set("auction.offers", Serialize());
+            }
+        }
+
+        public static Offers Load()
+        {
+            lock (GlobalVariables.Variables)
+            {
+                return Deserialize(GlobalVariables.Variables.Get<VariableContainer>("auction.offers"));
+            }
+        }
     }
 
     public class ItemOffer
     {
-        public List<Offer> SellOffers;
         public List<Offer> BuyOffers;
+        public List<Offer> SellOffers;
 
         public ItemOffer(List<Offer> sellOffers, List<Offer> buyOffers)
         {
@@ -53,6 +70,7 @@ namespace Content.Town.Auction
         {
             return new SerializableList(
                 offers
+                    .Where(offer => offer.Count != 0)
                     .Select(offer => offer.Serialize())
                     .Cast<ISerializable>()
                     .ToList()
@@ -72,19 +90,26 @@ namespace Content.Town.Auction
             return list
                 .Cast<VariableContainer>()
                 .Select(Offer.Deserialize)
+                .Where(offer => offer.Count != 0)
                 .ToList();
         }
     }
 
     public class Offer
     {
-        public UserId UserId;
+        public int Count;
+        public DateTimeOffset Created;
+        public string ItemId;
         public decimal Price;
+        public UserId UserId;
 
-        public Offer(UserId userId, decimal price)
+        public Offer(UserId userId, decimal price, int count, DateTimeOffset created, string itemId)
         {
             UserId = userId;
             Price = price;
+            Count = count;
+            Created = created;
+            ItemId = itemId;
         }
 
         public VariableContainer Serialize()
@@ -92,6 +117,9 @@ namespace Content.Town.Auction
             var result = new VariableContainer();
             result.Set("UserId", UserId);
             result.Set("Price", new Serializable.Decimal(Price));
+            result.Set("Count", new Serializable.Int(Count));
+            result.Set("Created", new Serializable.Decimal(Created.ToUnixTimeSeconds()));
+            result.Set("ItemId", new Serializable.String(ItemId));
             return result;
         }
 
@@ -99,7 +127,10 @@ namespace Content.Town.Auction
         {
             return new Offer(
                 (UserId) container.Get("UserId"),
-                container.Get<Serializable.Decimal>("Price")
+                container.Get<Serializable.Decimal>("Price"),
+                container.Get<Serializable.Int>("Count"),
+                DateTimeOffset.FromUnixTimeSeconds(container.Get<Serializable.Long>("Created")),
+                container.Get<Serializable.String>("ItemId")
             );
         }
     }

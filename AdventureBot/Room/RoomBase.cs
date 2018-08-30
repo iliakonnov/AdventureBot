@@ -79,6 +79,13 @@ namespace AdventureBot.Room
 
         public MessageRecived[] Routes { get; set; }
 
+        public MessageRecived GetCurrentRoute(User.User user)
+        {
+            var route = GetRouteIdx(user);
+
+            return route == null ? null : Routes[(int) route];
+        }
+
         private int? GetRouteIdx(User.User user)
         {
             var action = GetRoomVariables(user).Get("action");
@@ -88,14 +95,14 @@ namespace AdventureBot.Room
 
         public bool HandleAction(User.User user, RecivedMessage message)
         {
-            var route = GetRouteIdx(user);
+            var route = GetCurrentRoute(user);
 
             if (route == null)
             {
                 return false;
             }
 
-            Routes[(int) route](user, message);
+            route(user, message);
             return true;
         }
 

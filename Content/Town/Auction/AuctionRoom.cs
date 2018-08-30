@@ -11,7 +11,12 @@ namespace Content.Town.Auction
         public const string Id = "town/auction";
         public override string Name => "Аукцион";
         public override string Identifier => Id;
-        
+
+        public override void OnEnter(User user)
+        {
+            GetAction<MainAction>().Enter(user);
+        }
+
         [Action]
         public class MainAction : ActionBase<AuctionRoom>
         {
@@ -19,18 +24,24 @@ namespace Content.Town.Auction
             {
             }
 
+            public void Enter(User user)
+            {
+                Room.SendMessage(user, "Здесь вы можете купить или продать что угодно по самым лучшим ценам!",
+                    Room.GetButtons(user));
+            }
+
             [Button("Посмотреть предложения")]
             public void ShowOffers(User user, RecivedMessage message)
             {
                 Room.SwitchAction<AllOffersAction>(user);
-                AllOffersActionBase.Enter(user);
+                Room.GetAction<AllOffersAction>().Enter(user);
             }
 
             [Button("Мои предложения")]
             public void MyOffers(User user, RecivedMessage message)
             {
                 Room.SwitchAction<MyOffersAction>(user);
-                MyOffersActionBase.Enter(user);
+                Room.GetAction<MyOffersAction>().Enter(user);
             }
         }
 
@@ -41,7 +52,7 @@ namespace Content.Town.Auction
             {
             }
         }
-        
+
         [Action(1)]
         public class AllOffersAction : AllOffersActionBase
         {
@@ -49,7 +60,7 @@ namespace Content.Town.Auction
             {
             }
         }
-        
+
         [Action(2)]
         public class ItemOffersAction : ItemOffersActionBase
         {
@@ -65,7 +76,7 @@ namespace Content.Town.Auction
             {
             }
         }
-        
+
         [Action(4)]
         public class AddOfferAction : AddOfferActionBase
         {
@@ -73,19 +84,27 @@ namespace Content.Town.Auction
             {
             }
         }
-        
-        [Action(4)]
+
+        [Action(5)]
         public class PriceGroupSelectionAction : PriceGroupSelectionActionBase
         {
             public PriceGroupSelectionAction(AuctionRoom room) : base(room)
             {
             }
         }
-        
-        [Action(4)]
+
+        [Action(6)]
         public class PriceSelectionAction : PriceSelectionActionBase
         {
             public PriceSelectionAction(AuctionRoom room) : base(room)
+            {
+            }
+        }
+
+        [Action(7)]
+        public class QuantitySelectionAction : QuantitySelectionActionBase
+        {
+            public QuantitySelectionAction(AuctionRoom room) : base(room)
             {
             }
         }

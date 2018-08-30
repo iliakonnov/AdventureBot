@@ -10,27 +10,30 @@ namespace Content.Town.Auction
         {
         }
 
-        public static void Enter(User user)
+        public void Enter(User user)
         {
-            // TODO: Send message to user
+            Room.SendMessage(user, "Что вы желаете сделать?", Room.GetButtons(user));
         }
 
         [Button("Предложить")]
         public void Offer(User user, RecivedMessage message)
         {
-            
+            Room.SwitchAction<AuctionRoom.AddOfferAction>(user);
+            Room.GetAction<AuctionRoom.AddOfferAction>().Enter(user);
         }
-        
+
         [Button("Отменить предложение")]
         public void CancelOffer(User user, RecivedMessage message)
         {
-            
+            Room.SwitchAction<AuctionRoom.RemoveOfferAction>(user);
+            Room.GetAction<AuctionRoom.RemoveOfferAction>().Enter(user);
         }
-        
+
         [Button("Назад")]
         public void Back(User user, RecivedMessage message)
         {
             Room.SwitchAction<AuctionRoom.MainAction>(user);
+            Room.GetAction<AuctionRoom.MainAction>().Enter(user);
         }
     }
 }
