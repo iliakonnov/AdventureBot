@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using AdventureBot;
+using AdventureBot.Item;
 using AdventureBot.Messenger;
 using AdventureBot.Room;
 using AdventureBot.Room.BetterRoom;
@@ -75,9 +76,9 @@ namespace Content.Town.Auction
             );
             var offers = Offers.Load();
             var (itemOffers, _) = GetOffers(offers, state);
-            if (state.Count == null || state.SelectedItemCount == null)
+            if (state.SelectedItemCount == null)
             {
-                // Selecting price
+                // Selecting price1
                 if (!decimal.TryParse(message.Text, out var price))
                 {
                     Enter(user);
@@ -86,14 +87,20 @@ namespace Content.Town.Auction
 
                 var matchingOffers = itemOffers.Where(o => o.Price == price).ToList();
                 state.SelectedItemCount = matchingOffers.Select(o => o.Count).Sum();
+                state.SelectedItemPrice = price;
                 Room.GetRoomVariables(user).Set("state", StateContainer.Serialize(state));
+                Room.SendMessage(user,
+                    $"Введите количество предметов (от 0 до {state.SelectedItemCount})",
+                    new[] {new[] {"0"}});
             }
             else
             {
                 // Selecting count
                 if (!int.TryParse(message.Text, out var count) || count < 0 || count > state.SelectedItemCount)
                 {
-                    Room.SendMessage(user, $"Введите количество предметов (от 0 до {state.SelectedItemCount})");
+                    Room.SendMessage(user,
+                        $"Введите количество предметов (от 0 до {state.SelectedItemCount})",
+                        new[] {new[] {"0"}});
                     return;
                 }
 
@@ -109,12 +116,54 @@ namespace Content.Town.Auction
                     .OrderBy(o => o.Created)
                     .ToList();
 
-                var buyedCount = Logic.Buy(matchingOffers, user, count);
+                var buyedCount = Buy(matchingOffers, user, count);
                 Room.SendMessage(user, $"Вы купили {buyedCount} штук!");
 
                 offers.Save();
                 Back(user, message);
             }
+
+            Room.GetRoomVariables(user).Set("state", StateContainer.Serialize(state));
+        }
+
+        private static int Buy(IReadOnlyList<Offer> offers, User buyer, int count)
+        {
+            // TODO: This is only buying, not selling
+            var selectedOffers = new List<(Offer, int)>();
+            var idx = 0;
+            while (count > 0 && idx < offers.Count)
+            {
+                var offer = offers[idx++];
+                var cnt = System.Math.Min(offer.Count, count);
+                offer.Count -= cnt;
+                selectedOffers.Add((offer, cnt));
+                count -= cnt;
+            }
+
+            if (count != 0)
+            {
+                // Cannot buy everything
+            }
+
+            var result = 0;
+            foreach (var (offer, cnt) in selectedOffers)
+            {
+                var price = offer.Price * cnt;
+                if (!buyer.Info.TryDecreaseGold(price))
+                {
+                    return result;
+                }
+
+                using (var ctx = new UserContext(offer.UserId))
+                {
+                    ctx.User.Info.Gold += price;
+                }
+
+                buyer.ItemManager.Add(new ItemInfo(offer.ItemId, cnt));
+                result += cnt;
+            }
+
+            return result;
         }
 
         [Button("Назад")]

@@ -39,7 +39,7 @@ namespace Content.Town
         }
 
         public override string Identifier => Id;
-        public override string Name => "Рынок";
+        public override string Name => "Магазин";
 
         public override void OnEnter(User user)
         {

@@ -10,6 +10,7 @@ namespace AdventureBot.Room.BetterRoom
     {
         private Dictionary<Type, ActionBase<T>> _actions = new Dictionary<Type, ActionBase<T>>();
         private ActionBase<T> _rootAction;
+        private Type _rootActionType;
 
         protected BetterRoomBase()
         {
@@ -59,10 +60,18 @@ namespace AdventureBot.Room.BetterRoom
                     }
 
                     _rootAction = instance;
+                    _rootActionType = type;
                 }
 
                 _actions[type] = handler;
-                Buttons[handler.OnMessage] = instance.Buttons;
+                if (handler != null)
+                {
+                    Buttons[handler.OnMessage] = instance.Buttons;
+                }
+                else
+                {
+                    Buttons[null] = instance.Buttons;
+                }
             }
 
             if (_rootAction == null)
@@ -78,17 +87,29 @@ namespace AdventureBot.Room.BetterRoom
 
         public void SwitchAction(User.User user, Type action)
         {
-            SwitchAction(user, _actions[action].OnMessage);
+            if (action == _rootActionType)
+            {
+                base.SwitchAction(user, null);
+            }
+            else
+            {
+                base.SwitchAction(user, GetAction(action).OnMessage);
+            }
         }
 
         public void SwitchAction<TAction>(User.User user) where TAction : ActionBase<T>
         {
-            SwitchAction(user, _actions[typeof(TAction)].OnMessage);
+            SwitchAction(user, typeof(TAction));
         }
 
         public TAction GetAction<TAction>() where TAction : ActionBase<T>
         {
-            return (TAction) _actions[typeof(TAction)];
+            return (TAction) GetAction(typeof(TAction));
+        }
+
+        public ActionBase<T> GetAction(Type action)
+        {
+            return _actions[action] ?? _rootAction;
         }
 
         public override void OnMessage(User.User user, RecivedMessage message)

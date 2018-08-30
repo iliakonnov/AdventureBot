@@ -42,7 +42,10 @@ namespace Content.Town.Auction
         {
             lock (GlobalVariables.Variables)
             {
-                return Deserialize(GlobalVariables.Variables.Get<VariableContainer>("auction.offers"));
+                var container = GlobalVariables.Variables.Get<VariableContainer>("auction.offers");
+                return container != null
+                    ? Deserialize(container)
+                    : new Offers();
             }
         }
     }

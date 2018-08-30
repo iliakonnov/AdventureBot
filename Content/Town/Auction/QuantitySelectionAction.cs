@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using AdventureBot;
+using AdventureBot.Item;
 using AdventureBot.Messenger;
 using AdventureBot.Room.BetterRoom;
 using AdventureBot.User;
@@ -18,8 +19,9 @@ namespace Content.Town.Auction
             var state = StateContainer.Deserialize<AddOfferState>(
                 Room.GetRoomVariables(user).Get<VariableContainer>("state")
             );
-            Room.SendMessage(user, $"Теперь введите количество (не больше {state.MaxQuantityAvailable})",
-                Room.GetButtons(user));
+            // TODO: Calculate maxValue here, not in AddOfferAction
+            var maxValue = state.MaxQuantityAvailable == int.MaxValue ? "∞" : state.MaxQuantityAvailable.ToString();
+            Room.SendMessage(user, $"Теперь введите количество (не больше {maxValue})", Room.GetButtons(user));
         }
 
         [Fallback]
@@ -44,16 +46,30 @@ namespace Content.Town.Auction
                             offers[state.SelectedItemId] = itemOffers;
                         }
 
+                        var offer = new Offer(
+                            user.Info.UserId,
+                            state.SelectedItemPrice,
+                            state.QuantitySelected,
+                            DateTimeOffset.Now,
+                            state.SelectedItemId
+                        );
+
                         if (state.Selling)
                         {
-                            itemOffers.SellOffers.Add(new Offer(
-                                user.Info.UserId,
-                                state.SelectedItemPrice,
-                                state.QuantitySelected,
-                                DateTimeOffset.Now,
-                                state.SelectedItemId
-                            ));
+                            if (user.ItemManager.Remove(new ItemInfo(offer.ItemId, offer.Count)))
+                            {
+                                itemOffers.SellOffers.Add(offer);
+                            }
                         }
+                        else
+                        {
+                            if (user.Info.TryDecreaseGold(state.SelectedItemPrice * state.QuantitySelected))
+                            {
+                                itemOffers.BuyOffers.Add(offer);
+                            }
+                        }
+
+                        offers.Save();
                     }
 
                     Room.SwitchAction<AuctionRoom.AddOfferAction>(user);

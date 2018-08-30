@@ -9,7 +9,7 @@ namespace Content.Town.Auction
     public class AuctionRoom : BetterRoomBase<AuctionRoom>
     {
         public const string Id = "town/auction";
-        public override string Name => "Аукцион";
+        public override string Name => "Рынок";
         public override string Identifier => Id;
 
         public override void OnEnter(User user)

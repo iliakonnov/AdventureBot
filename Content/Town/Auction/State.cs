@@ -48,7 +48,6 @@ namespace Content.Town.Auction
         public string SelectedItemId;
         public decimal SelectedItemPrice;
         public int? SelectedItemCount;
-        public int? Count;
 
         public VariableContainer Serialize()
         {
@@ -56,10 +55,6 @@ namespace Content.Town.Auction
             result.Set("Selling", new Serializable.Bool(Selling));
             result.Set("SelectedItemId", new Serializable.String(SelectedItemId));
             result.Set("SelectedItemPrice", new Serializable.Decimal(SelectedItemPrice));
-            if (Count != null)
-            {
-                result.Set("Count", new Serializable.Int((int) Count));
-            }
             if (SelectedItemCount != null)
             {
                 result.Set("SelectedItemCount", new Serializable.Int((int) SelectedItemCount));
@@ -73,7 +68,6 @@ namespace Content.Town.Auction
             {
                 Selling = container.Get<Serializable.Bool>("Selling"),
                 SelectedItemId = container.Get<Serializable.String>("SelectedItemId"),
-                Count = (int?) container.Get<Serializable.Int>("Count"),
                 SelectedItemPrice = container.Get<Serializable.Decimal>("SelectedItemPrice"),
                 SelectedItemCount = (int?) container.Get<Serializable.Int>("SelectedItemCount")
             };

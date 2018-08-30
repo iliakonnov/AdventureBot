@@ -1,6 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
+using AdventureBot.Item;
 using AdventureBot.Messenger;
 using AdventureBot.Room;
 using AdventureBot.Room.BetterRoom;
@@ -28,8 +31,9 @@ namespace Content.Town.Auction
                     itemOffers = new ItemOffer(new List<Offer>(), new List<Offer>());
                 }
 
-                var myBuy = itemOffers.BuyOffers.SingleOrDefault(offer => offer.UserId.Equals(user.Info.UserId));
-                var mySell = itemOffers.BuyOffers.SingleOrDefault(offer => offer.UserId.Equals(user.Info.UserId));
+                Offer Filter(IEnumerable<Offer> offs) => offs.SingleOrDefault(offer => offer.UserId.Equals(user.Info.UserId));
+                var myBuy = Filter(itemOffers.BuyOffers);
+                var mySell = Filter(itemOffers.SellOffers);
                 var btnRow = new List<string>
                 {
                     myBuy != null ? $"Не покупать {itemInfo.Item.Name}" : $"Купить {itemInfo.Item.Name}",
@@ -47,7 +51,7 @@ namespace Content.Town.Auction
         {
             var splitted = message.Text.Split(' ');
 
-            var action = splitted[0].ToLower();
+            var action = splitted[0];
             string itemName;
 
             if (action == "Не")
@@ -82,6 +86,7 @@ namespace Content.Town.Auction
                         goto SomethingWrong;
                     }
 
+                    user.Info.Gold += buyOffer.Price * buyOffer.Count;
                     itemOffers.BuyOffers.Remove(buyOffer);
                     break;
                 }
@@ -92,6 +97,7 @@ namespace Content.Town.Auction
                         goto SomethingWrong;
                     }
 
+                    user.ItemManager.Add(new ItemInfo(sellOffer.ItemId, sellOffer.Count));
                     itemOffers.SellOffers.Remove(sellOffer);
                     break;
                 }
@@ -106,8 +112,9 @@ namespace Content.Town.Auction
                     {
                         Selling = false,
                         SelectedItemId = item.Identifier,
-                        MaxQuantityAvailable = user.ItemManager.Get(item.Identifier)?.Count ?? 0
+                        MaxQuantityAvailable = int.MaxValue
                     };
+
                     Room.GetRoomVariables(user).Set("state", StateContainer.Serialize(state));
 
                     Room.SwitchAction<AuctionRoom.PriceGroupSelectionAction>(user);

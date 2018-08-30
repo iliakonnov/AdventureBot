@@ -17,6 +17,7 @@ namespace Content.Town.Auction
             var prices = Math.GetPrices()
                 .OrderBy(x => x.Item1)
                 .Select(x => new[] {$"{x.Item1} — {x.Item2}"})
+                .Concat(new[] {new[] {"Назад"}})
                 .ToArray();
             Room.SendMessage(user, "Выберите стоимость предмета", prices);
         }
@@ -25,7 +26,7 @@ namespace Content.Town.Auction
         public void Fallback(User user, RecivedMessage message)
         {
             var priceGroups = Math.GetPrices().ToList();
-            var splitted = message.Text.Split('-');
+            var splitted = message.Text.Split('—');
             if (splitted.Length == 2 && int.TryParse(splitted[0], out var beginning))
             {
                 for (var i = 0; i < priceGroups.Count; i++)

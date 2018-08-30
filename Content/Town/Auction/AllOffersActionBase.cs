@@ -121,13 +121,13 @@ namespace Content.Town.Auction
             {
                 case "Продать":
                 {
-                    state.Selling = false;
+                    state.Selling = true;
                     break;
                 }
                 case "Купить":
                 {
-                    state.Selling = true;
-                    return;
+                    state.Selling = false;
+                    break;
                 }
                 default:
                     goto SomethingWrong;
@@ -135,6 +135,7 @@ namespace Content.Town.Auction
 
             Room.GetRoomVariables(user).Set("state", StateContainer.Serialize(state));
             Room.SwitchAction<AuctionRoom.ItemOffersAction>(user);
+            Room.GetAction<AuctionRoom.ItemOffersAction>().Enter(user);
 
             return;
             SomethingWrong:
@@ -145,6 +146,7 @@ namespace Content.Town.Auction
         public void Back(User user, RecivedMessage message)
         {
             Room.SwitchAction<AuctionRoom.MainAction>(user);
+            Room.GetAction<AuctionRoom.MainAction>().Enter(user);
         }
     }
 }

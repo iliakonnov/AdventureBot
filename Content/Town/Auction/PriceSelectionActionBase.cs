@@ -48,8 +48,8 @@ namespace Content.Town.Auction
         [Button("Назад")]
         public void Back(User user, RecivedMessage message)
         {
-            Room.SwitchAction<AuctionRoom.PriceSelectionAction>(user);
-            Room.GetAction<AuctionRoom.PriceSelectionAction>().Enter(user);
+            Room.SwitchAction<AuctionRoom.PriceGroupSelectionAction>(user);
+            Room.GetAction<AuctionRoom.PriceGroupSelectionAction>().Enter(user);
         }
     }
 }

@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Text;
 using AdventureBot;
+using AdventureBot.Item;
 using AdventureBot.Messenger;
 using AdventureBot.Room;
 using AdventureBot.Room.BetterRoom;
@@ -88,24 +89,25 @@ namespace Content.Town.Auction
             }
 
             Offer neededOffer;
+
+            Offer Filter(IEnumerable<Offer> offr) => offr
+                .SingleOrDefault(offer =>
+                    offer.UserId.Equals(user.Info.UserId)
+                    && offer.ItemId == item.Identifier
+                );
+
+            var selling = false;
             switch (action)
             {
                 case "Покупаю":
                 {
-                    neededOffer = itemOffers.BuyOffers
-                        .SingleOrDefault(offer =>
-                            offer.UserId.Equals(user.Info.UserId)
-                            && offer.ItemId == item.Identifier
-                        );
+                    neededOffer = Filter(itemOffers.BuyOffers); 
                     break;
                 }
                 case "Продаю":
                 {
-                    neededOffer = itemOffers.SellOffers
-                        .SingleOrDefault(offer =>
-                            offer.UserId.Equals(user.Info.UserId)
-                            && offer.ItemId == item.Identifier
-                        );
+                    neededOffer = Filter(itemOffers.SellOffers);
+                    selling = true;
                     break;
                 }
                 default:
@@ -117,6 +119,15 @@ namespace Content.Town.Auction
                 goto SomethingWrong;
             }
 
+            if (selling)
+            {
+                user.ItemManager.Add(new ItemInfo(neededOffer.ItemId, neededOffer.Count));
+            }
+            else
+            {
+                user.Info.Gold += neededOffer.Count * neededOffer.Price;
+            }
+            
             neededOffer.Count = 0;
             offers.Save();
 
