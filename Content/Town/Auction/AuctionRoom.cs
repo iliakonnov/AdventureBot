@@ -43,6 +43,12 @@ namespace Content.Town.Auction
                 Room.SwitchAction<MyOffersAction>(user);
                 Room.GetAction<MyOffersAction>().Enter(user);
             }
+            
+            [Button("Уйти")]
+            public void Exit(User user, RecivedMessage message)
+            {
+                user.RoomManager.Leave();
+            }
         }
 
         [Action(0)]
