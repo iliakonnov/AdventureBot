@@ -69,8 +69,8 @@ namespace Content.Town
         {
             const decimal k = 0.2m;
             user.Info.ChangeStats(StatsProperty.Mana, user.Info.MaxStats.GetStat(StatsProperty.Mana) * k);
-            user.Info.ChangeStats(StatsProperty.Stamina, user.Info.MaxStats.GetStat(StatsProperty.Mana) * k);
-            user.Info.ChangeStats(StatsProperty.Health, user.Info.MaxStats.GetStat(StatsProperty.Mana) * k);
+            user.Info.ChangeStats(StatsProperty.Stamina, user.Info.MaxStats.GetStat(StatsProperty.Stamina) * k);
+            user.Info.ChangeStats(StatsProperty.Health, user.Info.MaxStats.GetStat(StatsProperty.Health) * k);
 
             SendMessage(user, "Вы вернулись в город, отдохнули и теперь лучше себя чувствуете.");
 
