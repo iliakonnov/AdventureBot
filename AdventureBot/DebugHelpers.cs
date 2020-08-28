@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using JetBrains.Annotations;
 using MessagePack;
 
@@ -47,6 +48,36 @@ namespace AdventureBot
         {
             var data = MessagePackSerializer.FromJson(json);
             return MessagePackSerializer.Deserialize<T>(data);
+        }
+
+        /// <summary>
+        ///   Загружает и возвращает пользователя по id мессенджера и id пользователя
+        /// </summary>
+        public static BadWrapDisposable<UserContext> LoadUser(int messenger_id, long user_id)
+        {
+            var ctx = new UserContext(new UserId(messenger_id, user_id));
+            var wrap = new BadWrapDisposable<UserContext>(ctx);
+            return wrap;
+        }
+    }
+
+    public class BadWrapDisposable<T> where T: IDisposable
+    {
+        public T Item;
+
+        public BadWrapDisposable(T item)
+        {
+            Item = item;
+        }
+
+        ~BadWrapDisposable()
+        {
+            Item.Dispose();
+        }
+        
+        public static implicit operator T(BadWrapDisposable<T> wrap)
+        {
+            return wrap.Item;
         }
     }
 }

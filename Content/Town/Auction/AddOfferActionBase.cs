@@ -8,11 +8,14 @@ using AdventureBot.Messenger;
 using AdventureBot.Room;
 using AdventureBot.Room.BetterRoom;
 using AdventureBot.User;
+using NLog;
 
 namespace Content.Town.Auction
 {
     public abstract class AddOfferActionBase : ActionBase<AuctionRoom>
     {
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
+
         protected AddOfferActionBase(AuctionRoom room) : base(room)
         {
         }
@@ -147,7 +150,9 @@ namespace Content.Town.Auction
             }
 
             return;
+
             SomethingWrong:
+            Logger.Warn("Something went wrong when adding offer");
             Enter(user);
         }
 

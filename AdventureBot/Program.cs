@@ -1,6 +1,8 @@
 ﻿using System;
-using System.IO;
+using System.Linq;
+using System.Management.Automation.Runspaces;
 using System.Reflection;
+using System.Text;
 using AdventureBot.Analysis;
 using AdventureBot.Item;
 using AdventureBot.Messenger;
@@ -8,7 +10,7 @@ using AdventureBot.ObjectManager;
 using AdventureBot.Quest;
 using AdventureBot.Room;
 using AdventureBot.UserManager;
-using Boo.Lang.Interpreter;
+using Namotion.Reflection;
 using NLog;
 
 namespace AdventureBot
@@ -28,11 +30,6 @@ namespace AdventureBot
             Logger.Debug("Done!");
             LogManager.Shutdown();
             _work = false;
-        }
-
-        private static InteractiveInterpreterConsole GetConsole()
-        {
-            return new InteractiveInterpreterConsole {DisableAutocompletion = false};
         }
 
         private static void Main()
@@ -68,45 +65,24 @@ namespace AdventureBot
 
             Logger.Info("Working!");
 
-            // To allow long strings
-            Console.SetIn(new StreamReader(Console.OpenStandardInput(),
-                Console.InputEncoding,
-                false,
-                16384));
-
-            var console = GetConsole();
-            var forceContinue = false;
-            Console.CancelKeyPress += (sender, args) =>
+            var iss = InitialSessionState.CreateDefault2();
+            var help = new StringBuilder("Welcome to adventure control panel. Here you can:\n");
+            foreach (var method in typeof(DebugHelpers).GetMethods().Where(m => m.DeclaringType != typeof(object)))
             {
-                args.Cancel = true;
-                Console.WriteLine("\nUse `quit()` to stop. Press Enter to continue");
-                console.Quit();
-                console = GetConsole();
-                forceContinue = true;
-            };
-
-            while (_work)
-            {
-                try
+                var args = new StringBuilder();
+                var arg_help = new StringBuilder();
+                var parameters = method.GetParameters();
+                for (int i = 0; i < parameters.Length; i++)
                 {
-                    console.ReadEvalPrintLoop();
+                    args.Append(i == 0 ? "$args[0]" : $", $args[{i}]");
+                    var arg = $"{parameters[i].Name}: {parameters[i].ParameterType.Name}";
+                    arg_help.Append(i == 0 ? arg : $", {arg}");
                 }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e);
-                    continue;
-                }
-
-                if (forceContinue)
-                {
-                    Console.WriteLine("Restarting interpreter...");
-                    forceContinue = false;
-                }
-                else
-                {
-                    break;
-                }
+                var definition = $"[AdventureBot.DebugHelpers]::{method.Name}({args})";
+                help.AppendLine($"  - {method.Name}({arg_help}): {method.GetXmlDocsSummary()}");
+                iss.Commands.Add(new SessionStateFunctionEntry(method.Name, definition));
             }
+            Microsoft.PowerShell.ConsoleShell.Start(iss, help.ToString(), "", new string[0]);
 
             Exit();
         }
