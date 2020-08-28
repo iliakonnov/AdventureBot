@@ -72,7 +72,15 @@ namespace AdventureBot
 
         ~BadWrapDisposable()
         {
-            Item.Dispose();
+            try
+            {
+                Item.Dispose();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
         }
         
         public static implicit operator T(BadWrapDisposable<T> wrap)
