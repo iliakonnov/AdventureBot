@@ -16,7 +16,7 @@ namespace AdventureBot
         public static string SerializeJson<T>(T obj)
         {
             var data = Serialize(obj);
-            return MessagePackSerializer.ToJson(data);
+            return MessagePackSerializer.ConvertToJson(data);
         }
 
         public static void Dump<T>(T obj, string output)
@@ -46,7 +46,7 @@ namespace AdventureBot
 
         public static T DeserializeJson<T>(string json)
         {
-            var data = MessagePackSerializer.FromJson(json);
+            var data = MessagePackSerializer.ConvertFromJson(json);
             return MessagePackSerializer.Deserialize<T>(data);
         }
 

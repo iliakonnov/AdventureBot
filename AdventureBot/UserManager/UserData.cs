@@ -18,10 +18,11 @@ namespace AdventureBot.UserManager
 
         static UserData()
         {
-            CompositeResolver.RegisterAndSetAsDefault(
+            StaticCompositeResolver.Instance.Register(
                 ImmutableCollectionResolver.Instance,
-                StandardResolverAllowPrivate.Instance
-            );
+                StandardResolverAllowPrivate.Instance);
+            var options = MessagePackSerializerOptions.Standard.WithResolver(StaticCompositeResolver.Instance);
+            MessagePackSerializer.DefaultOptions = options;
         }
 
         public UserData(UserId id, byte[] data, DatabaseVariables variables, int version)

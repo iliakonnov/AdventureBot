@@ -16,7 +16,7 @@ namespace VkMessenger
 
         public LongpollParameters(LongPollServerResponse longPollServerResponse)
         {
-            Timestamp = longPollServerResponse.Ts;
+            Timestamp = ulong.Parse(longPollServerResponse.Ts);
             Key = longPollServerResponse.Key;
             Server = longPollServerResponse.Server;
         }
@@ -59,7 +59,7 @@ namespace VkMessenger
 
             if (ts)
             {
-                Timestamp = response.Ts;
+                Timestamp = ulong.Parse(response.Ts);
             }
 
             // Про сервер ничего не говорится, но на всякий случай тоже обновляю

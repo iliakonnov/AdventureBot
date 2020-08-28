@@ -64,15 +64,14 @@ namespace Api
                 {
                     var publicUser = new PublicUser(context.User);
                     var query = (DynamicDictionary) Request.Query;
+                    var bytes = MessagePackSerializer.Serialize(publicUser);
                     if (query.ContainsKey("json"))
                     {
-                        var response = (Response) MessagePackSerializer.ToJson(publicUser);
+                        var response = (Response) MessagePackSerializer.ConvertToJson(bytes);
                         response.ContentType = "application/json";
                         return response;
                     }
 
-
-                    var bytes = MessagePackSerializer.Serialize(publicUser);
                     return new Response
                     {
                         ContentType = "application/x-msgpack",

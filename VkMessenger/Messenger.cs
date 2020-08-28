@@ -8,6 +8,7 @@ using Newtonsoft.Json;
 using NLog;
 using VkNet;
 using VkNet.Model;
+using VkNet.Model.Keyboard;
 using VkNet.Model.RequestParams;
 using VkNet.Utils;
 using User = AdventureBot.User.User;

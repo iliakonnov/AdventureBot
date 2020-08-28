@@ -19,15 +19,15 @@
     <FileVersion>0.0.0.0</FileVersion>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="JetBrains.Annotations" Version="11.1.0" />
-    <PackageReference Include="MessagePack" Version="1.7.3.4" />
-    <PackageReference Include="MessagePack.ImmutableCollection" Version="1.7.3.4" />
+    <PackageReference Include="JetBrains.Annotations" Version="2020.1.0" />
+    <PackageReference Include="MessagePack" Version="2.1.165" />
+    <PackageReference Include="MessagePack.ImmutableCollection" Version="2.1.165" />
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="2.1.1" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="2.1.1" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="3.1.7" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="3.1.7" />
     <PackageReference Include="Microsoft.PowerShell.SDK" Version="7.0.3" />
     <PackageReference Include="Mono.Data.Sqlite.Portable" Version="1.0.3.5" />
-    <PackageReference Include="NLog" Version="4.5.7" />
+    <PackageReference Include="NLog" Version="4.7.4" />
     <PackageReference Include="System.Security.Permissions" Version="4.7.0" />
   </ItemGroup>
   <ItemGroup>
