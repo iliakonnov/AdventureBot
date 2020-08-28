@@ -38,7 +38,7 @@ namespace Content.Items
     public class ActivatedGolemHeart : ItemBase, IAdventureItem
     {
         public const string Id = "golem_heart/activated";
-        public override StructFlag<BuyGroup> Group => new StructFlag<BuyGroup>();
+        public override StructFlag<BuyGroup> Group => new StructFlag<BuyGroup>(BuyGroup.NotSellable);
         public override string Name => "Активированное сердце голема";
         public override string Description => "Делает кожу каменной";
         public override decimal? Price => null;

@@ -3,12 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
+using AdventureBot;
 using AdventureBot.Item;
 using AdventureBot.Messenger;
+using AdventureBot.ObjectManager;
 using AdventureBot.Room;
 using AdventureBot.Room.BetterRoom;
 using AdventureBot.User;
 using NLog;
+using ItemManager = AdventureBot.Item.ItemManager;
 
 namespace Content.Town.Auction
 {
@@ -28,7 +31,13 @@ namespace Content.Town.Auction
 
             foreach (var itemInfo in user.ItemManager.Items)
             {
+                if (itemInfo.Item.Group.Intersects(new StructFlag<BuyGroup>(BuyGroup.NotSellable)))
+                {
+                    continue;
+                }
+
                 var itemId = itemInfo.Identifier;
+
                 if (!offers.TryGetValue(itemId, out var itemOffers))
                 {
                     itemOffers = new ItemOffer(new List<Offer>(), new List<Offer>());

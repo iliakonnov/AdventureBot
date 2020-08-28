@@ -41,8 +41,8 @@ namespace Content.Items
     public class ActivatedStarkSuit : ItemBase, IAdventureItem
     {
         public const string Id = "stark_suit/activated";
-        public override StructFlag<BuyGroup> Group => new StructFlag<BuyGroup>();
-        public override string Name => "Активированное костюм Старка";
+        public override StructFlag<BuyGroup> Group => new StructFlag<BuyGroup>(BuyGroup.NotSellable);
+        public override string Name => "Активированный костюм Старка";
         public override string Description => "Надпись на этикетке: не рассчитан на продолжительное использование";
         public override decimal? Price => null;
         public override string Identifier => Id;

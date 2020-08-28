@@ -9,7 +9,8 @@ namespace AdventureBot.Item
         Market,
         Guild,
         Gym,
-        Merchant
+        Merchant,
+        NotSellable,
     }
 
     [PublicAPI]

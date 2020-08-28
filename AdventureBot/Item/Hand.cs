@@ -15,7 +15,7 @@ namespace AdventureBot.Item
             "Самая обычная рука. У каждого такая есть, а у некторых даже не одна.";
 
         public override decimal? Price => null;
-        public override StructFlag<BuyGroup> Group => new StructFlag<BuyGroup>(new BuyGroup[0]);
+        public override StructFlag<BuyGroup> Group => new StructFlag<BuyGroup>(BuyGroup.NotSellable);
         public override string Identifier => Id;
         public override StatsEffect Effect => null;
 
