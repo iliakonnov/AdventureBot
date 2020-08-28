@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>netcoreapp3.1</TargetFramework>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Elwood.ConsoleFramework" Version="0.0.3" />
+      <PackageReference ExcludeAssets="runtime" Include="Microsoft.Build" Version="16.6.0" />
+      <PackageReference Include="Microsoft.Build.Locator" Version="1.2.6" />
+      <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="3.7.0" />
+      <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="3.7.0" />
+      <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.MSBuild" Version="3.7.0" />
+    </ItemGroup>
+
+</Project>
