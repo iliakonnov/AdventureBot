@@ -79,7 +79,7 @@ namespace AdventureBot.User
 
         public QuestManager QuestManager { get; private set; }
         
-        [IgnoreMember] internal DatabaseVariables DatabaseVariables { get; } = new DatabaseVariables();
+        [IgnoreMember] internal DatabaseVariables DatabaseVariables { get; private set;  } = new DatabaseVariables();
 
         public Guid Token { get; set; } = Guid.Empty;
         internal Tuple<UserId, Guid> LinkedTo { get; set; }
@@ -94,6 +94,7 @@ namespace AdventureBot.User
             RoomManager = new RoomManager(this);
             MessageManager = new MessageManager(this);
             QuestManager = new QuestManager(this);
+            DatabaseVariables = new DatabaseVariables();
 
             if (VariableManager != null)
             {

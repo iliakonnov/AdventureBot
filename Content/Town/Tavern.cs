@@ -167,6 +167,13 @@ namespace Content.Town
                     "– Знаешь, сплетни - это не мое, но зеваки шепчут, что самая достоверная информация о делах в городе есть в <a href=\"https://t.me/AdventureTavern\">@AdventureTavern</a>",
                     Room.GetButtons(user));
             }
+            
+            [Button("Назад")]
+            public void Back(User user, RecivedMessage message)
+            {
+                Room.SwitchAction<MainAction>(user);
+                Room.SendMessage(user, "Хозяин странно на тебя посмотрел", Room.GetButtons(user));
+            }
         }
 
         [Action(1)]
