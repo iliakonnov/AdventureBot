@@ -25,7 +25,7 @@ namespace Content.Rooms.MegaMonster.Room
                         }
 
                         message =
-                            $"Монстр желает научиться спорту. Для этого необходимо минимум {stats.Stats.KnowledgeMinimal.Format()} силы и {stats.Stats.KnowledgeRequired.Format()} сил";
+                            $"Монстр желает научиться спорту. Для этого необходимо минимум {stats.Stats.KnowledgeMinimal.Format()} силы и {stats.Stats.KnowledgeRequired.Format()} запаса сил";
 
                         break;
                     case MegaMonster.Knowledge.Intelligence:

@@ -49,17 +49,6 @@ namespace AdventureBot.Messenger
                             user.RoomManager.Go("_root", false);
                             break;
                         }
-                        case "/lag":
-                        {
-                            user.MessageManager.SendImmediately(new SentMessage
-                            {
-                                Text =
-                                    @"Если бот долго отвечает, то создайте беседу и обязательно пригласите туда @AdventureTownBot.
-После этого пригласите туда @PocketTownBot и @MonsterTownBot",
-                                Intent = "command-lag"
-                            });
-                            break;
-                        }
                         case "/repeat":
                         {
                             user.MessageManager.SendImmediately(user.MessageManager.LastMessages.Last());

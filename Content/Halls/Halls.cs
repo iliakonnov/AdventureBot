@@ -46,7 +46,7 @@ namespace Content.Halls
                 .ToList();
             var selected = rooms[user.Random.Next(rooms.Count)];
             var selectedRoom = GetAllRooms().Get(selected);
-            SendMessage(user, $"<b>Дальше вам прмиком к {selectedRoom?.Name}! Будем ждать!</b>");
+            SendMessage(user, $"<b>Дальше вам прямиком к {selectedRoom?.Name}! Будем ждать!</b>");
             user.RoomManager.Go(selected);
         }
 
