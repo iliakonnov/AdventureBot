@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using AdventureBot.Messenger;
 
@@ -12,14 +13,19 @@ namespace AdventureBot.Room
 
         public void MakeDamage(User.User user, decimal damage)
         {
-            var vars = Load();
+            using var vars = new Variables(this);
             vars.Health -= damage;
             vars.TotalDamage += damage;
 
-            var attacker = vars.Attackers.Single(a => a.UserId.Equals(user.Info.UserId));
+            var attacker = vars.Attackers.SingleOrDefault(a => a.UserId.Equals(user.Info.UserId));
+            if (attacker == null)
+            {
+                SendMessage(user, "Вы бы рады и ударить босса, но кажется уже поздно");
+                return;
+            }
             attacker.DamageDealed += damage;
 
-            Save(vars);
+            vars.Save();
             if (vars.Health <= 0)
             {
                 foreach (var usr in vars.Attackers)
@@ -48,28 +54,26 @@ namespace AdventureBot.Room
                     }
                 }
 
-                lock (GlobalVariables.Variables)
-                {
-                    GlobalVariables.Variables.Remove(GlobalVariablesKey);
-                }
+                vars.Remove();
             }
         }
 
         public decimal GetCurrentHealth(User.User user)
         {
-            return Load().Health;
+            using var vars = new Variables(this);
+            return vars.Health;
         }
 
         public override void OnEnter(User.User user)
         {
             base.OnEnter(user);
-            var vars = Load();
+            using var vars = new Variables(this);
             vars.Attackers.Add(new Attacker
             {
                 UserId = user.Info.UserId,
                 DamageDealed = 0
             });
-            Save(vars);
+            vars.Save();
             SendMessage(user,
                 $"Вы попали к боссу! У него {vars.Gold.Format()} золота и {vars.Health.Format()} здоровья",
                 GetActions(user));
@@ -85,7 +89,7 @@ namespace AdventureBot.Room
 
             if (UseItem(user, message))
             {
-                var vars = Load();
+                using var vars = new Variables(this);
 
                 if (vars.Attackers.FirstOrDefault(a => a.UserId.Equals(user.Info.UserId)) == null)
                 {
@@ -108,7 +112,8 @@ namespace AdventureBot.Room
 
         public override bool OnLeave(User.User user)
         {
-            var vars = Load();
+            using var vars = new Variables(this);
+
             var attacker = vars.Attackers.Single(a => a.UserId.Equals(user.Info.UserId));
 
             if (vars.Health <= 0)
@@ -125,7 +130,7 @@ namespace AdventureBot.Room
 
             vars.Gold += gold;
             vars.Attackers.Remove(attacker);
-            Save(vars);
+            vars.Save();
 
             return base.OnLeave(user);
         }
@@ -140,51 +145,58 @@ namespace AdventureBot.Room
                 .ToArray();
         }
 
-        private Variables Load()
+        private class Variables: IDisposable
         {
-            lock (GlobalVariables.Variables)
-            {
-                var vars = GlobalVariables.Variables.Get<VariableContainer>(GlobalVariablesKey);
-                if (vars == null)
-                {
-                    return new Variables
-                    {
-                        Gold = InitialGold,
-                        Health = Health,
-                        TotalDamage = 0,
-                        Attackers = new List<Attacker>()
-                    };
-                }
+            private string _key;
+            private bool _lockWasTaken;
+            private bool _isReadOnly;
 
-                return new Variables
-                {
-                    Gold = vars.Get<Serializable.Decimal>("gold"),
-                    Health = vars.Get<Serializable.Decimal>("health"),
-                    TotalDamage = vars.Get<Serializable.Decimal>("totalDamage"),
-                    Attackers = Attacker.Load(vars.Get<SerializableList>("attackers"))
-                };
-            }
-        }
-
-        private void Save(Variables variables)
-        {
-            var vars = new VariableContainer();
-            vars.Set("gold", new Serializable.Decimal(variables.Gold));
-            vars.Set("health", new Serializable.Decimal(variables.Health));
-            vars.Set("totalDamage", new Serializable.Decimal(variables.TotalDamage));
-            vars.Set("attackers", Attacker.Save(variables.Attackers));
-            lock (GlobalVariables.Variables)
-            {
-                GlobalVariables.Variables.Set(GlobalVariablesKey, vars);
-            }
-        }
-
-        private class Variables
-        {
             public List<Attacker> Attackers;
             public decimal Gold;
             public decimal Health;
             public decimal TotalDamage;
+
+            public Variables(BossBase boss)
+            {
+                System.Threading.Monitor.Enter(GlobalVariables.Variables, ref _lockWasTaken);
+                _key = boss.GlobalVariablesKey;
+                
+                var vars = GlobalVariables.Variables.Get<VariableContainer>(_key);
+                if (vars == null)
+                {
+                    Gold = boss.InitialGold;
+                    Health = boss.Health;
+                    TotalDamage = 0;
+                    Attackers = new List<Attacker>();
+                }
+                else
+                {
+                    Gold = vars.Get<Serializable.Decimal>("gold");
+                    Health = vars.Get<Serializable.Decimal>("health");
+                    TotalDamage = vars.Get<Serializable.Decimal>("totalDamage");
+                    Attackers = Attacker.Load(vars.Get<SerializableList>("attackers"));
+                }
+            }
+
+            public void Save()
+            {
+                var vars = new VariableContainer();
+                vars.Set("gold", new Serializable.Decimal(Gold));
+                vars.Set("health", new Serializable.Decimal(Health));
+                vars.Set("totalDamage", new Serializable.Decimal(TotalDamage));
+                vars.Set("attackers", Attacker.Save(Attackers));
+                GlobalVariables.Variables.Set(_key, vars);
+            }
+
+            public void Remove()
+            {
+                GlobalVariables.Variables.Remove(_key);
+            }
+
+            public void Dispose()
+            {
+                if (_lockWasTaken) System.Threading.Monitor.Exit(GlobalVariables.Variables);
+            }
         }
 
         public class Attacker
