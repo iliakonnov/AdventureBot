@@ -81,7 +81,7 @@ namespace AdventureBot.Room
 
         public override void OnMessage(User.User user, RecivedMessage message)
         {
-            if (message.Text == "Сбежать")
+            if (message.Text == "Сбежать" || message.Text == "Уйти")
             {
                 user.RoomManager.Leave();
                 return;
@@ -114,7 +114,13 @@ namespace AdventureBot.Room
         {
             using var vars = new Variables(this);
 
-            var attacker = vars.Attackers.Single(a => a.UserId.Equals(user.Info.UserId));
+            var attacker = vars.Attackers.SingleOrDefault(a => a.UserId.Equals(user.Info.UserId));
+            if (attacker == null)
+            {
+                SendMessage(user,
+                    "Вам не место в этой битве, уходите быстрее.");
+                return base.OnLeave(user);
+            }
 
             if (vars.Health <= 0)
             {
@@ -147,11 +153,10 @@ namespace AdventureBot.Room
 
         private class Variables: IDisposable
         {
-            private string _key;
-            private bool _lockWasTaken;
-            private bool _isReadOnly;
+            private readonly string _key;
+            private readonly bool _lockWasTaken;
 
-            public List<Attacker> Attackers;
+            public readonly List<Attacker> Attackers;
             public decimal Gold;
             public decimal Health;
             public decimal TotalDamage;
