@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Linq;
-using System.Management.Automation.Runspaces;
+using System.IO;
 using System.Reflection;
-using System.Text;
 using AdventureBot.Analysis;
 using AdventureBot.Item;
 using AdventureBot.Messenger;
@@ -10,7 +8,7 @@ using AdventureBot.ObjectManager;
 using AdventureBot.Quest;
 using AdventureBot.Room;
 using AdventureBot.UserManager;
-using Namotion.Reflection;
+using Boo.Lang.Interpreter;
 using NLog;
 
 namespace AdventureBot
@@ -65,26 +63,50 @@ namespace AdventureBot
 
             Logger.Info("Working!");
 
-            var iss = InitialSessionState.CreateDefault2();
-            var help = new StringBuilder("Welcome to adventure control panel. Here you can:\n");
-            foreach (var method in typeof(DebugHelpers).GetMethods().Where(m => m.DeclaringType != typeof(object)))
-            {
-                var args = new StringBuilder();
-                var arg_help = new StringBuilder();
-                var parameters = method.GetParameters();
-                for (int i = 0; i < parameters.Length; i++)
-                {
-                    args.Append(i == 0 ? "$args[0]" : $", $args[{i}]");
-                    var arg = $"{parameters[i].Name}: {parameters[i].ParameterType.Name}";
-                    arg_help.Append(i == 0 ? arg : $", {arg}");
-                }
-                var definition = $"[AdventureBot.DebugHelpers]::{method.Name}({args})";
-                help.AppendLine($"  - {method.Name}({arg_help}): {method.GetXmlDocsSummary()}");
-                iss.Commands.Add(new SessionStateFunctionEntry(method.Name, definition));
-            }
-            Microsoft.PowerShell.ConsoleShell.Start(iss, help.ToString(), "", new string[0]);
+            // To allow long strings
+            Console.SetIn(new StreamReader(Console.OpenStandardInput(),
+                Console.InputEncoding,
+                false,
+                16384));
 
-            Exit();
+            var console = GetConsole();
+            var forceContinue = false;
+            Console.CancelKeyPress += (sender, args) =>
+            {
+                args.Cancel = true;
+                Console.Error.WriteLine("\nUse `/q` to quit.");
+            };
+
+            while (_work)
+            {
+                try
+                {
+                    console.ReadEvalPrintLoop();
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                    continue;
+                }
+
+                if (!forceContinue)
+                {
+                    break;
+                }
+
+                Console.WriteLine("Restarting interpreter...");
+                forceContinue = false;
+
+                Exit();
+            }
+        }
+
+        private static InteractiveInterpreterConsole GetConsole()
+        {
+            var result = new InteractiveInterpreterConsole {DisableAutocompletion = false};
+            result.Eval("import AdventureBot as adv; import AdventureBot.DebugHelpers as dbg");
+            Console.WriteLine("AdventureBot available as `adv`; DebugHelpers available as `dbg`");
+            return result;
         }
     }
 }
