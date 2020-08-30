@@ -63,22 +63,26 @@ namespace AdventureBot
 
     public class BadWrapDisposable<T> where T: IDisposable
     {
+        private static int _counter = 0;
         public T Item;
 
         public BadWrapDisposable(T item)
         {
+            _counter++;
+            Console.Error.WriteLine("BadWrapDisposable#{0} is constructed!", _counter);
             Item = item;
         }
 
         ~BadWrapDisposable()
         {
+            Console.Error.WriteLine("BadWrapDisposable#{0} is destructed!", _counter);
             try
             {
                 Item.Dispose();
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
+                Console.Error.WriteLine(e);
                 throw;
             }
         }
