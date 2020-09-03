@@ -72,10 +72,10 @@ namespace AdventureBot.User
             ChatId = chatId;
             ShownStats = shownStats;
             _intent = intent;
-            LastMessage = LastMessages.ToArray().Last();
+            LastMessage = LastMessages.LastOrDefault();
         }
 
-        [IgnoreMember] public SentMessage LastMessage { get; private set; }
+        [IgnoreMember] [CanBeNull] public SentMessage LastMessage { get; private set; }
 
         [Key("queue")] private List<SentMessage> Queue { get; } = new List<SentMessage>();
         [Key("buttons")] private string[][] Buttons { get; set; }

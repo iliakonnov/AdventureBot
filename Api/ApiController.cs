@@ -16,6 +16,19 @@ namespace Api
 {
     public class ApiController : WebApiController
     {
+        [Route(HttpVerbs.Get, "/register")]
+        public string Register([QueryField] string secret, [QueryField] long? id)
+        {
+            if (secret != ApiMessenger._secret)
+            {
+                throw HttpException.Forbidden();
+            }
+
+            var userId = id ?? ApiMessenger.LongRandom();
+            using var context = new UserContext(new UserId(ApiMessenger.MessengerId, userId));
+            return $"{userId}:{context.User.Token}";
+        }
+
         [Route(HttpVerbs.Post, "/{tokenArg}")]
         public async Task PostMessage(string tokenArg)
         {
@@ -39,7 +52,7 @@ namespace Api
         }
 
         [Route(HttpVerbs.Get, "/{tokenArg}")]
-        public byte[] GetState([QueryField] bool? json, string tokenArg)
+        public async Task GetState([QueryField] bool? json, string tokenArg)
         {
             (ChatId, UserId)? token = ApiMessenger.ParseToken(tokenArg);
             if (token == null)
@@ -56,26 +69,16 @@ namespace Api
             {
                 var response = MessagePackSerializer.ConvertToJson(bytes);
                 HttpContext.Response.ContentType = "application/json";
-                return Encoding.UTF8.GetBytes(response);
+                bytes = Encoding.UTF8.GetBytes(response);
             }
-
-            HttpContext.Response.ContentType = "application/x-msgpack";
-            return bytes;
-        }
-
-        [Route(HttpVerbs.Get, "/register")]
-        public string Register([QueryField] string secret, [QueryField] long? id)
-        {
-            if (secret != ApiMessenger._secret)
+            else
             {
-                throw HttpException.Forbidden();
+                HttpContext.Response.ContentType = "application/x-msgpack";
             }
-
-            using var context = new UserContext(new UserId(
-                ApiMessenger.MessengerId,
-                id ?? ApiMessenger.LongRandom()
-            ));
-            return $"{id}:{context.User.Token}";
+            using (var stream = HttpContext.OpenResponseStream())
+            {
+                await stream.WriteAsync(bytes, 0, bytes.Length);
+            }
         }
     }
 }

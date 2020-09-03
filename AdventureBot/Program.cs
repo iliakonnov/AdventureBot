@@ -73,6 +73,7 @@ namespace AdventureBot
 
             while (true)
             {
+                Console.WriteLine("Working...");
                 var cmd = Console.ReadLine();
                 if (cmd != "/q")
                 {
