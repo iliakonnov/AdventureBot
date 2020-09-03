@@ -1,113 +1,32 @@
 ﻿using System;
-using System.IO;
 using AdventureBot;
 using AdventureBot.Messenger;
 using AdventureBot.ObjectManager;
 using AdventureBot.User;
-using MessagePack;
 using Microsoft.Extensions.Configuration;
-using Nancy;
-using Nancy.Hosting.Self;
+using EmbedIO;
+using EmbedIO.Actions;
+using EmbedIO.WebApi;
+using NLog;
 
 namespace Api
 {
     [Messenger]
-    public class ApiMessenger : NancyModule, IMessenger
+    public class ApiMessenger : IMessenger
     {
-        private const int MessengerId = 3;
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
+        internal const int MessengerId = 3;
+        internal static string _secret;
+
         private static Random _random;
-
-        private static string _secret;
-
-        private NancyHost _host;
+        private WebServer _server;
 
         public ApiMessenger()
         {
-            if (MessageRecievedStatic == null)
+            if (OnMessageReceivedStatic == null)
             {
-                MessageRecievedStatic += message => MessageRecieved?.Invoke(message);
+                OnMessageReceivedStatic += message => MessageRecieved?.Invoke(message);
             }
-
-            Post["/api/{token}", true] = async (parameters, _) =>
-            {
-                (ChatId, UserId)? token = ParseToken(parameters.token);
-                if (token == null)
-                {
-                    return HttpStatusCode.Forbidden;
-                }
-
-                var (chat, user) = ((ChatId, UserId)) token;
-
-                var text = new StreamReader(Request.Body).ReadToEnd();
-
-                var message = new RecivedMessage
-                {
-                    ChatId = chat,
-                    Text = text,
-                    UserId = user
-                };
-                MessageRecievedStatic?.Invoke(message);
-                return HttpStatusCode.OK;
-            };
-
-            Get["/api/{token}", true] = async (parameters, _) =>
-            {
-                (ChatId, UserId)? token = ParseToken(parameters.token);
-                if (token == null)
-                {
-                    return HttpStatusCode.Forbidden;
-                }
-
-                var (_, user) = ((ChatId, UserId)) token;
-
-                using (var context = new UserContext(user))
-                {
-                    var publicUser = new PublicUser(context.User);
-                    var query = (DynamicDictionary) Request.Query;
-                    var bytes = MessagePackSerializer.Serialize(publicUser);
-                    if (query.ContainsKey("json"))
-                    {
-                        var response = (Response) MessagePackSerializer.ConvertToJson(bytes);
-                        response.ContentType = "application/json";
-                        return response;
-                    }
-
-                    return new Response
-                    {
-                        ContentType = "application/x-msgpack",
-                        Contents = s => s.Write(bytes, 0, bytes.Length)
-                    };
-                }
-            };
-
-            Get["/api/register", true] = async (parameters, _) =>
-            {
-                var query = (DynamicDictionary) Request.Query;
-
-                if (
-                    !query.TryGetValue("secret", out var secret)
-                    || secret != _secret
-                )
-                {
-                    return HttpStatusCode.Forbidden;
-                }
-
-                long id;
-                if (query.TryGetValue("id", out var dynId))
-                {
-                    id = (long) dynId;
-                }
-                else
-                {
-                    // It can generate existing id!
-                    id = LongRandom(_random);
-                }
-
-                using (var context = new UserContext(new UserId(MessengerId, id)))
-                {
-                    return $"{id}:{context.User.Token}";
-                }
-            };
         }
 
         public void Send(SentMessage message, RecivedMessage recievedMessage, User user)
@@ -120,29 +39,28 @@ namespace Api
         public void BeginPolling()
         {
             _random = new Random();
-            var hostConf = new HostConfiguration
-            {
-                RewriteLocalhost = true,
-                UrlReservations = {CreateAutomatically = true}
-            };
-            var url = Configuration.Config.GetValue<string>("ApiHost");
             _secret = Configuration.Config.GetValue<string>("ApiSecret");
-            _host = new NancyHost(hostConf, new Uri(url));
-            _host.Start();
+            var url = Configuration.Config.GetValue<string>("ApiHost");
+            _server = new WebServer(o => o
+                .WithUrlPrefix(url)
+                .WithMode(HttpListenerMode.EmbedIO))
+                .WithWebApi("/api", m => m.WithController<ApiController>())
+                .WithModule(new ActionModule("/", HttpVerbs.Any, ctx => ctx.SendDataAsync(new { Message = "Error" })));
+            _server.StateChanged += (s, e) => Logger.Info("WebServer New State - {0}", e.NewState);
+            _server.RunAsync();
         }
 
-        private static long LongRandom(Random rand)
+        internal static long LongRandom()
         {
             var buf = new byte[8];
-            rand.NextBytes(buf);
+            _random.NextBytes(buf);
             var longRand = BitConverter.ToInt64(buf, 0);
             return Math.Abs(longRand);
         }
 
+        internal static event MessageHandler OnMessageReceivedStatic;
 
-        private static event MessageHandler MessageRecievedStatic;
-
-        private static (ChatId, UserId)? ParseToken(string token)
+        internal static (ChatId, UserId)? ParseToken(string token)
         {
             var splitted = token.Split(':');
             if (splitted.Length != 2)
@@ -171,6 +89,11 @@ namespace Api
             }
 
             return (new ChatId(MessengerId, id), user);
+        }
+
+        internal static void InvokeOnMessageReceived(RecivedMessage message)
+        {
+            OnMessageReceivedStatic?.Invoke(message);
         }
     }
 }

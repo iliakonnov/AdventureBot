@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Threading.Tasks;
+using AdventureBot.ObjectManager;
+using Microsoft.Build.Construction;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Scripting;
@@ -11,17 +13,19 @@ using Microsoft.CodeAnalysis.MSBuild;
 
 namespace Analyser
 {
-    public class ClassInfo
+    internal abstract class ClassInfo
     {
-        public string SymbolName { get; private set; }
+        public INamedTypeSymbol Symbol;
         public string ID { get; private set; }
         public string Name { get; private set; }
-        public bool IsRoom { get; private set; }
-        public bool IsMonster { get; private set; }
-        public bool IsQuest { get; private set; }
-        public bool IsBoss { get; private set; }
-        public bool IsItem { get; private set; }
-        public bool IsGameObject => IsRoom || IsItem;
+        public bool IsRoom => this is Room;
+        public bool IsItem => this is Item;
+
+        protected ImmutableHashSet<string> _interfaces;
+        protected ImmutableHashSet<string> _bases;
+        protected ImmutableArray<AttributeData> _attributes;
+        
+        protected abstract void Fill();
 
         public static async Task<ClassInfo> Construct(INamedTypeSymbol symbol)
         {
@@ -40,36 +44,29 @@ namespace Analyser
             var available_attr = attributes.SingleOrDefault(a =>
                 a?.AttributeClass?.ToDisplayString() == "AdventureBot.Room.AvailableAttribute");
             
-            var result = new ClassInfo
+            var isRoom = interfaces.Contains("AdventureBot.Room.IRoom")
+                            && (room_attr ?? available_attr) != null;
+            var isItem = interfaces.Contains("AdventureBot.Item.IItem")
+                            && item_attr != null;
+            ClassInfo result;
+            if (isItem)
             {
-                SymbolName = symbol.ToDisplayString(),
-                IsRoom = interfaces.Contains("AdventureBot.Room.IRoom")
-                         && (room_attr ?? available_attr) != null,
-                IsItem = interfaces.Contains("AdventureBot.Item.IItem")
-                         && item_attr != null,
-            };
-
-            string id;
-            if (result.IsRoom)
-            {
-                var attr = room_attr ?? available_attr;
-                id = (string) attr.ConstructorArguments[0].Value;
+                result = new Item();
+                result.ID = (string) item_attr.ConstructorArguments[0].Value;
             }
-            else if (result.IsItem)
+            else if (isRoom)
             {
-                id = (string) item_attr.ConstructorArguments[0].Value;
+                result = new Room();
+                result.ID = (string) (room_attr ?? available_attr).ConstructorArguments[0].Value;
             }
             else
             {
                 return null;
             }
 
-            result.ID = id;
-            result.IsMonster = interfaces.Contains("AdventureBot.Room.IMonster");
-            result.IsQuest = interfaces.Contains("AdventureBot.Room.IQuestMonster");
-            result.IsBoss = bases.Contains("AdventureBot.Room.BossBase");
-            result.Name = Parser.Trivial(
-                symbol.GetMembers("Name").FirstOrDefault(), @"¯\_(ツ)_/¯");
+            result.Symbol = symbol;
+            result.Name = Parser.Trivial(symbol.GetMembers("Name").FirstOrDefault(), @"¯\_(ツ)_/¯");
+            result.Fill();
 
             return result;
         }
@@ -85,7 +82,7 @@ namespace Analyser
         }
     }
     
-    public static class Parser
+    internal static class Parser
     {
         public static T Trivial<T>(ISymbol symbol, T def = default)
         {
@@ -93,17 +90,8 @@ namespace Analyser
             {
                 // https://stackoverflow.com/a/38030934
                 var getter = prop.GetMethod;
-                var typeName = $"{getter.ContainingType.ToDisplayString()}, {getter.ContainingAssembly.ToDisplayString()}";
-                try
-                {
-                    var method = Type.GetType(typeName).GetMethod(getter.Name);
-                    var del = (Func<T>) Delegate.CreateDelegate(typeof(Func<T>), null, method);
-                    return del();
-                }
-                catch (Exception)
-                {
-                    return def;
-                }
+                var returnType = getter.ReturnType;
+                return default;
             }
             else
             {
@@ -111,17 +99,40 @@ namespace Analyser
             }
         }
 
+        /*public static async IAsyncEnumerable<ClassInfo> AnalyseSolution()
+        {
+            using var ws = new AdhocWorkspace();
+            var solution = ws.AddSolution(SolutionInfo.Create(
+                SolutionId.CreateNewId(),
+                VersionStamp.Create(),
+                Startup.SolutionPath.FullName
+            ));
+            var parsedSolution = SolutionFile.Parse(Startup.SolutionPath.FullName);
+            var analyser = parsedSolution.ProjectsInOrder.Single(p => p.ProjectName == "Analyser");
+            while (false)
+            {
+                yield return null;
+            }
+        }*/
+
         public static async IAsyncEnumerable<ClassInfo> AnalyseSolution()
         {
-            using (var w = MSBuildWorkspace.Create())
+            using (var w = MSBuildWorkspace.Create(
+                new Dictionary<string, string> { { "Configuration", "Debug" }, { "Platform", "AnyCPU" } }
+            ))
             {
                 w.LoadMetadataForReferencedProjects = true;
-                var solution = await w.OpenSolutionAsync(Startup.SolutionPath);
+                w.WorkspaceFailed += (sender, args) =>
+                {
+                    Console.WriteLine("Workspace failed [{0}]: {1}", args.Diagnostic.Kind, args.Diagnostic.Message);
+                };
+                var solution = await w.OpenSolutionAsync(Startup.SolutionPath.FullName);
                 var root_proj = solution.Projects.Single(p => p.Name == "Analyser");
 
                 foreach (var proj in root_proj.ProjectReferences)
                 {
                     var project = solution.GetProject(proj.ProjectId);
+                    Console.WriteLine("Loading {0}", project.Name);
 
                     var compilation = await project.GetCompilationAsync();
                     var errors = compilation.GetDiagnostics()
@@ -129,7 +140,7 @@ namespace Analyser
                         .ToArray();
                     if (errors.Length != 0)
                     {
-                        Console.WriteLine($"COMPILATION ERROR: {compilation.AssemblyName}: {errors.Count()} compilation errors: \n\t{string.Join("\n\t", errors.Where(e => false).Select(e => e.ToString()))}");
+                        Console.WriteLine($"COMPILATION ERROR: {compilation.AssemblyName}: {errors.Count()} compilation errors.");
                     }
                     
                     var classVisitor = new ClassVirtualizationVisitor();
@@ -152,8 +163,8 @@ namespace Analyser
             }
             GC.Collect();
         }
-        
-        class ClassVirtualizationVisitor : CSharpSyntaxRewriter
+
+        private class ClassVirtualizationVisitor : CSharpSyntaxRewriter
         {
             public ClassVirtualizationVisitor()
             {

@@ -1,11 +1,12 @@
 ﻿using System;
+using System.IO;
 using Microsoft.Build.Locator;
 
 namespace Analyser
 {
     static class Startup
     {
-        public static string SolutionPath;
+        public static FileInfo SolutionPath;
         
         [STAThread]
         static void Main(string[] args)
@@ -20,7 +21,7 @@ namespace Analyser
             var _2 = typeof(AdventureBot.Item.Hand);
             var _3 = typeof(Content.TownRoot);
             
-            SolutionPath = args[0];
+            SolutionPath = new FileInfo(args[0]);
             
             new Eto.Forms.Application().Run(new MainForm());
         }

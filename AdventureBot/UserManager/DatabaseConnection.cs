@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Linq;
 using System.Text;
 using AdventureBot.User;
-using Mono.Data.Sqlite;
+using Microsoft.Data.Sqlite;
 using NLog;
 
 namespace AdventureBot.UserManager
@@ -195,10 +194,10 @@ namespace AdventureBot.UserManager
                     $"INSERT OR REPLACE INTO users (messenger, id, data, version, {string.Join(", ", varNames)}) " +
                     $"VALUES (@messenger, @user_id, @data, @version, {string.Join(", ", varValues)})";
 
-                var messengerParam = command.Parameters.Add("@messenger", DbType.Int32);
-                var idParam = command.Parameters.Add("@user_id", DbType.Int64);
-                var dataParam = command.Parameters.Add("@data", DbType.Binary);
-                var versionParam = command.Parameters.Add("@version", DbType.Int32);
+                var messengerParam = command.Parameters.Add("@messenger", SqliteType.Integer);
+                var idParam = command.Parameters.Add("@user_id", SqliteType.Integer);
+                var dataParam = command.Parameters.Add("@data", SqliteType.Blob);
+                var versionParam = command.Parameters.Add("@version", SqliteType.Integer);
 
                 var cnt = 0;
                 foreach (var user in users)

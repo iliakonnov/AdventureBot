@@ -8,7 +8,6 @@ using AdventureBot.ObjectManager;
 using AdventureBot.Quest;
 using AdventureBot.Room;
 using AdventureBot.UserManager;
-using Boo.Lang.Interpreter;
 using NLog;
 
 namespace AdventureBot
@@ -16,8 +15,6 @@ namespace AdventureBot
     internal static class Program
     {
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
-
-        private static bool _work = true;
 
         private static void Exit()
         {
@@ -27,7 +24,7 @@ namespace AdventureBot
             GlobalVariables.Flush();
             Logger.Debug("Done!");
             LogManager.Shutdown();
-            _work = false;
+            Environment.Exit(0);
         }
 
         private static void Main()
@@ -37,7 +34,6 @@ namespace AdventureBot
             AppDomain.CurrentDomain.UnhandledException += (sender, args) =>
             {
                 Logger.Error(args.ExceptionObject as Exception, "Unhandled error");
-                _work = false;
                 Exit();
             };
 
@@ -69,44 +65,26 @@ namespace AdventureBot
                 false,
                 16384));
 
-            var console = GetConsole();
-            var forceContinue = false;
             Console.CancelKeyPress += (sender, args) =>
             {
                 args.Cancel = true;
                 Console.Error.WriteLine("\nUse `/q` to quit.");
             };
 
-            while (_work)
+            while (true)
             {
-                try
+                var cmd = Console.ReadLine();
+                if (cmd != "/q")
                 {
-                    console.ReadEvalPrintLoop();
+                    Console.Error.WriteLine("Use `/q` to quit.");
                 }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e);
-                    continue;
-                }
-
-                if (!forceContinue)
+                else
                 {
                     break;
                 }
-
-                Console.WriteLine("Restarting interpreter...");
-                forceContinue = false;
-
-                Exit();
             }
-        }
-
-        private static InteractiveInterpreterConsole GetConsole()
-        {
-            var result = new InteractiveInterpreterConsole {DisableAutocompletion = false};
-            result.Eval("import AdventureBot as adv; import AdventureBot.DebugHelpers as dbg");
-            Console.WriteLine("AdventureBot available as `adv`; DebugHelpers available as `dbg`");
-            return result;
+            
+            Exit();
         }
     }
 }

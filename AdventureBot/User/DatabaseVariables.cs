@@ -2,7 +2,7 @@
 using System.Data;
 using System.Linq.Expressions;
 using System.Reflection;
-using Mono.Data.Sqlite;
+using Microsoft.Data.Sqlite;
 
 namespace AdventureBot.User
 {
@@ -12,25 +12,17 @@ namespace AdventureBot.User
         public DbColumnAttribute(string name, DbType type)
         {
             Name = name;
-            Type = type;
-            switch (Type)
+            (Type, TypeString) = type switch
             {
-                case DbType.Decimal:
-                    TypeString = "INTEGER";
-                    break;
-                case DbType.Int32:
-                    TypeString = "NUMERIC";
-                    break;
-                case DbType.DateTime:
-                    TypeString = "DATETIME";
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
+                DbType.Decimal => (SqliteType.Integer, "INTEGER"),
+                DbType.Int32 => (SqliteType.Integer, "NUMERIC"),
+                DbType.DateTime => (SqliteType.Text, "DATETIME"),
+                _ => throw new ArgumentOutOfRangeException()
+            };
         }
 
         public string Name { get; }
-        public DbType Type { get; }
+        public SqliteType Type { get; }
         public string TypeString { get; }
     }
 
