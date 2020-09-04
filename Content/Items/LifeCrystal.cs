@@ -46,7 +46,7 @@ namespace Content.Items
 
         public override bool CanUse(User user, ItemInfo info)
         {
-            return true;
+            return !(user.RoomManager.GetRoom() is IMonster);
         }
 
         public override void OnUse(User user, ItemInfo info)
