@@ -67,7 +67,8 @@ namespace Telegram
 
             LastMessageSent = DateTime.Now;
 
-            InlineKeyboardMarkup replyMarkup = null;
+            InlineKeyboardMarkup inlineKeyboardMarkup = null;
+            ReplyKeyboardMarkup buttonsKeyboardMarkup = null;
             if (message.Buttons == null)
             {
                 // Should not be here
@@ -75,18 +76,24 @@ namespace Telegram
             }
             else
             {
-                var markup = new InlineKeyboardButton[message.Buttons.Length][];
+                var inlineButtons = new InlineKeyboardButton[message.Buttons.Length][];
+                var simpleButtons = new KeyboardButton[message.Buttons.Length][];
                 var keyboard = false;
                 for (var i = 0; i < message.Buttons.Length; i++)
                 {
                     var buttons = message.Buttons[i];
-                    markup[i] = new InlineKeyboardButton[buttons.Length];
+                    inlineButtons[i] = new InlineKeyboardButton[buttons.Length];
+                    simpleButtons[i] = new KeyboardButton[buttons.Length];
                     for (var j = 0; j < buttons.Length; j++)
                     {
-                        markup[i][j] = new InlineKeyboardButton
+                        inlineButtons[i][j] = new InlineKeyboardButton
                         {
                             Text = buttons[j],
                             CallbackData = buttons[j],
+                        };
+                        simpleButtons[i][j] = new KeyboardButton
+                        {
+                            Text = buttons[j],
                         };
                         keyboard = true;
                     }
@@ -94,10 +101,12 @@ namespace Telegram
 
                 if (keyboard)
                 {
-                    replyMarkup = new InlineKeyboardMarkup(markup);
+                    inlineKeyboardMarkup = new InlineKeyboardMarkup(inlineButtons);
+                    buttonsKeyboardMarkup = new ReplyKeyboardMarkup(simpleButtons);
                 }
             }
 
+            const bool enableInline = false;
             var parseMode = message.Formatted ? ParseMode.Html : ParseMode.Default;
 
             var text = message.Text;
@@ -105,38 +114,51 @@ namespace Telegram
             {
                 text += $"\n<a href=\"tg://user?id={associatedData.ReplyMessageId}\">@</a>";
             }
-
-            var inlineId = associatedData?.InlineMessageId;
+            
             try
             {
-                if (inlineId != null && message.PreferToUpdate == true)
+                if (enableInline)
                 {
-                    var (chatId, messageId) = inlineId.Value;
-                    await _bot.EditMessageTextAsync(
-                        chatId,
-                        messageId,
-                        text,
-                        parseMode,
-                        replyMarkup: replyMarkup
-                    );
+                    var inlineId = associatedData?.InlineMessageId;
+                    if (inlineId != null && message.PreferToUpdate == true)
+                    {
+                        var (chatId, messageId) = inlineId.Value;
+                        await _bot.EditMessageTextAsync(
+                            chatId,
+                            messageId,
+                            text,
+                            parseMode,
+                            replyMarkup: inlineKeyboardMarkup
+                        );
+                    }
+                    else
+                    {
+                        if (inlineId != null)
+                        {
+                            // PreferToUpdate is null, but inlineId is not null, so remove old buttons
+                            // Also we do not want to wait until they are removed.
+#pragma warning disable 4014
+                            var (chatId, messageId) = inlineId.Value;
+                            _bot.EditMessageReplyMarkupAsync(chatId, messageId,
+                                new InlineKeyboardMarkup(new InlineKeyboardButton[0]));
+#pragma warning restore 4014
+                        }
+
+                        await _bot.SendTextMessageAsync(
+                            message.ChatId.Id,
+                            text,
+                            parseMode,
+                            replyMarkup: inlineKeyboardMarkup
+                        );
+                    }
                 }
                 else
                 {
-                    if (inlineId != null)
-                    {
-                        // PreferToUpdate is null, but inlineId is not null, so remove old buttons
-                        // Also we do not want to wait until they are removed.
-#pragma warning disable 4014
-                        var (chatId, messageId) = inlineId.Value;
-                        _bot.EditMessageReplyMarkupAsync(chatId, messageId,
-                            new InlineKeyboardMarkup(new InlineKeyboardButton[0]));
-#pragma warning restore 4014
-                    }
                     await _bot.SendTextMessageAsync(
                         message.ChatId.Id,
                         text,
                         parseMode,
-                        replyMarkup: replyMarkup
+                        replyMarkup: buttonsKeyboardMarkup
                     );
                 }
             }
