@@ -44,8 +44,8 @@ namespace Content.Rooms
 
             if (oldHp >= 100_000 && hp < 100_000)
             {
-                var newHp = hp + user.Random.Next(500, 1500);
-                vars.Set("hp", new Serializable.Decimal(newHp));
+                var regen = (decimal) user.Random.Next(500, 1500);
+                vars.Set("hp", new Serializable.Decimal(hp + regen));
                 SendMessage(user,
                     $"Танос использует Камень Времени и возвращает себе {regen.Format()} единиц здоровья!");
                 return 0;
