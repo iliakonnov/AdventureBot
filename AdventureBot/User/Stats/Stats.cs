@@ -73,9 +73,7 @@ namespace AdventureBot.User.Stats
 
         public decimal GetStat(StatsProperty property)
         {
-            return Effect.TryGetValue(property, out var result)
-                ? result
-                : DefaultStats[property];
+            return GetStatOrNull(property) ?? DefaultStats[property];
         }
     }
 }

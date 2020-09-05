@@ -51,5 +51,17 @@ namespace AdventureBot.User.Stats
         {
             return Comparer<StatsEffect>.Create((a, b) => Compare(props, a, b));
         }
+
+        public StatsEffect Clone()
+        {
+            return new StatsEffect(ChangeType, Effect);
+        }
+
+        public decimal? GetStatOrNull(StatsProperty property)
+        {
+            return Effect.TryGetValue(property, out var result)
+                ? (decimal?) result
+                : null;
+        }
     }
 }
