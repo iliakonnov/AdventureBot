@@ -109,7 +109,7 @@ namespace VkMessenger
             {
                 Text = Message.Body,
                 ChatId = new ChatId(Messenger.MessengerId, chatId),
-                ReplyUserId = replyUserId
+                MessengerSpecificData = replyUserId
             };
         }
     }

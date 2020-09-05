@@ -48,9 +48,9 @@ namespace VkMessenger
                     }).ToReadOnlyCollection()).ToReadOnlyCollection()
                 }
             };
-            if (receivedMessage?.ReplyUserId != null)
+            if (receivedMessage?.MessengerSpecificData != null)
             {
-                parameters.ForwardMessages = new[] {(long) receivedMessage.ReplyUserId};
+                parameters.ForwardMessages = new[] {(long) receivedMessage.MessengerSpecificData};
             }
 
             await _api.Messages.SendAsync(parameters);

@@ -62,12 +62,13 @@ namespace AdventureBot.User
         [Obsolete("This constructor for serializer only")]
         [UsedImplicitly]
         [SerializationConstructor]
-        public MessageManager(List<SentMessage> queue, string[][] buttons, Queue<SentMessage> lastMessages,
-            ChatId chatId, ReceivedMessage receivedMessage, ShownStats shownStats, string intent)
+        public MessageManager(List<SentMessage> queue, string[][] buttons, bool preferToUpdate, Queue<SentMessage> lastMessages,
+            ChatId chatId, ReceivedMessage recievedMessage, ShownStats shownStats, string intent)
         {
             Queue = queue;
-            Buttons = buttons;
-            ReceivedMessage = receivedMessage;
+            Buttons = buttons ?? new string[0][];
+            PreferToUpdate = preferToUpdate;
+            ReceivedMessage = recievedMessage;
             LastMessages = lastMessages;
             ChatId = chatId;
             ShownStats = shownStats;
@@ -78,21 +79,12 @@ namespace AdventureBot.User
         [IgnoreMember] [CanBeNull] public SentMessage LastMessage { get; private set; }
 
         [Key("queue")] private List<SentMessage> Queue { get; } = new List<SentMessage>();
-        [Key("buttons")] private string[][] Buttons { get; set; }
+        [Key("buttons")] [NotNull] private string[][] Buttons { get; set; } = new string[0][];
+        [Key("PreferToUpdate")] private bool PreferToUpdate { get; set; } = true;
         [Key("RecievedMessage")] internal ReceivedMessage ReceivedMessage { get; set; }
 
-        [Key("LastMessageRecived")]
-        public DateTime LastMessageReceived
-        {
-            get => User.DatabaseVariables.LastMessageReceived;
-            private set
-            {
-                if (User != null)
-                {
-                    User.DatabaseVariables.LastMessageReceived = value;
-                }
-            }
-        }
+        [IgnoreMember]
+        public DateTime LastMessageReceived => User.DatabaseVariables.LastMessageReceived;
 
 
         /// <summary>
@@ -112,13 +104,14 @@ namespace AdventureBot.User
                 Buttons = message.Buttons;
             }
 
-            if (message.PreferToUpdate == null)
+            if (message.PreferToUpdate != null)
             {
-                message.PreferToUpdate = _intent == message.Intent;
+                PreferToUpdate = PreferToUpdate && message.PreferToUpdate.Value;
             }
 
             if (message.Intent != null)
             {
+                PreferToUpdate = PreferToUpdate && message.Intent == _intent;
                 _intent = message.Intent;
             }
         }
@@ -134,6 +127,7 @@ namespace AdventureBot.User
                 Text = message.Text,
                 Buttons = message.Buttons,
                 Intent = message.Intent,
+                PreferToUpdate = false,
                 ChatId = ChatId
             }, null, User);
         }
@@ -282,6 +276,7 @@ namespace AdventureBot.User
             {
                 Text = totalText,
                 Buttons = Buttons,
+                PreferToUpdate = PreferToUpdate,
                 ChatId = ChatId,
                 Intent = _intent
             };
@@ -302,8 +297,7 @@ namespace AdventureBot.User
             LastMessage = message;
 
             Queue.Clear();
-            Buttons = null;
-            _intent = null;
+            PreferToUpdate = true;
         }
 
         /// <summary>

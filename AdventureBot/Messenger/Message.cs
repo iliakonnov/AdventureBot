@@ -11,9 +11,9 @@ namespace AdventureBot.Messenger
         [IgnoreMember] [CanBeNull] public Handler Action;
         public ChatId ChatId;
         public string MessageId;
-        public long? ReplyUserId;
         public string Text;
         public UserId UserId;
+        public object MessengerSpecificData = null;
     }
 
     [MessagePackObject(true)]
@@ -22,6 +22,7 @@ namespace AdventureBot.Messenger
         [CanBeNull] public string[][] Buttons = null;
         public ChatId ChatId = new ChatId(int.MinValue, long.MinValue);
         public bool Formatted = true;
+        public bool? PreferToUpdate = null;
 
         public string Text;
         public string Intent { get; set; }

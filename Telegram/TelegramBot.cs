@@ -3,6 +3,7 @@ using System.Net;
 using System.Threading.Tasks;
 using AdventureBot;
 using AdventureBot.Messenger;
+using MessagePack;
 using MihaZupan;
 using NLog;
 using Telegram.Bot;
@@ -62,62 +63,88 @@ namespace Telegram
                 return;
             }
 
+            var associatedData = (ReceivedMessageAssociatedData) receivedMessage?.MessengerSpecificData;
+
             LastMessageSent = DateTime.Now;
 
-            IReplyMarkup replyMarkup;
+            InlineKeyboardMarkup replyMarkup = null;
             if (message.Buttons == null)
             {
-                // Leave previous keyboard
-                replyMarkup = null;
+                // Should not be here
+                Logger.Error("Sending message without buttons. This is bad.");
             }
             else
             {
-                var markup = new KeyboardButton[message.Buttons.Length][];
+                var markup = new InlineKeyboardButton[message.Buttons.Length][];
                 var keyboard = false;
                 for (var i = 0; i < message.Buttons.Length; i++)
                 {
                     var buttons = message.Buttons[i];
-                    markup[i] = new KeyboardButton[buttons.Length];
+                    markup[i] = new InlineKeyboardButton[buttons.Length];
                     for (var j = 0; j < buttons.Length; j++)
                     {
-                        markup[i][j] = new KeyboardButton(buttons[j]);
+                        markup[i][j] = new InlineKeyboardButton
+                        {
+                            Text = buttons[j],
+                            CallbackData = buttons[j],
+                        };
                         keyboard = true;
                     }
                 }
 
                 if (keyboard)
                 {
-                    replyMarkup = new ReplyKeyboardMarkup(markup) {Selective = true};
-                }
-                else
-                {
-                    replyMarkup = new ReplyKeyboardRemove {Selective = true};
+                    replyMarkup = new InlineKeyboardMarkup(markup);
                 }
             }
 
             var parseMode = message.Formatted ? ParseMode.Html : ParseMode.Default;
 
             var text = message.Text;
-            if (receivedMessage?.ReplyUserId != null)
+            if (associatedData?.ReplyMessageId != null)
             {
-                text += $"\n<a href=\"tg://user?id={receivedMessage.ReplyUserId}\">@</a>";
+                text += $"\n<a href=\"tg://user?id={associatedData.ReplyMessageId}\">@</a>";
             }
 
+            var inlineId = associatedData?.InlineMessageId;
             try
             {
-                await _bot.SendTextMessageAsync(
-                    message.ChatId.Id,
-                    text,
-                    parseMode,
-                    replyMarkup: replyMarkup
-                    //replyToMessageId: receivedMessage?.ReplyId ?? 0  // Not working, because MessageId is different for each bot
-                );
+                if (inlineId != null && message.PreferToUpdate == true)
+                {
+                    var (chatId, messageId) = inlineId.Value;
+                    await _bot.EditMessageTextAsync(
+                        chatId,
+                        messageId,
+                        text,
+                        parseMode,
+                        replyMarkup: replyMarkup
+                    );
+                }
+                else
+                {
+                    if (inlineId != null)
+                    {
+                        // PreferToUpdate is null, but inlineId is not null, so remove old buttons
+                        // Also we do not want to wait until they are removed.
+#pragma warning disable 4014
+                        var (chatId, messageId) = inlineId.Value;
+                        _bot.EditMessageReplyMarkupAsync(chatId, messageId,
+                            new InlineKeyboardMarkup(new InlineKeyboardButton[0]));
+#pragma warning restore 4014
+                    }
+                    await _bot.SendTextMessageAsync(
+                        message.ChatId.Id,
+                        text,
+                        parseMode,
+                        replyMarkup: replyMarkup
+                    );
+                }
             }
             catch (Exception e)
             {
                 if (e is ForbiddenException)
                 {
-                    // User stopped this bot.
+                    Logger.Info(e, "Bot is stopped by user {0}", message.ChatId.Id);
                 }
                 else
                 {
@@ -126,7 +153,7 @@ namespace Telegram
             }
         }
 
-        public event MessageHandler MessageRecieved;
+        public event MessageHandler OnMessageReceived;
 
         public async void BeginPolling()
         {
@@ -154,6 +181,7 @@ namespace Telegram
             if (ReciveMessages)
             {
                 _bot.OnMessage += MessageReceivedHandler;
+                _bot.OnCallbackQuery += CallbackReceivedHandler;
                 _bot.StartReceiving(Array.Empty<UpdateType>());
                 Logger.Info("Start receiving for @{username}", _username);
             }
@@ -163,10 +191,24 @@ namespace Telegram
             }
         }
 
+        private void CallbackReceivedHandler(object sender, CallbackQueryEventArgs args)
+        {
+            var msgId = $"{_username}/{args.CallbackQuery.Message.Chat.Id}/{args.CallbackQuery.Message.MessageId}";
+
+            // ReSharper disable once SwitchStatementMissingSomeCases
+            var message = new ReceivedMessage
+            {
+                ChatId = new AdventureBot.ChatId(MessengerId, args.CallbackQuery.Message.Chat.Id),
+                UserId = new UserId(MessengerId, args.CallbackQuery.From.Id),
+                Text = args.CallbackQuery.Data,
+                MessengerSpecificData = ReceivedMessageAssociatedData.Inline(args.CallbackQuery.Message.Chat.Id, args.CallbackQuery.Message.MessageId),
+                MessageId = msgId,
+            };
+            OnMessageReceived?.Invoke(message);
+        }
+
         private async void MessageReceivedHandler(object sender, MessageEventArgs args)
         {
-            ReceivedMessage message = null;
-
             int? replyId;
             if (args.Message.Chat.Type != ChatType.Private)
             {
@@ -181,98 +223,59 @@ namespace Telegram
             var msgId = $"{_username}/{args.Message.MessageId}";
 
             // ReSharper disable once SwitchStatementMissingSomeCases
-            switch (args.Message.Type)
+            ReceivedMessage message;
+            if (args.Message.Type == MessageType.Text)
             {
-                case MessageType.Text:
+                if (args.Message.Text == "/remove_keyboard")
                 {
-                    if (args.Message.Text == "/bots")
-                    {
-                        message = new ReceivedMessage
-                        {
-                            ChatId = new AdventureBot.ChatId(MessengerId, args.Message.Chat.Id),
-                            UserId = new UserId(MessengerId, args.Message.From.Id),
-                            Text = "Available bots:",
-                            Action = (msg, user) => Messenger.ListBots(user),
-                            ReplyUserId = replyId,
-                            MessageId = msgId
-                        };
-                    }
-                    else
-                    {
-                        message = new ReceivedMessage
-                        {
-                            ChatId = new AdventureBot.ChatId(MessengerId, args.Message.Chat.Id),
-                            UserId = new UserId(MessengerId, args.Message.From.Id),
-                            Text = args.Message.Text,
-                            ReplyUserId = replyId,
-                            MessageId = msgId
-                        };
-                    }
-
-                    break;
-                }
-                case MessageType.ChatMembersAdded:
-                {
-                    foreach (var member in args.Message.NewChatMembers)
-                    {
-                        if (member.IsBot)
-                        {
-                            if (Messenger.MessengerIds.Contains(member.Id))
-                            {
-                                message = new ReceivedMessage
-                                {
-                                    ChatId = new AdventureBot.ChatId(MessengerId, args.Message.Chat.Id),
-                                    UserId = new UserId(MessengerId, args.Message.From.Id),
-                                    Text = $"Hello, bot {member.Username}",
-                                    ReplyUserId = replyId,
-                                    Action = (msg, user) => Messenger.NewBot(member.Id, args.Message.Chat.Id, user),
-                                    MessageId = msgId
-                                };
-                            }
-                        }
-                        else
-                        {
-                            // Looks like new player
-                            message = new ReceivedMessage
-                            {
-                                ChatId = new AdventureBot.ChatId(MessengerId, args.Message.Chat.Id),
-                                UserId = new UserId(MessengerId, args.Message.From.Id),
-                                Text = $"Hello, player {member.Username}",
-                                ReplyUserId = replyId,
-                                Action = (msg, user) => Messenger.NewUser(args.Message.Chat.Id, user),
-                                MessageId = msgId
-                            };
-                        }
-                    }
-
-                    break;
-                }
-                case MessageType.ChatMemberLeft:
-                {
-                    var member = args.Message.LeftChatMember;
-                    if (member.IsBot && Messenger.MessengerIds.Contains(member.Id))
-                    {
-                        message = new ReceivedMessage
-                        {
-                            ChatId = new AdventureBot.ChatId(MessengerId, args.Message.Chat.Id),
-                            UserId = new UserId(MessengerId, args.Message.From.Id),
-                            Text = $"Goodbye, {member.Username}",
-                            ReplyUserId = replyId,
-                            Action = (msg, user) => Messenger.RemoveBot(member.Id, args.Message.Chat.Id, user),
-                            MessageId = msgId
-                        };
-                    }
-
-                    break;
-                }
-                default:
+                    await _bot.SendTextMessageAsync(args.Message.Chat.Id, "А теперь отправьте /repeat",
+                        replyMarkup: new ReplyKeyboardRemove());
                     return;
+                }
+                else
+                {
+                    message = new ReceivedMessage
+                    {
+                        ChatId = new AdventureBot.ChatId(MessengerId, args.Message.Chat.Id),
+                        UserId = new UserId(MessengerId, args.Message.From.Id),
+                        Text = args.Message.Text,
+                        MessengerSpecificData = ReceivedMessageAssociatedData.Reply(replyId),
+                        MessageId = msgId
+                    };
+                }
+            }
+            else
+            {
+                return;
             }
 
-            if (message != null)
-            {
-                MessageRecieved?.Invoke(message);
-            }
+            OnMessageReceived?.Invoke(message);
+        }
+    }
+
+    [MessagePackObject(true)]
+    internal class ReceivedMessageAssociatedData
+    {
+        public readonly bool IsInline;
+        public readonly (long, int)? InlineMessageId;
+        public readonly long? ReplyMessageId;
+
+        private ReceivedMessageAssociatedData(bool isInline, (long, int)? inlineMessageId, long? replyMessageId)
+        {
+            IsInline = isInline;
+            InlineMessageId = inlineMessageId;
+            ReplyMessageId = replyMessageId;
+        }
+
+        public static ReceivedMessageAssociatedData Inline(ChatId chatId, int messageId)
+        {
+            var inlineMessageId = (chatId.Identifier, messageId);
+            return new ReceivedMessageAssociatedData(true, inlineMessageId, null);
+        }
+        
+        public static ReceivedMessageAssociatedData Reply(long? messageId)
+        {
+            return new ReceivedMessageAssociatedData(false, null, messageId);
         }
     }
 }
