@@ -31,11 +31,11 @@ namespace Content.Rooms.Arena
 
         public Medallion()
         {
-            MessengerManager.OnRecived += OnMessage;
+            MessengerManager.OnReceived += OnMessage;
             User.OnReset += OnReset;
         }
 
-        private void OnMessage(User user, RecivedMessage message)
+        private void OnMessage(User user, ReceivedMessage message)
         {
             if (user.ItemManager.Get(Id) == null)
             {
@@ -46,7 +46,7 @@ namespace Content.Rooms.Arena
             {
                 (DatabaseVariables.GetColumn(v => v.Level), ">=", user.Info.Level.Level - 1),
                 (DatabaseVariables.GetColumn(v => v.Level), "<=", user.Info.Level.Level + 1),
-                (DatabaseVariables.GetColumn(v => v.LastMessageRecived), ">",
+                (DatabaseVariables.GetColumn(v => v.LastMessageReceived), ">",
                     DateTime.Now - TimeSpan.FromMinutes(1.5))
             };
             var users = DatabaseConnection.QueryUsers(null, filter, null);

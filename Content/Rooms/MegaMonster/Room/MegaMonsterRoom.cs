@@ -14,7 +14,7 @@ namespace Content.Rooms.MegaMonster.Room
 
         public MegaMonsterRoom()
         {
-            Routes = new MessageRecived[]
+            Routes = new MessageReceived[]
             {
                 Battle, Talk,
                 GiveArtifact, ArtifactNotFound,
@@ -22,17 +22,17 @@ namespace Content.Rooms.MegaMonster.Room
                 GiveKnowledge, NotEnoughKnowledge,
                 SelectTarget
             };
-            Buttons = new NullableDictionary<MessageRecived, Dictionary<string, MessageRecived>>
+            Buttons = new NullableDictionary<MessageReceived, Dictionary<string, MessageReceived>>
             {
                 {
-                    null, new Dictionary<string, MessageRecived>
+                    null, new Dictionary<string, MessageReceived>
                     {
                         {"Сражаться", (user, message) => BeginBattle(user)},
                         {"Договориться", (user, message) => BeginTalk(user)}
                     }
                 },
                 {
-                    SelectTarget, new Dictionary<string, MessageRecived>
+                    SelectTarget, new Dictionary<string, MessageReceived>
                     {
                         {"В голову", (user, message) => BattleTarget(user, Place.Head)},
                         {"В тело", (user, message) => BattleTarget(user, Place.Head)},
@@ -40,7 +40,7 @@ namespace Content.Rooms.MegaMonster.Room
                     }
                 },
                 {
-                    Talk, new Dictionary<string, MessageRecived>
+                    Talk, new Dictionary<string, MessageReceived>
                     {
                         {"Артефакт", (user, message) => Artifact(user)},
                         {"Золото", (user, message) => Gold(user)},
@@ -49,40 +49,40 @@ namespace Content.Rooms.MegaMonster.Room
                     }
                 },
                 {
-                    GiveArtifact, new Dictionary<string, MessageRecived>
+                    GiveArtifact, new Dictionary<string, MessageReceived>
                     {
                         {"Отдать", (user, message) => ConfirmGiveArtifact(user)},
                         {"Он мне самому нужен", (user, message) => BeginTalk(user)}
                     }
                 },
                 {
-                    ArtifactNotFound, new Dictionary<string, MessageRecived>
+                    ArtifactNotFound, new Dictionary<string, MessageReceived>
                     {
                         {"У меня такого нет", (user, message) => BeginTalk(user)}
                     }
                 },
                 {
-                    GiveGold, new Dictionary<string, MessageRecived>
+                    GiveGold, new Dictionary<string, MessageReceived>
                     {
                         {"Отдать", (user, message) => ConfirmGiveGold(user)},
                         {"Я не готов к такому", (user, message) => BeginTalk(user)}
                     }
                 },
                 {
-                    NotEnoughGold, new Dictionary<string, MessageRecived>
+                    NotEnoughGold, new Dictionary<string, MessageReceived>
                     {
                         {"У меня столько нет", (user, message) => BeginTalk(user)}
                     }
                 },
                 {
-                    GiveKnowledge, new Dictionary<string, MessageRecived>
+                    GiveKnowledge, new Dictionary<string, MessageReceived>
                     {
                         {"Обучить", (user, message) => ConfirmGiveKnowledge(user)},
                         {"Монстр недостоин знаний!", (user, message) => BeginTalk(user)}
                     }
                 },
                 {
-                    NotEnoughKnowledge, new Dictionary<string, MessageRecived>
+                    NotEnoughKnowledge, new Dictionary<string, MessageReceived>
                     {
                         {"Я недостаточно умен", (user, message) => BeginTalk(user)}
                     }
@@ -104,7 +104,7 @@ namespace Content.Rooms.MegaMonster.Room
             }
         }
 
-        public override void OnMessage(User user, RecivedMessage message)
+        public override void OnMessage(User user, ReceivedMessage message)
         {
             if (!HandleAction(user, message))
             {
@@ -118,7 +118,7 @@ namespace Content.Rooms.MegaMonster.Room
             SendMessage(user, "Что вы предложите монстру?", GetButtons(user));
         }
 
-        private void Talk(User user, RecivedMessage message)
+        private void Talk(User user, ReceivedMessage message)
         {
             HandleButtonAlways(user, message);
         }

@@ -18,11 +18,11 @@ namespace Content.Town
 
         public Mirror()
         {
-            Routes = new MessageRecived[] {EditStats, Inventory, ChangeName};
-            Buttons = new NullableDictionary<MessageRecived, Dictionary<string, MessageRecived>>
+            Routes = new MessageReceived[] {EditStats, Inventory, ChangeName};
+            Buttons = new NullableDictionary<MessageReceived, Dictionary<string, MessageReceived>>
             {
                 {
-                    null, new Dictionary<string, MessageRecived>
+                    null, new Dictionary<string, MessageReceived>
                     {
                         {
                             "Перераспределить предметы", (user, message) =>
@@ -75,7 +75,7 @@ namespace Content.Town
                 },
                 {
                     ChangeName,
-                    new Dictionary<string, MessageRecived>
+                    new Dictionary<string, MessageReceived>
                     {
                         {
                             "Сгенерировать случайное",
@@ -101,7 +101,7 @@ namespace Content.Town
             return true;
         }
 
-        public override void OnMessage(User user, RecivedMessage message)
+        public override void OnMessage(User user, ReceivedMessage message)
         {
             if (!HandleAction(user, message))
             {
@@ -109,7 +109,7 @@ namespace Content.Town
             }
         }
 
-        public void ChangeName(User user, RecivedMessage message)
+        public void ChangeName(User user, ReceivedMessage message)
         {
             if (!HandleButton(user, message))
             {
@@ -248,7 +248,7 @@ namespace Content.Town
             return buttons.ToArray();
         }
 
-        private void EditStats(User user, RecivedMessage message)
+        private void EditStats(User user, ReceivedMessage message)
         {
             var splitted = message.Text.Split(' ');
             if (splitted[0] == "Закончить")
@@ -303,7 +303,7 @@ namespace Content.Town
             SendMessage(user, $"Распределено {used} из {total}. Доступно {total - used} активных предметов");
         }
 
-        private void Inventory(User user, RecivedMessage message)
+        private void Inventory(User user, ReceivedMessage message)
         {
             var variables = GetRoomVariables(user);
             var currentPage = (Serializable.Int) variables.Get("current_page") ?? 0;

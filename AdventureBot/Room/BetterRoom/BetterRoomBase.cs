@@ -14,7 +14,7 @@ namespace AdventureBot.Room.BetterRoom
 
         protected BetterRoomBase()
         {
-            Buttons = new NullableDictionary<MessageRecived, Dictionary<string, MessageRecived>>();
+            Buttons = new NullableDictionary<MessageReceived, Dictionary<string, MessageReceived>>();
             var routes = new List<Tuple<int, ActionBase<T>>>();
             var indexes = new HashSet<int>();
             var self = typeof(T);
@@ -81,7 +81,7 @@ namespace AdventureBot.Room.BetterRoom
 
             Routes = routes
                 .OrderBy(r => r.Item1)
-                .Select(r => (MessageRecived) r.Item2.OnMessage)
+                .Select(r => (MessageReceived) r.Item2.OnMessage)
                 .ToArray();
         }
 
@@ -112,7 +112,7 @@ namespace AdventureBot.Room.BetterRoom
             return _actions[action] ?? _rootAction;
         }
 
-        public override void OnMessage(User.User user, RecivedMessage message)
+        public override void OnMessage(User.User user, ReceivedMessage message)
         {
             if (!HandleAction(user, message))
             {

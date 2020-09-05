@@ -15,10 +15,10 @@ namespace Content.Rooms
 
         public Worms()
         {
-            Buttons = new NullableDictionary<MessageRecived, Dictionary<string, MessageRecived>>
+            Buttons = new NullableDictionary<MessageReceived, Dictionary<string, MessageReceived>>
             {
                 {
-                    null, new Dictionary<string, MessageRecived>
+                    null, new Dictionary<string, MessageReceived>
                     {
                         {
                             "Уйти", (user, message) => { user.RoomManager.Leave(); }
@@ -51,7 +51,7 @@ namespace Content.Rooms
             return true;
         }
 
-        public override void OnMessage(User user, RecivedMessage message)
+        public override void OnMessage(User user, ReceivedMessage message)
         {
             HandleButtonAlways(user, message);
         }

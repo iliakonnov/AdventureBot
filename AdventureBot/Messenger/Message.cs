@@ -4,9 +4,9 @@ using MessagePack;
 namespace AdventureBot.Messenger
 {
     [MessagePackObject(true)]
-    public class RecivedMessage
+    public class ReceivedMessage
     {
-        public delegate void Handler(RecivedMessage message, User.User user);
+        public delegate void Handler(ReceivedMessage message, User.User user);
 
         [IgnoreMember] [CanBeNull] public Handler Action;
         public ChatId ChatId;

@@ -87,7 +87,7 @@ namespace VkMessenger
         [JsonProperty("object")] public Message Message;
         [JsonProperty("type")] public string Type;
 
-        public RecivedMessage ToRecivedMessage()
+        public ReceivedMessage ToReceivedMessage()
         {
             long chatId;
             long? replyUserId = null;
@@ -105,7 +105,7 @@ namespace VkMessenger
                 }
             }
 
-            return new RecivedMessage
+            return new ReceivedMessage
             {
                 Text = Message.Body,
                 ChatId = new ChatId(Messenger.MessengerId, chatId),

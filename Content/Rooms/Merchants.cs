@@ -18,11 +18,11 @@ namespace Content.Rooms
 
         public Merchants()
         {
-            Routes = new MessageRecived[] {Shop, Shop2, Pay};
-            Buttons = new NullableDictionary<MessageRecived, Dictionary<string, MessageRecived>>
+            Routes = new MessageReceived[] {Shop, Shop2, Pay};
+            Buttons = new NullableDictionary<MessageReceived, Dictionary<string, MessageReceived>>
             {
                 {
-                    null, new Dictionary<string, MessageRecived>
+                    null, new Dictionary<string, MessageReceived>
                     {
                         {
                             "Закупиться", (user, message) =>
@@ -60,7 +60,7 @@ namespace Content.Rooms
                     }
                 },
                 {
-                    Pay, new Dictionary<string, MessageRecived>
+                    Pay, new Dictionary<string, MessageReceived>
                     {
                         {
                             "Да", (user, message) =>
@@ -121,7 +121,7 @@ namespace Content.Rooms
             );
         }
 
-        public override void OnMessage(User user, RecivedMessage message)
+        public override void OnMessage(User user, ReceivedMessage message)
         {
             if (!HandleAction(user, message))
             {
@@ -147,12 +147,12 @@ namespace Content.Rooms
             return false;
         }
 
-        private void Pay(User user, RecivedMessage message)
+        private void Pay(User user, ReceivedMessage message)
         {
             HandleButtonAlways(user, message);
         }
 
-        private void Shop(User user, RecivedMessage message)
+        private void Shop(User user, ReceivedMessage message)
         {
             var items = GetAllItems();
             var flag = new StructFlag<BuyGroup>(BuyGroup.Merchant, BuyGroup.Market);
@@ -178,7 +178,7 @@ namespace Content.Rooms
             SwitchAction(user, Shop2);
         }
 
-        private void Shop2(User user, RecivedMessage message)
+        private void Shop2(User user, ReceivedMessage message)
         {
             var dict = GetAllItems()
                 .AvailableToBuy(new StructFlag<BuyGroup>(BuyGroup.Merchant, BuyGroup.Market))

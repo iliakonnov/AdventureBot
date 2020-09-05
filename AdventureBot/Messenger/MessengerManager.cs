@@ -23,9 +23,9 @@ namespace AdventureBot.Messenger
             Register(creator());
         }
 
-        public static event GameEventHandler<RecivedMessage> OnRecived;
+        public static event GameEventHandler<ReceivedMessage> OnReceived;
 
-        private static void MessageHandler(RecivedMessage message)
+        private static void MessageHandler(ReceivedMessage message)
         {
             if (message == null)
             {
@@ -35,11 +35,11 @@ namespace AdventureBot.Messenger
             using (var context = new UserContext(message.UserId, message.ChatId))
             {
                 User.User user = context;
-                OnRecived?.Invoke(user, message);
+                OnReceived?.Invoke(user, message);
 
                 try
                 {
-                    user.MessageManager.RecievedMessage = message;
+                    user.MessageManager.ReceivedMessage = message;
                     message.Action?.Invoke(message, user);
 
                     switch (message.Text.Split('@')[0].Split(' ')[0])
@@ -148,7 +148,7 @@ namespace AdventureBot.Messenger
                         }
                         default:
                         {
-                            user.MessageManager.OnRecieved(message);
+                            user.MessageManager.OnReceived(message);
                             break;
                         }
                     }
@@ -170,7 +170,7 @@ namespace AdventureBot.Messenger
 
         public void Register(IMessenger messenger)
         {
-            messenger.MessageRecieved += MessageHandler;
+            messenger.MessageReceived += MessageHandler;
             _messengers.Add(messenger);
         }
 
@@ -179,14 +179,14 @@ namespace AdventureBot.Messenger
             _messengers.ForEach(m => m.BeginPolling());
         }
 
-        public static event GameEventHandler<Tuple<SentMessage, RecivedMessage>> OnReply;
+        public static event GameEventHandler<Tuple<SentMessage, ReceivedMessage>> OnReply;
 
-        public void Reply(SentMessage message, [CanBeNull] RecivedMessage recievedMessage, User.User user)
+        public void Reply(SentMessage message, [CanBeNull] ReceivedMessage receivedMessage, User.User user)
         {
-            OnReply?.Invoke(user, new Tuple<SentMessage, RecivedMessage>(message, recievedMessage));
+            OnReply?.Invoke(user, new Tuple<SentMessage, ReceivedMessage>(message, receivedMessage));
             foreach (var messenger in _messengers)
             {
-                messenger.Send(message, recievedMessage, user);
+                messenger.Send(message, receivedMessage, user);
             }
         }
     }

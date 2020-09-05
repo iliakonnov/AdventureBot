@@ -28,7 +28,7 @@ namespace VkMessenger
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
         private VkApi _api;
 
-        public async void Send(SentMessage message, RecivedMessage recievedMessage, User user)
+        public async void Send(SentMessage message, ReceivedMessage receivedMessage, User user)
         {
             if (message.ChatId.Messenger != MessengerId)
             {
@@ -48,15 +48,15 @@ namespace VkMessenger
                     }).ToReadOnlyCollection()).ToReadOnlyCollection()
                 }
             };
-            if (recievedMessage?.ReplyUserId != null)
+            if (receivedMessage?.ReplyUserId != null)
             {
-                parameters.ForwardMessages = new[] {(long) recievedMessage.ReplyUserId};
+                parameters.ForwardMessages = new[] {(long) receivedMessage.ReplyUserId};
             }
 
             await _api.Messages.SendAsync(parameters);
         }
 
-        public event MessageHandler MessageRecieved;
+        public event MessageHandler MessageReceived;
 
         public void BeginPolling()
         {
@@ -92,7 +92,7 @@ namespace VkMessenger
                         var result = JsonConvert.DeserializeObject<LongpollResponse>(json);
                         foreach (var message in result.Updates)
                         {
-                            MessageRecieved?.Invoke(message.ToRecivedMessage());
+                            MessageReceived?.Invoke(message.ToReceivedMessage());
                         }
 
                         await parameters.Update(_api, result);

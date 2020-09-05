@@ -31,21 +31,21 @@ namespace Content.Town.Auction
             }
 
             [Button("Посмотреть предложения")]
-            public void ShowOffers(User user, RecivedMessage message)
+            public void ShowOffers(User user, ReceivedMessage message)
             {
                 Room.SwitchAction<AllOffersAction>(user);
                 Room.GetAction<AllOffersAction>().Enter(user);
             }
 
             [Button("Мои предложения")]
-            public void MyOffers(User user, RecivedMessage message)
+            public void MyOffers(User user, ReceivedMessage message)
             {
                 Room.SwitchAction<MyOffersAction>(user);
                 Room.GetAction<MyOffersAction>().Enter(user);
             }
             
             [Button("Уйти")]
-            public void Exit(User user, RecivedMessage message)
+            public void Exit(User user, ReceivedMessage message)
             {
                 user.RoomManager.Leave();
             }

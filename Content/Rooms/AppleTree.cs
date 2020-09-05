@@ -15,10 +15,10 @@ namespace Content.Rooms
 
         public AppleTree()
         {
-            Buttons = new NullableDictionary<MessageRecived, Dictionary<string, MessageRecived>>
+            Buttons = new NullableDictionary<MessageReceived, Dictionary<string, MessageReceived>>
             {
                 {
-                    null, new Dictionary<string, MessageRecived>
+                    null, new Dictionary<string, MessageReceived>
                     {
                         {
                             "Залезть наверх", (user, message) =>
@@ -52,7 +52,7 @@ namespace Content.Rooms
         }
 
 
-        public override void OnMessage(User user, RecivedMessage message)
+        public override void OnMessage(User user, ReceivedMessage message)
         {
             HandleButtonAlways(user, message);
         }

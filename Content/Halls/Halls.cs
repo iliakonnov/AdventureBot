@@ -58,7 +58,7 @@ namespace Content.Halls
             }
 
             [Button("Исследовать Чертоги")]
-            public void Explore(User user, RecivedMessage message)
+            public void Explore(User user, ReceivedMessage message)
             {
                 Room.Explore(user);
             }

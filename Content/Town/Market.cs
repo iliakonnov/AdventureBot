@@ -15,20 +15,20 @@ namespace Content.Town
 
         public Market()
         {
-            void Leave(User user, RecivedMessage message)
+            void Leave(User user, ReceivedMessage message)
             {
                 user.RoomManager.Leave();
             }
 
-            Routes = new MessageRecived[]
+            Routes = new MessageReceived[]
             {
                 Buy, Buy2, Sell, Sell2
             };
 
-            Buttons = new NullableDictionary<MessageRecived, Dictionary<string, MessageRecived>>
+            Buttons = new NullableDictionary<MessageReceived, Dictionary<string, MessageReceived>>
             {
                 {
-                    null, new Dictionary<string, MessageRecived>
+                    null, new Dictionary<string, MessageReceived>
                     {
                         {"Купить", Buy},
                         {"Продать", Sell},
@@ -62,7 +62,7 @@ namespace Content.Town
             return true;
         }
 
-        public override void OnMessage(User user, RecivedMessage message)
+        public override void OnMessage(User user, ReceivedMessage message)
         {
             if (!HandleAction(user, message))
             {
@@ -70,7 +70,7 @@ namespace Content.Town
             }
         }
 
-        private void Buy(User user, RecivedMessage message)
+        private void Buy(User user, ReceivedMessage message)
         {
             var loaded = GetAllItems().AvailableToBuy(new StructFlag<BuyGroup>(BuyGroup.Market));
             var buttons = loaded
@@ -87,7 +87,7 @@ namespace Content.Town
             SwitchAction(user, Buy2);
         }
 
-        private void Buy2(User user, RecivedMessage message)
+        private void Buy2(User user, ReceivedMessage message)
         {
             if (message.Text == "Ничего")
             {
@@ -116,7 +116,7 @@ namespace Content.Town
             }
         }
 
-        private void Sell(User user, RecivedMessage message)
+        private void Sell(User user, ReceivedMessage message)
         {
             var items = user.ItemManager.Items.AvailableToSell();
             var buttons = items
@@ -134,7 +134,7 @@ namespace Content.Town
             SwitchAction(user, Sell2);
         }
 
-        private void Sell2(User user, RecivedMessage message)
+        private void Sell2(User user, ReceivedMessage message)
         {
             if (message.Text == "Ничего")
             {

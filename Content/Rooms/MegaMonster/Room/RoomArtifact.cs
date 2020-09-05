@@ -31,12 +31,12 @@ namespace Content.Rooms.MegaMonster.Room
             }
         }
 
-        private void GiveArtifact(User user, RecivedMessage message)
+        private void GiveArtifact(User user, ReceivedMessage message)
         {
             HandleButtonAlways(user, message);
         }
 
-        private void ArtifactNotFound(User user, RecivedMessage message)
+        private void ArtifactNotFound(User user, ReceivedMessage message)
         {
             HandleButtonAlways(user, message);
         }

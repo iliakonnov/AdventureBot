@@ -48,14 +48,14 @@ namespace Content.Rooms.MegaMonster.Room
                 .ToArray());
         }
 
-        private void SelectTarget(User user, RecivedMessage message)
+        private void SelectTarget(User user, ReceivedMessage message)
         {
             HandleButtonAlways(user, message);
         }
 
-        private void Battle(User user, RecivedMessage messageRecived)
+        private void Battle(User user, ReceivedMessage messageReceived)
         {
-            if (!UseItem(user, messageRecived))
+            if (!UseItem(user, messageReceived))
             {
                 SendMessage(user, "Чтобы что-то использовать, надо сначала этим чем-то завладеть");
                 return;

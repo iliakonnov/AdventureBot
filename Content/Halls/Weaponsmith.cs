@@ -94,7 +94,7 @@ namespace Content.Halls
             }
 
             [Button("Покажи, что у тебя есть")]
-            public void Stock(User user, RecivedMessage message)
+            public void Stock(User user, ReceivedMessage message)
             {
                 Room.SwitchAction<BuyOther>(user);
                 Room.SendMessage(user, "— Ассортимент небольшой, зато какой качественный!");
@@ -113,7 +113,7 @@ namespace Content.Halls
             }
 
             [Button("Мне нужно мощное оружие")]
-            public void Weapon(User user, RecivedMessage message)
+            public void Weapon(User user, ReceivedMessage message)
             {
                 Room.SwitchAction<BuyWeapon>(user);
                 Room.SendMessage(user,
@@ -135,14 +135,14 @@ namespace Content.Halls
             }
 
             [Button("Мне нужно перераспределить предметы")]
-            public void MirrorAction(User user, RecivedMessage message)
+            public void MirrorAction(User user, ReceivedMessage message)
             {
                 Room.SendMessage(user, "— В мастерской есть зеркало. Чувствуй себя как дома.");
                 user.RoomManager.Go(Mirror.Id);
             }
 
             [Button("Как отсюда выбраться?!")]
-            public void LeaveHalls(User user, RecivedMessage message)
+            public void LeaveHalls(User user, ReceivedMessage message)
             {
                 Room.SendMessage(user, "Оружейник ударил по вам своим молотом и...");
                 user.Info.ChangeStats(StatsProperty.Health, 1, true);
@@ -159,7 +159,7 @@ namespace Content.Halls
             }
 
             [Button("Нет, мне нужно идти")]
-            public void Leave(User user, RecivedMessage message)
+            public void Leave(User user, ReceivedMessage message)
             {
                 user.RoomManager.Leave();
             }
@@ -173,14 +173,14 @@ namespace Content.Halls
             }
 
             [Button("Ничего")]
-            public void Nothing(User user, RecivedMessage message)
+            public void Nothing(User user, ReceivedMessage message)
             {
                 Room.SwitchAction<MainAction>(user);
                 Room.SendMessage(user, "Ладно, если что обращайся", Room.GetButtons(user));
             }
 
             [Fallback]
-            public void HandleButton(User user, RecivedMessage message)
+            public void HandleButton(User user, ReceivedMessage message)
             {
                 var itemManager = GetAllItems();
                 var weapon = Recipes.FirstOrDefault(recipe => itemManager.Get(recipe.Output)?.Name == message.Text);
@@ -243,14 +243,14 @@ namespace Content.Halls
             }
 
             [Button("Ничего")]
-            public void Nothing(User user, RecivedMessage message)
+            public void Nothing(User user, ReceivedMessage message)
             {
                 Room.SwitchAction<MainAction>(user);
                 Room.SendMessage(user, "Ладно, если что обращайся", Room.GetButtons(user));
             }
 
             [Fallback]
-            public void HandleButton(User user, RecivedMessage message)
+            public void HandleButton(User user, ReceivedMessage message)
             {
                 var itemManager = GetAllItems();
                 var item = Stock

@@ -16,21 +16,21 @@ namespace Content.Town.Auction
         }
 
         [Button("Предложить")]
-        public void Offer(User user, RecivedMessage message)
+        public void Offer(User user, ReceivedMessage message)
         {
             Room.SwitchAction<AuctionRoom.AddOfferAction>(user);
             Room.GetAction<AuctionRoom.AddOfferAction>().Enter(user);
         }
 
         [Button("Отменить предложение")]
-        public void CancelOffer(User user, RecivedMessage message)
+        public void CancelOffer(User user, ReceivedMessage message)
         {
             Room.SwitchAction<AuctionRoom.RemoveOfferAction>(user);
             Room.GetAction<AuctionRoom.RemoveOfferAction>().Enter(user);
         }
 
         [Button("Назад")]
-        public void Back(User user, RecivedMessage message)
+        public void Back(User user, ReceivedMessage message)
         {
             Room.SwitchAction<AuctionRoom.MainAction>(user);
             Room.GetAction<AuctionRoom.MainAction>().Enter(user);

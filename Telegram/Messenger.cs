@@ -13,7 +13,7 @@ namespace Telegram
     public abstract class Messenger : IMessenger
     {
         // User:
-        // Telegram.Messenger/available_messengres: {
+        // Telegram.Messenger/available_messengers: {
         //    {chat_id}: {
         //        {bot_id}: true,
         //        ...
@@ -22,7 +22,7 @@ namespace Telegram
         // }
         //
         // Global:
-        // Telegram.Messenger/available_messengres: {
+        // Telegram.Messenger/available_messengers: {
         //    {chat_id}: {
         //        {bot_id}: true,
         //        ...
@@ -48,7 +48,7 @@ namespace Telegram
             _defaultMessenger = messengers.First(m => m.ReciveMessages);
         }
 
-        public async void Send(SentMessage message, RecivedMessage recievedMessage, User user)
+        public async void Send(SentMessage message, ReceivedMessage receivedMessage, User user)
         {
             const int maxSize = 4095;
             if (message.Text.Length > maxSize)
@@ -60,7 +60,7 @@ namespace Telegram
                     ChatId = message.ChatId,
                     Formatted = message.Formatted,
                     Text = message.Text.Substring(0, maxSize)
-                }, recievedMessage, user);
+                }, receivedMessage, user);
 
                 Send(new SentMessage
                 {
@@ -68,7 +68,7 @@ namespace Telegram
                     ChatId = message.ChatId,
                     Formatted = message.Formatted,
                     Text = message.Text.Substring(maxSize)
-                }, recievedMessage, user);
+                }, receivedMessage, user);
 
                 return;
             }
@@ -88,34 +88,31 @@ namespace Telegram
                 }
 
                 NewBot(_defaultMessenger.Id, null, user);
-                await _defaultMessenger.Send(message, recievedMessage);
+                await _defaultMessenger.Send(message, receivedMessage);
             }
             else
             {
                 var bestMessenger = messengers.Aggregate((l, r) => l.LastMessageSent < r.LastMessageSent ? l : r);
-                await bestMessenger.Send(message, recievedMessage);
+                await bestMessenger.Send(message, receivedMessage);
             }
         }
 
-        public event MessageHandler MessageRecieved;
+        public event MessageHandler MessageReceived;
 
         public void BeginPolling()
         {
-            foreach (var messenger in _messengers)
+            messenger.OnMessageReceived += message =>
             {
-                messenger.MessageRecieved += message =>
+                try
                 {
-                    try
-                    {
-                        MessageRecieved?.Invoke(message);
-                    }
-                    catch (Exception e)
-                    {
-                        Logger.Error(e, "Error");
-                    }
-                };
-                messenger.BeginPolling();
-            }
+                    MessageReceived?.Invoke(message);
+                }
+                catch (Exception e)
+                {
+                    Logger.Error(e, "Error");
+                }
+            };
+            messenger.BeginPolling();
         }
 
         internal void NewUser(long chatId, User user)

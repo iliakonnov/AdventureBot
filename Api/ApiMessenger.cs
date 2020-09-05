@@ -25,16 +25,16 @@ namespace Api
         {
             if (OnMessageReceivedStatic == null)
             {
-                OnMessageReceivedStatic += message => MessageRecieved?.Invoke(message);
+                OnMessageReceivedStatic += message => MessageReceived?.Invoke(message);
             }
         }
 
-        public void Send(SentMessage message, RecivedMessage recievedMessage, User user)
+        public void Send(SentMessage message, ReceivedMessage receivedMessage, User user)
         {
             // Do nothing because PublicUser.MessageManager.LastMessages already contains last messages
         }
 
-        public event MessageHandler MessageRecieved;
+        public event MessageHandler MessageReceived;
 
         public void BeginPolling()
         {
@@ -91,7 +91,7 @@ namespace Api
             return (new ChatId(MessengerId, id), user);
         }
 
-        internal static void InvokeOnMessageReceived(RecivedMessage message)
+        internal static void InvokeOnMessageReceived(ReceivedMessage message)
         {
             OnMessageReceivedStatic?.Invoke(message);
         }

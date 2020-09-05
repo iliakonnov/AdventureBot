@@ -2,13 +2,13 @@
 
 namespace AdventureBot.Messenger
 {
-    public delegate void MessageHandler(RecivedMessage message);
+    public delegate void MessageHandler(ReceivedMessage message);
 
     [PublicAPI]
     public interface IMessenger
     {
-        void Send(SentMessage message, [CanBeNull] RecivedMessage recievedMessage, User.User user);
-        event MessageHandler MessageRecieved;
+        void Send(SentMessage message, [CanBeNull] ReceivedMessage receivedMessage, User.User user);
+        event MessageHandler MessageReceived;
         void BeginPolling();
     }
 }

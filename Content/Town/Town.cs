@@ -14,10 +14,10 @@ namespace Content.Town
 
         public Town()
         {
-            Buttons = new NullableDictionary<MessageRecived, Dictionary<string, MessageRecived>>
+            Buttons = new NullableDictionary<MessageReceived, Dictionary<string, MessageReceived>>
             {
                 {
-                    null, new Dictionary<string, MessageRecived>
+                    null, new Dictionary<string, MessageReceived>
                     {
                         {"Приключения", (user, message) => user.RoomManager.Go(Adventures.Id)},
                         {"Зеркало", (user, message) => user.RoomManager.Go(Mirror.Id)},
@@ -50,7 +50,7 @@ namespace Content.Town
             return true;
         }
 
-        public override void OnMessage(User user, RecivedMessage message)
+        public override void OnMessage(User user, ReceivedMessage message)
         {
             HandleButtonAlways(user, message);
         }

@@ -37,7 +37,7 @@ namespace Content.Rooms
             user.ItemManager.Add(new ItemInfo(DictionaryOzhegov.Id, 1));
         }
 
-        protected override void NotHandled(User user, RecivedMessage message)
+        protected override void NotHandled(User user, ReceivedMessage message)
         {
             switch (message.Text.ToLowerInvariant())
             {

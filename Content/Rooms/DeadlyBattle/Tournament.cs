@@ -89,13 +89,13 @@ namespace Content.Rooms.DeadlyBattle
             }
 
             [Button("Да")]
-            public void Yes(User user, RecivedMessage message)
+            public void Yes(User user, ReceivedMessage message)
             {
                 Room.BeginBattle(user);
             }
 
             [Button("Нет")]
-            public void No(User user, RecivedMessage message)
+            public void No(User user, ReceivedMessage message)
             {
                 Room.SwitchAction(user, typeof(ConfirmExit));
                 Room.SendMessage(user, "— Ты уверен? Противники будут сильны, но и награда велика!",
@@ -111,13 +111,13 @@ namespace Content.Rooms.DeadlyBattle
             }
 
             [Button("Давай-ка попробуем")]
-            public void Yes(User user, RecivedMessage message)
+            public void Yes(User user, ReceivedMessage message)
             {
                 Room.BeginBattle(user);
             }
 
             [Button("Точно нет")]
-            public void No(User user, RecivedMessage message)
+            public void No(User user, ReceivedMessage message)
             {
                 user.RoomManager.Leave();
             }
@@ -131,13 +131,13 @@ namespace Content.Rooms.DeadlyBattle
             }
 
             [Button("Идти сражаться")]
-            public void Continue(User user, RecivedMessage message)
+            public void Continue(User user, ReceivedMessage message)
             {
                 Room.BeginBattle(user);
             }
 
             [Button("Уйти отсюда")]
-            public void Leave(User user, RecivedMessage message)
+            public void Leave(User user, ReceivedMessage message)
             {
                 Room.SendMessage(user,
                     "— Слабак! Проваливай! — после этих слов Шань Тсунг приказал страже выгнать тебя с арены.");
@@ -145,7 +145,7 @@ namespace Content.Rooms.DeadlyBattle
             }
 
             [Button("Посмотреться в зеркало")]
-            public void Mirror(User user, RecivedMessage message)
+            public void Mirror(User user, ReceivedMessage message)
             {
                 Room.GetRoomVariables(user).Set("mirror", new Serializable.Bool(true));
                 user.RoomManager.Go(Town.Mirror.Id);

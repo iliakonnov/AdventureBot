@@ -17,11 +17,11 @@ namespace Content.Town
 
         public Adventures()
         {
-            Routes = new MessageRecived[] {RoomSelection};
-            Buttons = new NullableDictionary<MessageRecived, Dictionary<string, MessageRecived>>
+            Routes = new MessageReceived[] {RoomSelection};
+            Buttons = new NullableDictionary<MessageReceived, Dictionary<string, MessageReceived>>
             {
                 {
-                    null, new Dictionary<string, MessageRecived>
+                    null, new Dictionary<string, MessageReceived>
                     {
                         {"Налево", (user, message) => Go(user, Difficulity.Easy)},
                         {"Направо", (user, message) => Go(user, Difficulity.Medium)},
@@ -30,7 +30,7 @@ namespace Content.Town
                     }
                 },
                 {
-                    RoomSelection, new Dictionary<string, MessageRecived>
+                    RoomSelection, new Dictionary<string, MessageReceived>
                     {
                         {"Пойти в лес", (user, message) => RoomSelection(user, RoomSelectionMessage.Next)},
                         {"Пойти на поляну", (user, message) => RoomSelection(user, RoomSelectionMessage.Select)}
@@ -57,7 +57,7 @@ namespace Content.Town
             return true;
         }
 
-        public override void OnMessage(User user, RecivedMessage message)
+        public override void OnMessage(User user, ReceivedMessage message)
         {
             if (!HandleAction(user, message))
             {
@@ -113,7 +113,7 @@ namespace Content.Town
             );
         }
 
-        private void RoomSelection(User user, RecivedMessage message)
+        private void RoomSelection(User user, ReceivedMessage message)
         {
             HandleButtonAlways(user, message);
         }

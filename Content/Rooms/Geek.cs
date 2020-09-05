@@ -16,7 +16,7 @@ namespace Content.Rooms
         public override string Name => "Гик";
         public override string Identifier => Id;
 
-        public override void OnMessage(User user, RecivedMessage message)
+        public override void OnMessage(User user, ReceivedMessage message)
         {
             if (message.Text == "А когда HL-3 выйдет?")
             {

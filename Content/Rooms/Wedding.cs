@@ -15,18 +15,18 @@ namespace Content.Rooms
 
         public Wedding()
         {
-            Routes = new MessageRecived[] {TryLeave};
-            Buttons = new NullableDictionary<MessageRecived, Dictionary<string, MessageRecived>>
+            Routes = new MessageReceived[] {TryLeave};
+            Buttons = new NullableDictionary<MessageReceived, Dictionary<string, MessageReceived>>
             {
                 {
-                    null, new Dictionary<string, MessageRecived>
+                    null, new Dictionary<string, MessageReceived>
                     {
                         {"Попытаться уйти", (user, message) => SwitchAndHandle(user, TryLeave, message)},
                         {"Выпить с ними", (user, message) => user.RoomManager.Leave()}
                     }
                 },
                 {
-                    TryLeave, new Dictionary<string, MessageRecived>
+                    TryLeave, new Dictionary<string, MessageReceived>
                     {
                         {"Выпить с ними", (user, message) => user.RoomManager.Leave()}
                     }
@@ -46,7 +46,7 @@ namespace Content.Rooms
             SendMessage(user, "Хозяева пригашают тебя на рюмку вина.", GetButtons(user));
         }
 
-        private void TryLeave(User user, RecivedMessage message)
+        private void TryLeave(User user, ReceivedMessage message)
         {
             SendMessage(user, "Ты почувствовал, как мимо твоего уха пролетел нож.", GetButtons(user));
         }
@@ -59,7 +59,7 @@ namespace Content.Rooms
             return true;
         }
 
-        public override void OnMessage(User user, RecivedMessage message)
+        public override void OnMessage(User user, ReceivedMessage message)
         {
             HandleButtonAlways(user, message);
         }

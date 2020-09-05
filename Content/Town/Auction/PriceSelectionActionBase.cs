@@ -26,7 +26,7 @@ namespace Content.Town.Auction
         }
 
         [Fallback]
-        public void Fallback(User user, RecivedMessage message)
+        public void Fallback(User user, ReceivedMessage message)
         {
             var state = StateContainer.Deserialize<AddOfferState>(
                 Room.GetRoomVariables(user).Get<VariableContainer>("state")
@@ -46,7 +46,7 @@ namespace Content.Town.Auction
         }
 
         [Button("Назад")]
-        public void Back(User user, RecivedMessage message)
+        public void Back(User user, ReceivedMessage message)
         {
             Room.SwitchAction<AuctionRoom.PriceGroupSelectionAction>(user);
             Room.GetAction<AuctionRoom.PriceGroupSelectionAction>().Enter(user);

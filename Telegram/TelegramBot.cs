@@ -55,7 +55,7 @@ namespace Telegram
 
         public DateTime LastMessageSent { get; private set; }
 
-        public async Task Send(SentMessage message, RecivedMessage recivedMessage)
+        public async Task Send(SentMessage message, ReceivedMessage receivedMessage)
         {
             if (message.ChatId.Messenger != MessengerId)
             {
@@ -98,9 +98,9 @@ namespace Telegram
             var parseMode = message.Formatted ? ParseMode.Html : ParseMode.Default;
 
             var text = message.Text;
-            if (recivedMessage?.ReplyUserId != null)
+            if (receivedMessage?.ReplyUserId != null)
             {
-                text += $"\n<a href=\"tg://user?id={recivedMessage.ReplyUserId}\">@</a>";
+                text += $"\n<a href=\"tg://user?id={receivedMessage.ReplyUserId}\">@</a>";
             }
 
             try
@@ -110,7 +110,7 @@ namespace Telegram
                     text,
                     parseMode,
                     replyMarkup: replyMarkup
-                    //replyToMessageId: recivedMessage?.ReplyId ?? 0  // Not working, because MessageId is different for each bot
+                    //replyToMessageId: receivedMessage?.ReplyId ?? 0  // Not working, because MessageId is different for each bot
                 );
             }
             catch (Exception e)
@@ -153,7 +153,7 @@ namespace Telegram
             _username = me.Username;
             if (ReciveMessages)
             {
-                _bot.OnMessage += MessageRecivedHandler;
+                _bot.OnMessage += MessageReceivedHandler;
                 _bot.StartReceiving(Array.Empty<UpdateType>());
                 Logger.Info("Start receiving for @{username}", _username);
             }
@@ -163,9 +163,9 @@ namespace Telegram
             }
         }
 
-        private async void MessageRecivedHandler(object sender, MessageEventArgs args)
+        private async void MessageReceivedHandler(object sender, MessageEventArgs args)
         {
-            RecivedMessage message = null;
+            ReceivedMessage message = null;
 
             int? replyId;
             if (args.Message.Chat.Type != ChatType.Private)
@@ -187,7 +187,7 @@ namespace Telegram
                 {
                     if (args.Message.Text == "/bots")
                     {
-                        message = new RecivedMessage
+                        message = new ReceivedMessage
                         {
                             ChatId = new AdventureBot.ChatId(MessengerId, args.Message.Chat.Id),
                             UserId = new UserId(MessengerId, args.Message.From.Id),
@@ -199,7 +199,7 @@ namespace Telegram
                     }
                     else
                     {
-                        message = new RecivedMessage
+                        message = new ReceivedMessage
                         {
                             ChatId = new AdventureBot.ChatId(MessengerId, args.Message.Chat.Id),
                             UserId = new UserId(MessengerId, args.Message.From.Id),
@@ -219,7 +219,7 @@ namespace Telegram
                         {
                             if (Messenger.MessengerIds.Contains(member.Id))
                             {
-                                message = new RecivedMessage
+                                message = new ReceivedMessage
                                 {
                                     ChatId = new AdventureBot.ChatId(MessengerId, args.Message.Chat.Id),
                                     UserId = new UserId(MessengerId, args.Message.From.Id),
@@ -233,7 +233,7 @@ namespace Telegram
                         else
                         {
                             // Looks like new player
-                            message = new RecivedMessage
+                            message = new ReceivedMessage
                             {
                                 ChatId = new AdventureBot.ChatId(MessengerId, args.Message.Chat.Id),
                                 UserId = new UserId(MessengerId, args.Message.From.Id),
@@ -252,7 +252,7 @@ namespace Telegram
                     var member = args.Message.LeftChatMember;
                     if (member.IsBot && Messenger.MessengerIds.Contains(member.Id))
                     {
-                        message = new RecivedMessage
+                        message = new ReceivedMessage
                         {
                             ChatId = new AdventureBot.ChatId(MessengerId, args.Message.Chat.Id),
                             UserId = new UserId(MessengerId, args.Message.From.Id),

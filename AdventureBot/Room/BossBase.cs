@@ -79,7 +79,7 @@ namespace AdventureBot.Room
                 GetActions(user));
         }
 
-        public override void OnMessage(User.User user, RecivedMessage message)
+        public override void OnMessage(User.User user, ReceivedMessage message)
         {
             if (message.Text == "Сбежать" || message.Text == "Уйти")
             {

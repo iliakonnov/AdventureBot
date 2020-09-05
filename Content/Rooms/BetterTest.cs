@@ -29,21 +29,21 @@ namespace Content.Rooms
             }
 
             [Button("asdf")]
-            public void OnAsdf(User user, RecivedMessage message)
+            public void OnAsdf(User user, ReceivedMessage message)
             {
                 Room.SwitchAction(user, typeof(Asdf));
                 Room.SendMessage(user, "Switched!", Room.GetButtons(user));
             }
 
             [Button("qwer")]
-            public void OnQwer(User user, RecivedMessage message)
+            public void OnQwer(User user, ReceivedMessage message)
             {
                 Room.SwitchAction(user, typeof(Qwer));
                 Room.SendMessage(user, "Switched!", Room.GetButtons(user));
             }
 
             [Fallback]
-            public void Fallback(User user, RecivedMessage message)
+            public void Fallback(User user, ReceivedMessage message)
             {
                 Room.SendMessage(user, "Echo: " + message.Text, Room.GetButtons(user));
             }
@@ -57,20 +57,20 @@ namespace Content.Rooms
             }
 
             [Button("You are in asdf")]
-            public void Hello(User user, RecivedMessage message)
+            public void Hello(User user, ReceivedMessage message)
             {
                 Room.SendMessage(user, "Hello from asdf!", Room.GetButtons(user));
             }
 
             [Button("Back")]
-            public void Back(User user, RecivedMessage message)
+            public void Back(User user, ReceivedMessage message)
             {
                 Room.SwitchAction(user, typeof(MainHandler));
                 Room.SendMessage(user, "Goodbye", Room.GetButtons(user));
             }
 
             [Fallback]
-            public void Fallback(User user, RecivedMessage message)
+            public void Fallback(User user, ReceivedMessage message)
             {
                 Room.SendMessage(user, "Echo (asdf): " + message.Text, Room.GetButtons(user));
             }
@@ -84,13 +84,13 @@ namespace Content.Rooms
             }
 
             [Button("You are in qwer")]
-            public void Hello(User user, RecivedMessage message)
+            public void Hello(User user, ReceivedMessage message)
             {
                 Room.SendMessage(user, "Hello from qwer!", Room.GetButtons(user));
             }
 
             [Button("Back")]
-            public void Back(User user, RecivedMessage message)
+            public void Back(User user, ReceivedMessage message)
             {
                 Room.SwitchAction(user, typeof(MainHandler));
                 Room.SendMessage(user, "Goodbye", Room.GetButtons(user));

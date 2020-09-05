@@ -41,7 +41,7 @@ namespace AdventureBot.User
         [DbColumn("var_rooms", DbType.Int32)] public int Rooms { get; internal set; }
 
         [DbColumn("var_lastMessage", DbType.DateTime)]
-        public DateTime LastMessageRecived { get; internal set; }
+        public DateTime LastMessageReceived { get; internal set; }
 
         public void Fill(DatabaseVariables variables)
         {
@@ -50,7 +50,7 @@ namespace AdventureBot.User
             Gold = variables.Gold;
             Monsters = variables.Monsters;
             Rooms = variables.Rooms;
-            LastMessageRecived = variables.LastMessageRecived;
+            LastMessageReceived = variables.LastMessageReceived;
         }
 
         public static (DbColumnAttribute, Func<DatabaseVariables, object>)[] GetColumns()
@@ -62,7 +62,7 @@ namespace AdventureBot.User
                 v => v.Gold,
                 v => v.Monsters,
                 v => v.Rooms,
-                v => v.LastMessageRecived
+                v => v.LastMessageReceived
             };
             var result = new (DbColumnAttribute, Func<DatabaseVariables, object>)[getters.Length];
             for (var i = 0; i < getters.Length; i++)
@@ -99,7 +99,7 @@ namespace AdventureBot.User
         {
             private int _experience;
             private int _gold;
-            private int _lastMessageRecived;
+            private int _lastMessageReceived;
 
             private int _level;
             private int _monstersKilled;
@@ -118,7 +118,7 @@ namespace AdventureBot.User
                     _gold = reader.GetOrdinal(GetColumn(v => v.Gold).Name),
                     _monstersKilled = reader.GetOrdinal(GetColumn(v => v.Monsters).Name),
                     _rooms = reader.GetOrdinal(GetColumn(v => v.Rooms).Name),
-                    _lastMessageRecived = reader.GetOrdinal(GetColumn(v => v.LastMessageRecived).Name)
+                    _lastMessageReceived = reader.GetOrdinal(GetColumn(v => v.LastMessageReceived).Name)
                 };
             }
 
@@ -131,7 +131,7 @@ namespace AdventureBot.User
                     Gold = reader.GetDecimal(_gold),
                     Monsters = reader.GetInt32(_monstersKilled),
                     Rooms = reader.GetInt32(_rooms),
-                    LastMessageRecived = reader.GetDateTime(_lastMessageRecived)
+                    LastMessageReceived = reader.GetDateTime(_lastMessageReceived)
                 };
             }
         }

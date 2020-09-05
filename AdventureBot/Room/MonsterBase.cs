@@ -80,7 +80,7 @@ namespace AdventureBot.Room
             return base.OnLeave(user);
         }
 
-        public override void OnMessage(User.User user, RecivedMessage message)
+        public override void OnMessage(User.User user, ReceivedMessage message)
         {
             if (!UseItem(user, message))
             {
@@ -99,7 +99,7 @@ namespace AdventureBot.Room
             OnKilled?.Invoke(user, monster);
         }
 
-        protected virtual void NotHandled(User.User user, RecivedMessage message)
+        protected virtual void NotHandled(User.User user, ReceivedMessage message)
         {
             SendMessage(
                 user,

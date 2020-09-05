@@ -95,7 +95,7 @@ namespace AdventureBot.User
                 {
                     modifiers.Add("[Мертв]");
                 }
-                else if (DateTime.Now - User.MessageManager.LastMessageRecived > TimeSpan.FromDays(7))
+                else if (DateTime.Now - User.MessageManager.LastMessageReceived > TimeSpan.FromDays(7))
                 {
                     modifiers.Add("[Спит]");
                 }

@@ -56,18 +56,18 @@ namespace AdventureBot.User
             }
 
             ChatId = User.MessageManager.ChatId;
-            RecievedMessage = User.MessageManager.RecievedMessage;
+            ReceivedMessage = User.MessageManager.ReceivedMessage;
         }
 
         [Obsolete("This constructor for serializer only")]
         [UsedImplicitly]
         [SerializationConstructor]
         public MessageManager(List<SentMessage> queue, string[][] buttons, Queue<SentMessage> lastMessages,
-            ChatId chatId, RecivedMessage recievedMessage, ShownStats shownStats, string intent)
+            ChatId chatId, ReceivedMessage receivedMessage, ShownStats shownStats, string intent)
         {
             Queue = queue;
             Buttons = buttons;
-            RecievedMessage = recievedMessage;
+            ReceivedMessage = receivedMessage;
             LastMessages = lastMessages;
             ChatId = chatId;
             ShownStats = shownStats;
@@ -79,17 +79,17 @@ namespace AdventureBot.User
 
         [Key("queue")] private List<SentMessage> Queue { get; } = new List<SentMessage>();
         [Key("buttons")] private string[][] Buttons { get; set; }
-        [Key(nameof(RecievedMessage))] internal RecivedMessage RecievedMessage { get; set; }
+        [Key("RecievedMessage")] internal ReceivedMessage ReceivedMessage { get; set; }
 
-        [Key(nameof(LastMessageRecived))]
-        public DateTime LastMessageRecived
+        [Key("LastMessageRecived")]
+        public DateTime LastMessageReceived
         {
-            get => User.DatabaseVariables.LastMessageRecived;
+            get => User.DatabaseVariables.LastMessageReceived;
             private set
             {
                 if (User != null)
                 {
-                    User.DatabaseVariables.LastMessageRecived = value;
+                    User.DatabaseVariables.LastMessageReceived = value;
                 }
             }
         }
@@ -110,6 +110,11 @@ namespace AdventureBot.User
             if (message.Buttons != null)
             {
                 Buttons = message.Buttons;
+            }
+
+            if (message.PreferToUpdate == null)
+            {
+                message.PreferToUpdate = _intent == message.Intent;
             }
 
             if (message.Intent != null)
@@ -133,10 +138,10 @@ namespace AdventureBot.User
             }, null, User);
         }
 
-        internal void OnRecieved(RecivedMessage message)
+        internal void OnReceived(ReceivedMessage message)
         {
             var room = User.RoomManager.GetRoom();
-            User.DatabaseVariables.LastMessageRecived = DateTime.Now;
+            User.DatabaseVariables.LastMessageReceived = DateTime.Now;
             switch (room)
             {
                 case null when User.RoomManager.Rooms.Count == 0:
@@ -287,7 +292,7 @@ namespace AdventureBot.User
                 room.LastMessage = LastMessages.LastOrDefault();
             }
 
-            ObjectManager<IMessenger>.Instance.Get<MessengerManager>().Reply(message, RecievedMessage, User);
+            ObjectManager<IMessenger>.Instance.Get<MessengerManager>().Reply(message, ReceivedMessage, User);
             while (LastMessages.Count > 10)
             {
                 LastMessages.Dequeue();

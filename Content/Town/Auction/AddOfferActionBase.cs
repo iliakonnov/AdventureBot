@@ -59,7 +59,7 @@ namespace Content.Town.Auction
         }
 
         [Fallback]
-        public void ItemSelected(User user, RecivedMessage message)
+        public void ItemSelected(User user, ReceivedMessage message)
         {
             var splitted = message.Text.Split(' ');
 
@@ -166,7 +166,7 @@ namespace Content.Town.Auction
         }
 
         [Button("Назад")]
-        public void Back(User user, RecivedMessage message)
+        public void Back(User user, ReceivedMessage message)
         {
             Room.SwitchAction<AuctionRoom.MyOffersAction>(user);
             Room.GetAction<AuctionRoom.MyOffersAction>().Enter(user);

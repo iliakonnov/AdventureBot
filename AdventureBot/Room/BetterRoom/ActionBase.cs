@@ -7,8 +7,8 @@ namespace AdventureBot.Room.BetterRoom
 {
     public abstract class ActionBase<T> where T : BetterRoomBase<T>
     {
-        private readonly MessageRecived _fallback;
-        public readonly Dictionary<string, MessageRecived> Buttons;
+        private readonly MessageReceived _fallback;
+        public readonly Dictionary<string, MessageReceived> Buttons;
         protected readonly T Room;
 
         protected ActionBase(T room)
@@ -16,7 +16,7 @@ namespace AdventureBot.Room.BetterRoom
             Room = room;
             var self = GetType();
 
-            Buttons = new Dictionary<string, MessageRecived>();
+            Buttons = new Dictionary<string, MessageReceived>();
             _fallback = null;
 
             foreach (var method in self.GetMethods())
@@ -27,7 +27,7 @@ namespace AdventureBot.Room.BetterRoom
                     continue;
                 }
 
-                var handler = (MessageRecived) Delegate.CreateDelegate(typeof(MessageRecived), this, method, false);
+                var handler = (MessageReceived) Delegate.CreateDelegate(typeof(MessageReceived), this, method, false);
 
                 switch (attr)
                 {
@@ -60,7 +60,7 @@ namespace AdventureBot.Room.BetterRoom
             }
         }
 
-        public void OnMessage(User.User user, RecivedMessage message)
+        public void OnMessage(User.User user, ReceivedMessage message)
         {
             if (!Room.HandleButton(user, message))
             {

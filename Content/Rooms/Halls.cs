@@ -32,13 +32,13 @@ namespace Content.Rooms
             }
 
             [Button("Идти дальше")]
-            public void Go(User user, RecivedMessage message)
+            public void Go(User user, ReceivedMessage message)
             {
                 user.RoomManager.ChangeRoot(HallsRoot.Id);
             }
 
             [Button("Вернуться назад")]
-            public void Back(User user, RecivedMessage message)
+            public void Back(User user, ReceivedMessage message)
             {
                 user.RoomManager.Leave();
             }

@@ -56,12 +56,12 @@ namespace Content.Rooms.MegaMonster.Room
             }
         }
 
-        private void GiveKnowledge(User user, RecivedMessage message)
+        private void GiveKnowledge(User user, ReceivedMessage message)
         {
             HandleButtonAlways(user, message);
         }
 
-        private void NotEnoughKnowledge(User user, RecivedMessage message)
+        private void NotEnoughKnowledge(User user, ReceivedMessage message)
         {
             HandleButtonAlways(user, message);
         }

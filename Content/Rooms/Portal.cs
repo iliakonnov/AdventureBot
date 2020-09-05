@@ -33,7 +33,7 @@ namespace Content.Rooms
             }
 
             [Button("Вормир")]
-            public void Vormir(User user, RecivedMessage message)
+            public void Vormir(User user, ReceivedMessage message)
             {
                 if (user.Info.CurrentStats.GetStat(StatsProperty.Karma) <= -50)
                 {
@@ -60,7 +60,7 @@ namespace Content.Rooms
             }
 
             [Button("Да")]
-            public void Yes(User user, RecivedMessage message)
+            public void Yes(User user, ReceivedMessage message)
             {
                 Room.SendMessage(user, "– Я уверен, что знаешь. Я проведу тебя к нему.");
                 Room.SendMessage(user,
@@ -79,7 +79,7 @@ namespace Content.Rooms
             }
 
             [Button("Нет")]
-            public void No(User user, RecivedMessage message)
+            public void No(User user, ReceivedMessage message)
             {
                 Room.SendMessage(user, "– Я не могу тратить более времени на тебя.");
                 Room.SendMessage(user, "Густой туман окутал тебя. Через секунду ты стоял на главной улице Города",

@@ -14,7 +14,7 @@ namespace Content.Rooms
         public override string Name => "Гумба";
         public override string Identifier => Id;
 
-        public override void OnMessage(User user, RecivedMessage message)
+        public override void OnMessage(User user, ReceivedMessage message)
         {
             if (message.Text == "Прыгнуть на голову")
             {

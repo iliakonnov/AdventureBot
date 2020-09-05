@@ -11,6 +11,6 @@ namespace AdventureBot.Room
         void OnEnter(User.User user);
         void OnReturn(User.User user);
         bool OnLeave(User.User user);
-        void OnMessage(User.User user, RecivedMessage message);
+        void OnMessage(User.User user, ReceivedMessage message);
     }
 }

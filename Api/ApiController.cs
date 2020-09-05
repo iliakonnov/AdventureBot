@@ -42,7 +42,7 @@ namespace Api
 
             var text = await HttpContext.GetRequestDataAsync<string>();
 
-            var message = new RecivedMessage
+            var message = new ReceivedMessage
             {
                 ChatId = chat,
                 Text = text,

@@ -25,12 +25,12 @@ namespace Content.Rooms.MegaMonster.Room
             }
         }
 
-        private void GiveGold(User user, RecivedMessage message)
+        private void GiveGold(User user, ReceivedMessage message)
         {
             HandleButtonAlways(user, message);
         }
 
-        private void NotEnoughGold(User user, RecivedMessage message)
+        private void NotEnoughGold(User user, ReceivedMessage message)
         {
             HandleButtonAlways(user, message);
         }

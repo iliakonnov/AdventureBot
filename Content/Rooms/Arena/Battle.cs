@@ -175,7 +175,7 @@ namespace Content.Rooms.Arena
             }
 
             [Fallback]
-            public new void OnMessage(User user, RecivedMessage message)
+            public new void OnMessage(User user, ReceivedMessage message)
             {
                 var variables = Room.GetRoomVariables(user);
 

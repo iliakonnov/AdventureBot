@@ -39,7 +39,7 @@ namespace Content.Rooms
             }
 
             [Button("Пожертвовать")]
-            public void OnDonat(User user, RecivedMessage message)
+            public void OnDonat(User user, ReceivedMessage message)
             {
                 Room.SwitchAction<Donat>(user);
                 Room.SendMessage(user, "Ты решил пожертвовать Макаронному Монстру немного своих сбережений.",
@@ -47,7 +47,7 @@ namespace Content.Rooms
             }
 
             [Button("Уйти")]
-            public void Leave(User user, RecivedMessage message)
+            public void Leave(User user, ReceivedMessage message)
             {
                 user.RoomManager.Leave();
             }
@@ -61,7 +61,7 @@ namespace Content.Rooms
             }
 
             [Button("150")]
-            public void DonatMinium(User user, RecivedMessage message)
+            public void DonatMinium(User user, ReceivedMessage message)
             {
                 if (user.Info.TryDecreaseGold(150))
                 {
@@ -79,7 +79,7 @@ namespace Content.Rooms
             }
 
             [Button("750")]
-            public void Donat750(User user, RecivedMessage message)
+            public void Donat750(User user, ReceivedMessage message)
             {
                 if (user.Info.TryDecreaseGold(750))
                 {
@@ -100,7 +100,7 @@ namespace Content.Rooms
             }
 
             [Button("1500")]
-            public void DonatMaximum(User user, RecivedMessage message)
+            public void DonatMaximum(User user, ReceivedMessage message)
             {
                 if (user.Info.TryDecreaseGold(1500))
                 {
@@ -122,7 +122,7 @@ namespace Content.Rooms
             }
 
             [Button("Уйти")]
-            public void Leave(User user, RecivedMessage message)
+            public void Leave(User user, ReceivedMessage message)
             {
                 user.RoomManager.Leave();
             }

@@ -23,7 +23,7 @@ namespace Content.Town.Auction
         }
 
         [Fallback]
-        public void Fallback(User user, RecivedMessage message)
+        public void Fallback(User user, ReceivedMessage message)
         {
             var priceGroups = Math.GetPrices().ToList();
             var splitted = message.Text.Split('—');
@@ -51,7 +51,7 @@ namespace Content.Town.Auction
         }
 
         [Button("Назад")]
-        public void Back(User user, RecivedMessage message)
+        public void Back(User user, ReceivedMessage message)
         {
             Room.SwitchAction<AuctionRoom.AddOfferAction>(user);
             Room.GetAction<AuctionRoom.AddOfferAction>().Enter(user);

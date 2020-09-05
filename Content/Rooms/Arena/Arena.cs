@@ -32,7 +32,7 @@ namespace Content.Rooms.Arena
             }
 
             [Button("Записаться")]
-            public void Register(User user, RecivedMessage message)
+            public void Register(User user, ReceivedMessage message)
             {
                 if (user.ItemManager.Get(Medallion.Id) != null)
                 {
@@ -48,7 +48,7 @@ namespace Content.Rooms.Arena
             }
 
             [Button("Я не хочу драться")]
-            public void Leave(User user, RecivedMessage message)
+            public void Leave(User user, ReceivedMessage message)
             {
                 Room.SendMessage(user, "Вас выкинули на улицу");
                 user.RoomManager.Leave();

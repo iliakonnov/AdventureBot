@@ -10,11 +10,11 @@ namespace AdventureBot.Room
 
         public RootRoom()
         {
-            Routes = new MessageRecived[] {ConfirmRestart};
-            Buttons = new NullableDictionary<MessageRecived, Dictionary<string, MessageRecived>>
+            Routes = new MessageReceived[] {ConfirmRestart};
+            Buttons = new NullableDictionary<MessageReceived, Dictionary<string, MessageReceived>>
             {
                 {
-                    ConfirmRestart, new Dictionary<string, MessageRecived>
+                    ConfirmRestart, new Dictionary<string, MessageReceived>
                     {
                         {"Да", (user, message) => NewGame(user, "Ну раз вы так хотите, то ладно.")},
                         {
@@ -70,12 +70,12 @@ namespace AdventureBot.Room
             return true;
         }
 
-        public override void OnMessage(User.User user, RecivedMessage message)
+        public override void OnMessage(User.User user, ReceivedMessage message)
         {
             HandleAction(user, message);
         }
 
-        private void ConfirmRestart(User.User user, RecivedMessage message)
+        private void ConfirmRestart(User.User user, ReceivedMessage message)
         {
             HandleButtonAlways(user, message);
         }

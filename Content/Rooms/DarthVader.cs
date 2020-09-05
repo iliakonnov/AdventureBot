@@ -17,11 +17,11 @@ namespace Content.Rooms
 
         public DarthVader()
         {
-            Routes = new MessageRecived[] {PreBattle, Battle};
-            Buttons = new NullableDictionary<MessageRecived, Dictionary<string, MessageRecived>>
+            Routes = new MessageReceived[] {PreBattle, Battle};
+            Buttons = new NullableDictionary<MessageReceived, Dictionary<string, MessageReceived>>
             {
                 {
-                    null, new Dictionary<string, MessageRecived>
+                    null, new Dictionary<string, MessageReceived>
                     {
                         {
                             "— НЕЕЕЕЕЕЕЕЕЕЕЕЕЕЕЕЕТ!", (user, message) =>
@@ -35,7 +35,7 @@ namespace Content.Rooms
                     }
                 },
                 {
-                    PreBattle, new Dictionary<string, MessageRecived>
+                    PreBattle, new Dictionary<string, MessageReceived>
                     {
                         {
                             "Достать оружие", (user, message) =>
@@ -61,7 +61,7 @@ namespace Content.Rooms
             SendMessage(user, "— Я твой отец!", GetButtons(user));
         }
 
-        public override void OnMessage(User user, RecivedMessage message)
+        public override void OnMessage(User user, ReceivedMessage message)
         {
             if (!HandleAction(user, message))
             {
@@ -69,12 +69,12 @@ namespace Content.Rooms
             }
         }
 
-        private void PreBattle(User user, RecivedMessage message)
+        private void PreBattle(User user, ReceivedMessage message)
         {
             HandleButtonAlways(user, message);
         }
 
-        private void Battle(User user, RecivedMessage message)
+        private void Battle(User user, ReceivedMessage message)
         {
             // For old users
             user.RoomManager.Go(VaderBattle.Id);

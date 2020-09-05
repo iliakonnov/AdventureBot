@@ -25,7 +25,7 @@ namespace Content.Town.Auction
         }
 
         [Fallback]
-        public void Fallback(User user, RecivedMessage message)
+        public void Fallback(User user, ReceivedMessage message)
         {
             if (int.TryParse(message.Text, out var quantity))
             {
@@ -83,7 +83,7 @@ namespace Content.Town.Auction
         }
 
         [Button("Назад")]
-        public void Back(User user, RecivedMessage message)
+        public void Back(User user, ReceivedMessage message)
         {
             Room.SwitchAction<AuctionRoom.PriceSelectionAction>(user);
             Room.GetAction<AuctionRoom.PriceSelectionAction>().Enter(user);

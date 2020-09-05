@@ -55,14 +55,14 @@ namespace Content.Town
             }
 
             [Button("К хозяину")]
-            public void ToOwner(User user, RecivedMessage message)
+            public void ToOwner(User user, ReceivedMessage message)
             {
                 Room.SwitchAction<Owner>(user);
                 Room.SendMessage(user, "– Ну здравствуй, вечный странник. Зачем пожаловали?", Room.GetButtons(user));
             }
 
             [Button("К сержанту Дэмэйджу")]
-            public void ToSergeant(User user, RecivedMessage message)
+            public void ToSergeant(User user, ReceivedMessage message)
             {
                 Room.SwitchAction<Sergeant>(user);
                 Room.SendMessage(user,
@@ -71,14 +71,14 @@ namespace Content.Town
             }
 
             [Button("К доске почета")]
-            public void ToLeaderboard(User user, RecivedMessage message)
+            public void ToLeaderboard(User user, ReceivedMessage message)
             {
                 Room.SwitchAction<Leaderboard>(user);
                 Room.SendMessage(user, "Здесь есть все лучшие люди этого города", Room.GetButtons(user));
             }
 
             [Button("Уйти")]
-            public void Leave(User user, RecivedMessage message)
+            public void Leave(User user, ReceivedMessage message)
             {
                 user.RoomManager.Leave();
             }
@@ -92,7 +92,7 @@ namespace Content.Town
             }
 
             [Button("Заказное дело")]
-            public void Business(User user, RecivedMessage message)
+            public void Business(User user, ReceivedMessage message)
             {
                 Room.SwitchAction<MainAction>(user);
 
@@ -161,7 +161,7 @@ namespace Content.Town
             }
 
             [Button("Слухи")]
-            public void Gossip(User user, RecivedMessage message)
+            public void Gossip(User user, ReceivedMessage message)
             {
                 Room.SendMessage(user,
                     "– Знаешь, сплетни - это не мое, но зеваки шепчут, что самая достоверная информация о делах в городе есть в <a href=\"https://t.me/AdventureTavern\">@AdventureTavern</a>",
@@ -169,7 +169,7 @@ namespace Content.Town
             }
             
             [Button("Назад")]
-            public void Back(User user, RecivedMessage message)
+            public void Back(User user, ReceivedMessage message)
             {
                 Room.SwitchAction<MainAction>(user);
                 Room.SendMessage(user, "Хозяин странно на тебя посмотрел", Room.GetButtons(user));
@@ -184,7 +184,7 @@ namespace Content.Town
             }
 
             [Button("Да")]
-            public void Yes(User user, RecivedMessage message)
+            public void Yes(User user, ReceivedMessage message)
             {
                 Room.SwitchAction<MainAction>(user);
 
@@ -210,7 +210,7 @@ namespace Content.Town
             }
 
             [Button("Я пришел за наградой")]
-            public void Reward(User user, RecivedMessage message)
+            public void Reward(User user, ReceivedMessage message)
             {
                 Room.SwitchAction<MainAction>(user);
 
@@ -236,7 +236,7 @@ namespace Content.Town
             }
 
             [Button("Нет")]
-            public void No(User user, RecivedMessage message)
+            public void No(User user, ReceivedMessage message)
             {
                 Room.SwitchAction<MainAction>(user);
                 Room.SendMessage(user,
@@ -269,7 +269,7 @@ namespace Content.Town
             }
 
             [Button("Самые богатые")]
-            public void ByGold(User user, RecivedMessage message)
+            public void ByGold(User user, ReceivedMessage message)
             {
                 var top = new StringBuilder();
                 DisplayTop(top, TopPlayers.GetTop(TopParam.Gold, 10),
@@ -279,7 +279,7 @@ namespace Content.Town
             }
 
             [Button("Путешественники")]
-            public void ByRooms(User user, RecivedMessage message)
+            public void ByRooms(User user, ReceivedMessage message)
             {
                 var top = new StringBuilder();
                 DisplayTop(top, TopPlayers.GetTop(TopParam.Rooms, 10),
@@ -289,7 +289,7 @@ namespace Content.Town
             }
 
             [Button("Убийцы монстров")]
-            public void ByMonsters(User user, RecivedMessage message)
+            public void ByMonsters(User user, ReceivedMessage message)
             {
                 var top = new StringBuilder();
                 DisplayTop(top, TopPlayers.GetTop(TopParam.Monsters, 10),
@@ -299,7 +299,7 @@ namespace Content.Town
             }
 
             [Button("Самые опытные")]
-            public void ByLevel(User user, RecivedMessage message)
+            public void ByLevel(User user, ReceivedMessage message)
             {
                 var top = new StringBuilder();
                 DisplayTop(top, TopPlayers.GetTop(TopParam.Level, 10),
@@ -310,7 +310,7 @@ namespace Content.Town
             }
 
             [Button("Отойти отсюда")]
-            public void Away(User user, RecivedMessage message)
+            public void Away(User user, ReceivedMessage message)
             {
                 Room.SwitchAction<MainAction>(user);
                 Room.SendMessage(user, string.Empty, Room.GetButtons(user));

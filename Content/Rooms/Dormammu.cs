@@ -25,7 +25,7 @@ namespace Content.Rooms
                 buttons);
         }
 
-        public override void OnMessage(User user, RecivedMessage message)
+        public override void OnMessage(User user, ReceivedMessage message)
         {
             if (message.Text == "Договориться")
             {

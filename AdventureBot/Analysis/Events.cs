@@ -16,7 +16,7 @@ namespace AdventureBot.Analysis
             User.User.OnReset += Reset;
             UserInfo.OnDead += Dead;
             MessengerManager.OnReply += Sent;
-            MessengerManager.OnRecived += Recived;
+            MessengerManager.OnReceived += Received;
         }
 
         internal static void Start()
@@ -48,12 +48,12 @@ namespace AdventureBot.Analysis
             Log("", "dead", user);
         }
 
-        private static void Recived(User.User user, RecivedMessage message)
+        private static void Received(User.User user, ReceivedMessage message)
         {
-            Log("id<{id}> '{message}'", "messageRecived", user, message.MessageId, message.Text);
+            Log("id<{id}> '{message}'", "messageReceived", user, message.MessageId, message.Text);
         }
 
-        private static void Sent(User.User user, Tuple<SentMessage, RecivedMessage> message)
+        private static void Sent(User.User user, Tuple<SentMessage, ReceivedMessage> message)
         {
             Log("in reply to '{reply}': {message}", "messageSent", user,
                 message.Item2?.MessageId,
