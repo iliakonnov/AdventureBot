@@ -14,7 +14,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Api", "Api\Api.csproj", "{D
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Migrations", "Migrations\Migrations.csproj", "{8B66F27C-82E5-4B78-B139-FF64D960643A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Analyser", "Analyser\Analyser.csproj", "{5AA0CC33-CA41-46DA-8947-F1DEE4FC7AE0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -50,9 +49,5 @@ Global
 		{8B66F27C-82E5-4B78-B139-FF64D960643A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8B66F27C-82E5-4B78-B139-FF64D960643A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8B66F27C-82E5-4B78-B139-FF64D960643A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{5AA0CC33-CA41-46DA-8947-F1DEE4FC7AE0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{5AA0CC33-CA41-46DA-8947-F1DEE4FC7AE0}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{5AA0CC33-CA41-46DA-8947-F1DEE4FC7AE0}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{5AA0CC33-CA41-46DA-8947-F1DEE4FC7AE0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
