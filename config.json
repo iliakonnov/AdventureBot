@@ -1,0 +1,9 @@
+{
+    "telegram_token": "1111111111:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "database": "./db.sqlite3",
+    "assemblies": [
+        "/app/bin/Content.dll",
+        "/app/bin/Telegram.dll",
+        "/app/bin/Migrations.dll"
+    ]
+}
