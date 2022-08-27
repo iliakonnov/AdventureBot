@@ -1,11 +1,12 @@
 name: deploy
 
 on:
-  workflow_run:
-    workflows: [check]
-    branches: [master]
-    types: 
-      - completed
+  - workflow_dispatch
+  - workflow_run:
+      workflows: [check]
+      branches: [master]
+      types: 
+        - completed
 
 jobs:
   deploy:
