@@ -9,6 +9,8 @@ using AdventureBot.ObjectManager;
 using AdventureBot.Quest;
 using AdventureBot.Room;
 using AdventureBot.UserManager;
+using IronPython.Hosting;
+using Microsoft.Scripting.Hosting.Shell;
 using NLog;
 
 namespace AdventureBot;
@@ -22,6 +24,7 @@ internal static class Program
         Logger.Info("Saving users...");
         Cache.Instance.FlushAll();
         Logger.Info("Saving variables...");
+
         GlobalVariables.Flush();
         Logger.Debug("Done!");
         LogManager.Shutdown();
@@ -36,7 +39,7 @@ internal static class Program
         ObjectManager<IQuest>.Instance.RegisterManager<QuestManager>();
         ObjectManager<IMessenger>.Instance.RegisterManager<MessengerManager>();
         ObjectManager<IMigrator>.Instance.RegisterManager<MigratorManager>();
-        
+
         Logger.Debug("Loading objects...");
         MainManager.Instance.LoadAssembly(Assembly.GetExecutingAssembly());
         foreach (var assembly in Configuration.Config.GetSection("assemblies").GetChildren())
@@ -58,20 +61,22 @@ internal static class Program
             Logger.Error(args.ExceptionObject as Exception, "Unhandled error");
             Exit();
         };
+        AppDomain.CurrentDomain.ProcessExit += (sender, args) => { Exit(); };
 
         Logger.Debug("Loading...");
         Initialize();
 
         Logger.Info("Working!");
 
-        var ev = new AutoResetEvent(false);
-        Console.CancelKeyPress += (sender, args) =>
+        var repl = new PythonCommandLine();
+        var engine = Python.CreateEngine();
+        var console = new SuperConsole(new PythonCommandLine(), true, SuperConsole.EditMode.Windows);
+        var options = new PythonConsoleOptions
         {
-            args.Cancel = true;
-            ev.Set();
+            AutoIndent = true,
         };
-
-        ev.WaitOne();
-        Exit();
+        
+        engine.Runtime.LoadAssembly(Assembly.GetExecutingAssembly());
+        repl.Run(engine, console, options);
     }
 }
