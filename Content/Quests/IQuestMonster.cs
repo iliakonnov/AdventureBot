@@ -1,9 +1,7 @@
 ﻿using AdventureBot.Room;
 
-namespace Content.Quests
+namespace Content.Quests;
+
+public interface IQuestMonster : IMonster
 {
-    public interface IQuestMonster : IMonster
-    {
-        
-    }
 }

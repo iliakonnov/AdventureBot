@@ -1,40 +1,39 @@
 ﻿using MessagePack;
 
-namespace AdventureBot
+namespace AdventureBot;
+
+[MessagePackObject]
+public struct UserId : ISerializable
 {
-    [MessagePackObject]
-    public struct UserId : ISerializable
+    [Key(0)] public int Messenger;
+    [Key(1)] public long Id;
+
+    public UserId(int messenger, long id)
     {
-        [Key(0)] public int Messenger;
-        [Key(1)] public long Id;
-
-        public UserId(int messenger, long id)
-        {
-            Messenger = messenger;
-            Id = id;
-        }
-
-        public override string ToString()
-        {
-            return $"<User: {Messenger}/{Id}>";
-        }
+        Messenger = messenger;
+        Id = id;
     }
 
-    [MessagePackObject]
-    public struct ChatId
+    public override string ToString()
     {
-        [Key(0)] public int Messenger;
-        [Key(1)] public long Id;
+        return $"<User: {Messenger}/{Id}>";
+    }
+}
 
-        public ChatId(int messenger, long id)
-        {
-            Messenger = messenger;
-            Id = id;
-        }
+[MessagePackObject]
+public struct ChatId
+{
+    [Key(0)] public int Messenger;
+    [Key(1)] public long Id;
 
-        public override string ToString()
-        {
-            return $"<Chat: {Messenger}/{Id}>";
-        }
+    public ChatId(int messenger, long id)
+    {
+        Messenger = messenger;
+        Id = id;
+    }
+
+    public override string ToString()
+    {
+        return $"<Chat: {Messenger}/{Id}>";
     }
 }

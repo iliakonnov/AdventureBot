@@ -7,111 +7,110 @@ using AdventureBot.Room;
 using AdventureBot.User;
 using RoomManager = AdventureBot.Room.RoomManager;
 
-namespace Content.Quests
+namespace Content.Quests;
+
+public abstract class KillMonsterBase : QuestBase
 {
-    public abstract class KillMonsterBase : QuestBase
+    protected KillMonsterBase()
     {
-        protected KillMonsterBase()
+        MonsterBase.OnKilled += (user, monster) =>
         {
-            MonsterBase.OnKilled += (user, monster) =>
+            foreach (var id in GetQuestInstances(user).Keys)
             {
-                foreach (var id in GetQuestInstances(user).Keys)
+                var neededMonster = GetMonsterId(user, id);
+                if (monster.Identifier == neededMonster)
                 {
-                    var neededMonster = GetMonsterId(user, id);
-                    if (monster.Identifier == neededMonster)
-                    {
-                        GetQuestVariables(user, id).Set("killed", new Serializable.Bool(true));
-                        //user.QuestManager.FinishQuest(Identifer, id);
-                    }
-                }
-            };
-        }
-
-        public override string GetName(User user, Guid questId)
-        {
-            var monsterId = GetMonsterId(user, questId);
-            var monster = ObjectManager<IRoom>.Instance.Get<RoomManager>().Get(monsterId);
-            var reward = GetReward(user, questId);
-            return reward != 0
-                ? $"Убить {monster?.Name} за {GetReward(user, questId)} золота"
-                : $"Убить {monster?.Name}";
-        }
-
-        public override decimal GetProgress(User user, Guid questId)
-        {
-            return IsFinished(user, questId) ? 100 : 0;
-        }
-
-        public override void Finish(User user, Guid questId)
-        {
-            user.Info.Gold += GetReward(user, questId);
-        }
-
-        public override void Begin(User user, Guid questId)
-        {
-            var mgr = ObjectManager<IRoom>.Instance.Get<RoomManager>();
-            var monsters = new List<IQuestMonster>();
-            foreach (var item in mgr.Items())
-            {
-                if (!(item.Attribute is AvailableAttribute))
-                {
-                    continue;
-                }
-
-                var room = mgr.Get(item.Identificator);
-                if (room is IQuestMonster monster)
-                {
-                    monsters.Add(monster);
+                    GetQuestVariables(user, id).Set("killed", new Serializable.Bool(true));
+                    //user.QuestManager.FinishQuest(Identifer, id);
                 }
             }
-
-            var vars = GetQuestVariables(user, questId);
-            vars.Set("killed", new Serializable.Bool(false));
-
-            var rand = monsters[user.Random.Next(0, monsters.Count)];
-            vars.Set("monster_id", new Serializable.String(rand.Identifier));
-
-            var reward = (decimal) user.Random.Next(50, 250);
-            vars.Set("reward", new Serializable.Decimal(reward));
-        }
-
-        public string GetMonsterId(User user, Guid guid)
-        {
-            return GetQuestVariables(user, guid).Get<Serializable.String>("monster_id");
-        }
-
-        public virtual decimal GetReward(User user, Guid guid)
-        {
-            return GetQuestVariables(user, guid).Get<Serializable.Decimal>("reward");
-        }
-
-        public bool IsFinished(User user, Guid guid)
-        {
-            return GetQuestVariables(user, guid).Get<Serializable.Bool>("killed");
-        }
+        };
     }
 
-    [Quest(Id)]
-    public class KillMonster : KillMonsterBase
+    public override string GetName(User user, Guid questId)
     {
-        public const string Id = "quest/kill_monster";
-        public override string Identifer => Id;
+        var monsterId = GetMonsterId(user, questId);
+        var monster = ObjectManager<IRoom>.Instance.Get<RoomManager>().Get(monsterId);
+        var reward = GetReward(user, questId);
+        return reward != 0
+            ? $"Убить {monster?.Name} за {GetReward(user, questId)} золота"
+            : $"Убить {monster?.Name}";
     }
 
-    [Quest(Id)]
-    public class KillMonsterFree : KillMonsterBase
+    public override decimal GetProgress(User user, Guid questId)
     {
-        public const string Id = "quest/kill_monster/free";
-        public override string Identifer => Id;
+        return IsFinished(user, questId) ? 100 : 0;
+    }
 
-        public override decimal GetReward(User user, Guid guid)
+    public override void Finish(User user, Guid questId)
+    {
+        user.Info.Gold += GetReward(user, questId);
+    }
+
+    public override void Begin(User user, Guid questId)
+    {
+        var mgr = ObjectManager<IRoom>.Instance.Get<RoomManager>();
+        var monsters = new List<IQuestMonster>();
+        foreach (var item in mgr.Items())
         {
-            return 0;
+            if (!(item.Attribute is AvailableAttribute))
+            {
+                continue;
+            }
+
+            var room = mgr.Get(item.Identificator);
+            if (room is IQuestMonster monster)
+            {
+                monsters.Add(monster);
+            }
         }
 
-        public override void Finish(User user, Guid questId)
-        {
-            user.Info.Level.AddXp(50);
-        }
+        var vars = GetQuestVariables(user, questId);
+        vars.Set("killed", new Serializable.Bool(false));
+
+        var rand = monsters[user.Random.Next(0, monsters.Count)];
+        vars.Set("monster_id", new Serializable.String(rand.Identifier));
+
+        var reward = (decimal) user.Random.Next(50, 250);
+        vars.Set("reward", new Serializable.Decimal(reward));
+    }
+
+    public string GetMonsterId(User user, Guid guid)
+    {
+        return GetQuestVariables(user, guid).Get<Serializable.String>("monster_id");
+    }
+
+    public virtual decimal GetReward(User user, Guid guid)
+    {
+        return GetQuestVariables(user, guid).Get<Serializable.Decimal>("reward");
+    }
+
+    public bool IsFinished(User user, Guid guid)
+    {
+        return GetQuestVariables(user, guid).Get<Serializable.Bool>("killed");
+    }
+}
+
+[Quest(Id)]
+public class KillMonster : KillMonsterBase
+{
+    public const string Id = "quest/kill_monster";
+    public override string Identifer => Id;
+}
+
+[Quest(Id)]
+public class KillMonsterFree : KillMonsterBase
+{
+    public const string Id = "quest/kill_monster/free";
+    public override string Identifer => Id;
+
+    public override decimal GetReward(User user, Guid guid)
+    {
+        return 0;
+    }
+
+    public override void Finish(User user, Guid questId)
+    {
+        user.Info.Level.AddXp(50);
     }
 }

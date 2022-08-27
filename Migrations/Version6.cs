@@ -1,15 +1,14 @@
 ﻿using System;
 using AdventureBot.UserManager;
 
-namespace Migrations
+namespace Migrations;
+
+[Migrator(6)]
+public class Version6 : IMigrator
 {
-    [Migrator(6)]
-    public class Version6 : IMigrator
+    public dynamic Migrate(dynamic user)
     {
-        public dynamic Migrate(dynamic user)
-        {
-            user["MessageManager"]["LastMessageRecived"] = DateTime.MinValue;
-            return user;
-        }
+        user["MessageManager"]["LastMessageRecived"] = DateTime.MinValue;
+        return user;
     }
 }

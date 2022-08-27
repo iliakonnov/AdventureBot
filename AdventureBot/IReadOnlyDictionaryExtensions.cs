@@ -1,14 +1,13 @@
 ﻿using System.Collections.Generic;
 
-namespace AdventureBot
+namespace AdventureBot;
+
+public static class ReadOnlyDictionaryExtensions
 {
-    public static class ReadOnlyDictionaryExtensions
+    public static TValue GetValueOrDefault<TKey, TValue>(this IReadOnlyDictionary<TKey, TValue> dictionary,
+        TKey key,
+        TValue value = default)
     {
-        public static TValue GetValueOrDefault<TKey, TValue>(this IReadOnlyDictionary<TKey, TValue> dictionary,
-            TKey key,
-            TValue value = default)
-        {
-            return dictionary.TryGetValue(key, out var result) ? result : value;
-        }
+        return dictionary.TryGetValue(key, out var result) ? result : value;
     }
 }

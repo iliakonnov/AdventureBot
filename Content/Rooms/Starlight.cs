@@ -7,69 +7,68 @@ using AdventureBot.User.Stats;
 using Content.Items;
 using Content.Quests;
 
-namespace Content.Rooms
+namespace Content.Rooms;
+
+[Available(Id, Difficulity.Hard, TownRoot.Id)]
+public class Starlight : MonsterBase, IQuestMonster
 {
-    [Available(Id, Difficulity.Hard, TownRoot.Id)]
-    public class Starlight : MonsterBase, IQuestMonster
+    public const string Id = "monster/starlight";
+    protected override decimal Health => 1000;
+    public override string Name => "Старлайт";
+    public override string Identifier => Id;
+
+    protected override decimal GetDamage(User user)
     {
-        public const string Id = "monster/starlight";
-        protected override decimal Health => 1000;
-        public override string Name => "Старлайт";
-        public override string Identifier => Id;
+        return 50;
+    }
 
-        protected override decimal GetDamage(User user)
+    protected override void Enter(User user, string[][] buttons)
+    {
+        var variables = GetRoomVariables(user);
+        var rnd = user.Random.Next(0, 3);
+        string propText;
+        StatsProperty prop;
+        switch (rnd)
         {
-            return 50;
+            case 0:
+                propText = "силы";
+                prop = StatsProperty.Strength;
+                user.MessageManager.ShownStats |= ShownStats.Strength;
+                break;
+            case 1:
+                propText = "интеллекта";
+                prop = StatsProperty.Intelligence;
+                user.MessageManager.ShownStats |= ShownStats.Intelligence;
+                break;
+            case 2:
+                propText = "защиты";
+                prop = StatsProperty.Defence;
+                user.MessageManager.ShownStats |= ShownStats.Defence;
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(rnd));
         }
 
-        protected override void Enter(User user, string[][] buttons)
-        {
-            var variables = GetRoomVariables(user);
-            var rnd = user.Random.Next(0, 3);
-            string propText;
-            StatsProperty prop;
-            switch (rnd)
-            {
-                case 0:
-                    propText = "силы";
-                    prop = StatsProperty.Strength;
-                    user.MessageManager.ShownStats |= ShownStats.Strength;
-                    break;
-                case 1:
-                    propText = "интеллекта";
-                    prop = StatsProperty.Intelligence;
-                    user.MessageManager.ShownStats |= ShownStats.Intelligence;
-                    break;
-                case 2:
-                    propText = "защиты";
-                    prop = StatsProperty.Defence;
-                    user.MessageManager.ShownStats |= ShownStats.Defence;
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(rnd));
-            }
+        var backup = user.Info.BaseStats.GetStat(prop);
+        variables.Set("prop", new Serializable.Int((int) prop));
+        variables.Set("value", new Serializable.Decimal(backup));
+        user.Info.ChangeStats(prop, Stats.DefaultStats[prop], true);
 
-            var backup = user.Info.BaseStats.GetStat(prop);
-            variables.Set("prop", new Serializable.Int((int) prop));
-            variables.Set("value", new Serializable.Decimal(backup));
-            user.Info.ChangeStats(prop, Stats.DefaultStats[prop], true);
+        SendMessage(user, $"Старлайт Гриммер лишает вас {propText}!", buttons);
+    }
 
-            SendMessage(user, $"Старлайт Гриммер лишает вас {propText}!", buttons);
-        }
+    protected override bool OnRunaway(User user)
+    {
+        SendMessage(user, "Вы убегаете, но вот восполнить потери времени нет");
+        return true;
+    }
 
-        protected override bool OnRunaway(User user)
-        {
-            SendMessage(user, "Вы убегаете, но вот восполнить потери времени нет");
-            return true;
-        }
-
-        protected override void OnWon(User user)
-        {
-            var variables = GetRoomVariables(user);
-            var prop = (StatsProperty) (int) variables.Get<Serializable.Int>("prop");
-            var backup = (decimal) variables.Get<Serializable.Decimal>("value");
-            user.Info.ChangeStats(prop, backup, true);
-            user.ItemManager.Add(new ItemInfo(StarlightWand.Id, 1));
-        }
+    protected override void OnWon(User user)
+    {
+        var variables = GetRoomVariables(user);
+        var prop = (StatsProperty) (int) variables.Get<Serializable.Int>("prop");
+        var backup = (decimal) variables.Get<Serializable.Decimal>("value");
+        user.Info.ChangeStats(prop, backup, true);
+        user.ItemManager.Add(new ItemInfo(StarlightWand.Id, 1));
     }
 }

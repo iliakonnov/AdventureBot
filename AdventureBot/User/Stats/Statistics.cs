@@ -2,64 +2,69 @@
 using AdventureBot.Room;
 using MessagePack;
 
-namespace AdventureBot.User.Stats
+namespace AdventureBot.User.Stats;
+
+[MessagePackObject(true)]
+public class Statistics
 {
-    [MessagePackObject(true)]
-    public class Statistics
+    [IgnoreMember] internal User User;
+
+    static Statistics()
     {
-        [IgnoreMember] internal User User;
+        MonsterBase.OnKilled += (user, monster) => user.Info.Statistics.MonsterKilled();
+    }
 
-        static Statistics()
-        {
-            MonsterBase.OnKilled += (user, monster) => user.Info.Statistics.MonsterKilled();
-        }
+    [Obsolete("This constructor is for serializer only")]
+    [SerializationConstructor]
+    public Statistics()
+    {
+    }
 
-        [Obsolete("This constructor is for serializer only")]
-        [SerializationConstructor]
-        public Statistics()
-        {
-        }
+    public Statistics(User user)
+    {
+        User = user;
+    }
 
-        public Statistics(User user)
+    public int MonsterCount
+    {
+        get => User.DatabaseVariables.Monsters;
+        private set
         {
-            User = user;
-        }
-
-        public int MonsterCount
-        {
-            get => User.DatabaseVariables.Monsters;
-            private set
+            if (User != null)
             {
-                if (User != null) User.DatabaseVariables.Monsters = value;
+                User.DatabaseVariables.Monsters = value;
             }
         }
+    }
 
-        public int RoomsCount
+    public int RoomsCount
+    {
+        get => User.DatabaseVariables.Rooms;
+        private set
         {
-            get => User.DatabaseVariables.Rooms;
-            private set
+            if (User != null)
             {
-                if (User != null) User.DatabaseVariables.Rooms = value;
+                User.DatabaseVariables.Rooms = value;
             }
         }
+    }
 
-        public static event GameEventHandler OnChanged;
+    public static event GameEventHandler OnChanged;
 
-        public void RoomTraveled()
-        {
-            RoomsCount += 1;
-            OnChanged?.Invoke(User);
-        }
+    public void RoomTraveled()
+    {
+        RoomsCount += 1;
+        OnChanged?.Invoke(User);
+    }
 
-        private void MonsterKilled()
-        {
-            MonsterCount += 1;
-            OnChanged?.Invoke(User);
-        }
+    private void MonsterKilled()
+    {
+        MonsterCount += 1;
+        OnChanged?.Invoke(User);
+    }
 
-        internal void GoldChanged()
-        {
-            OnChanged?.Invoke(User);
-        }
+    internal void GoldChanged()
+    {
+        OnChanged?.Invoke(User);
     }
 }

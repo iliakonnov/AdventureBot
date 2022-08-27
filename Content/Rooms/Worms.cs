@@ -6,54 +6,53 @@ using AdventureBot.Room;
 using AdventureBot.User;
 using Content.Items;
 
-namespace Content.Rooms
-{
-    [Available(Id, Difficulity.Any, TownRoot.Id)]
-    public class Worms : RoomBase
-    {
-        public const string Id = "room/worms";
+namespace Content.Rooms;
 
-        public Worms()
+[Available(Id, Difficulity.Any, TownRoot.Id)]
+public class Worms : RoomBase
+{
+    public const string Id = "room/worms";
+
+    public Worms()
+    {
+        Buttons = new NullableDictionary<MessageReceived, Dictionary<string, MessageReceived>>
         {
-            Buttons = new NullableDictionary<MessageReceived, Dictionary<string, MessageReceived>>
             {
+                null, new Dictionary<string, MessageReceived>
                 {
-                    null, new Dictionary<string, MessageReceived>
                     {
-                        {
-                            "Уйти", (user, message) => { user.RoomManager.Leave(); }
-                        }
+                        "Уйти", (user, message) => { user.RoomManager.Leave(); }
                     }
                 }
-            };
-        }
+            }
+        };
+    }
 
-        public override string Name => "Террариум";
-        public override string Identifier => Id;
+    public override string Name => "Террариум";
+    public override string Identifier => Id;
 
-        public override void OnEnter(User user)
-        {
-            base.OnEnter(user);
+    public override void OnEnter(User user)
+    {
+        base.OnEnter(user);
 
-            SendMessage(
-                user,
-                "В террариуме оказалось несколько червяков, палящих друг по другу миниатюрными, но ничуть не менее опасными базуками.",
-                GetButtons(user)
-            );
-        }
+        SendMessage(
+            user,
+            "В террариуме оказалось несколько червяков, палящих друг по другу миниатюрными, но ничуть не менее опасными базуками.",
+            GetButtons(user)
+        );
+    }
 
-        public override bool OnLeave(User user)
-        {
-            base.OnLeave(user);
+    public override bool OnLeave(User user)
+    {
+        base.OnLeave(user);
 
-            user.ItemManager.Add(new ItemInfo(Worm.Id, 3));
-            SendMessage(user, "Перед уходом ты подобрал бездыханные тела бравых бойцов.");
-            return true;
-        }
+        user.ItemManager.Add(new ItemInfo(Worm.Id, 3));
+        SendMessage(user, "Перед уходом ты подобрал бездыханные тела бравых бойцов.");
+        return true;
+    }
 
-        public override void OnMessage(User user, ReceivedMessage message)
-        {
-            HandleButtonAlways(user, message);
-        }
+    public override void OnMessage(User user, ReceivedMessage message)
+    {
+        HandleButtonAlways(user, message);
     }
 }

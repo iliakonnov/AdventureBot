@@ -5,32 +5,31 @@ using AdventureBot.Room;
 using AdventureBot.User;
 using AdventureBot.User.Stats;
 
-namespace Content.Items
+namespace Content.Items;
+
+[Item(Id)]
+public class Bow : ItemBase
 {
-    [Item(Id)]
-    public class Bow : ItemBase
+    public const string Id = "legolas/bow";
+    public override StructFlag<BuyGroup> Group => new();
+    public override string Name => "Эльфийский лук";
+    public override string Description => "Этому луку стрелы не нужны!";
+    public override decimal? Price => 350;
+    public override string Identifier => Id;
+    public override StatsEffect Effect => null;
+
+    public override bool CanUse(User user, ItemInfo info)
     {
-        public const string Id = "legolas/bow";
-        public override StructFlag<BuyGroup> Group => new StructFlag<BuyGroup>();
-        public override string Name => "Эльфийский лук";
-        public override string Description => "Этому луку стрелы не нужны!";
-        public override decimal? Price => 350;
-        public override string Identifier => Id;
-        public override StatsEffect Effect => null;
+        return user.RoomManager.GetRoom() is IMonster;
+    }
 
-        public override bool CanUse(User user, ItemInfo info)
+    public override void OnUse(User user, ItemInfo info)
+    {
+        if (!(user.RoomManager.GetRoom() is IMonster monster))
         {
-            return user.RoomManager.GetRoom() is IMonster;
+            return;
         }
 
-        public override void OnUse(User user, ItemInfo info)
-        {
-            if (!(user.RoomManager.GetRoom() is IMonster monster))
-            {
-                return;
-            }
-
-            monster.MakeDamage(user, 300);
-        }
+        monster.MakeDamage(user, 300);
     }
 }

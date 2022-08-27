@@ -8,97 +8,96 @@ using MessagePack.ImmutableCollection;
 using MessagePack.Resolvers;
 using NLog;
 
-namespace AdventureBot.UserManager
+namespace AdventureBot.UserManager;
+
+public class UserData
 {
-    public class UserData
+    private const int LastVersion = 8;
+
+    private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
+
+    static UserData()
     {
-        private const int LastVersion = 8;
+        StaticCompositeResolver.Instance.Register(
+            ImmutableCollectionResolver.Instance,
+            StandardResolverAllowPrivate.Instance);
+        var options = MessagePackSerializerOptions.Standard.WithResolver(StaticCompositeResolver.Instance);
+        MessagePackSerializer.DefaultOptions = options;
+    }
 
-        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
+    public UserData(UserId id, byte[] data, DatabaseVariables variables, int version)
+    {
+        Data = data;
+        Id = id;
+        Variables = variables;
+        Version = version;
+    }
 
-        static UserData()
+    public UserData(UserId id)
+    {
+        Data = null;
+        Id = id;
+        Version = LastVersion;
+    }
+
+    public byte[] Data { get; }
+    public UserId Id { get; }
+    public int Version { get; }
+    public DatabaseVariables Variables { get; }
+
+    public static UserData Serialize(User.User user)
+    {
+        return new UserData(
+            user.Info.UserId,
+            MessagePackSerializer.Serialize(user),
+            user.DatabaseVariables,
+            LastVersion);
+    }
+
+    public User.User Deserialize()
+    {
+        if (Data == null)
         {
-            StaticCompositeResolver.Instance.Register(
-                ImmutableCollectionResolver.Instance,
-                StandardResolverAllowPrivate.Instance);
-            var options = MessagePackSerializerOptions.Standard.WithResolver(StaticCompositeResolver.Instance);
-            MessagePackSerializer.DefaultOptions = options;
-        }
-
-        public UserData(UserId id, byte[] data, DatabaseVariables variables, int version)
-        {
-            Data = data;
-            Id = id;
-            Variables = variables;
-            Version = version;
-        }
-
-        public UserData(UserId id)
-        {
-            Data = null;
-            Id = id;
-            Version = LastVersion;
-        }
-
-        public byte[] Data { get; }
-        public UserId Id { get; }
-        public int Version { get; }
-        public DatabaseVariables Variables { get; }
-
-        public static UserData Serialize(User.User user)
-        {
-            return new UserData(
-                user.Info.UserId,
-                MessagePackSerializer.Serialize(user),
-                user.DatabaseVariables,
-                LastVersion);
-        }
-
-        public User.User Deserialize()
-        {
-            if (Data == null)
-            {
-                return new User.User(Id);
-            }
-
-            try
-            {
-                User.User result;
-                if (Version == LastVersion)
-                {
-                    result = MessagePackSerializer.Deserialize<User.User>(Data);
-                    result.DatabaseVariables.Fill(Variables);
-                    return result;
-                }
-
-                var user = MessagePackSerializer.Deserialize<dynamic>(Data);
-                var migrated = Migrate(user);
-                result = MessagePackSerializer.Deserialize<User.User>(MessagePackSerializer.Serialize(migrated));
-                result.DatabaseVariables.Fill(Variables);
-                return result;
-            }
-            catch (Exception e)
-            {
-                var filename = $"{Id.Messenger}_{Id.Id}.userdump";
-                File.WriteAllBytes(filename, Data);
-                Logger.Error(e, "Cannot deserialize user {userId}. Dump saved to {filename}", Id, filename);
-            }
-
             return new User.User(Id);
         }
 
-        private dynamic Migrate(dynamic user)
+        try
         {
-            var version = Version;
-            while (version != LastVersion)
+            User.User result;
+            if (Version == LastVersion)
             {
-                var migrator = ObjectManager<IMigrator>.Instance.Get<MigratorManager>().Get(version.ToString());
-                Debug.Assert(migrator != null, nameof(migrator) + " != null");
-                user = migrator.Migrate(user);
-                version++;
+                result = MessagePackSerializer.Deserialize<User.User>(Data);
+                result.DatabaseVariables.Fill(Variables);
+                return result;
             }
 
-            return user;
+            var user = MessagePackSerializer.Deserialize<dynamic>(Data);
+            var migrated = Migrate(user);
+            result = MessagePackSerializer.Deserialize<User.User>(MessagePackSerializer.Serialize(migrated));
+            result.DatabaseVariables.Fill(Variables);
+            return result;
         }
+        catch (Exception e)
+        {
+            var filename = $"{Id.Messenger}_{Id.Id}.userdump";
+            File.WriteAllBytes(filename, Data);
+            Logger.Error(e, "Cannot deserialize user {userId}. Dump saved to {filename}", Id, filename);
+        }
+
+        return new User.User(Id);
+    }
+
+    private dynamic Migrate(dynamic user)
+    {
+        var version = Version;
+        while (version != LastVersion)
+        {
+            var migrator = ObjectManager<IMigrator>.Instance.Get<MigratorManager>().Get(version.ToString());
+            Debug.Assert(migrator != null, nameof(migrator) + " != null");
+            user = migrator.Migrate(user);
+            version++;
+        }
+
+        return user;
     }
 }

@@ -2,41 +2,40 @@
 using System.Timers;
 using MessagePack;
 
-namespace AdventureBot
+namespace AdventureBot;
+
+public static class GlobalVariables
 {
-    public static class GlobalVariables
+    private const string Filename = "globalVariables.msgpack";
+
+    // ReSharper disable once PrivateFieldCanBeConvertedToLocalVariable (It must not be removed by GC)
+    private static readonly Timer FlushTimer;
+
+    static GlobalVariables()
     {
-        private const string Filename = "globalVariables.msgpack";
-
-        // ReSharper disable once PrivateFieldCanBeConvertedToLocalVariable (It must not be removed by GC)
-        private static readonly Timer FlushTimer;
-
-        static GlobalVariables()
+        FlushTimer = new Timer
         {
-            FlushTimer = new Timer
-            {
-                AutoReset = true,
-                Interval = 15 * 1000 // Every 15 seconds
-            };
-            FlushTimer.Elapsed += (sender, args) => Flush();
-            FlushTimer.Start();
+            AutoReset = true,
+            Interval = 15 * 1000 // Every 15 seconds
+        };
+        FlushTimer.Elapsed += (sender, args) => Flush();
+        FlushTimer.Start();
 
-            if (File.Exists(Filename))
-            {
-                Variables = MessagePackSerializer.Deserialize<VariableContainer>(
-                    File.ReadAllBytes(Filename));
-            }
-            else
-            {
-                Variables = new VariableContainer();
-            }
-        }
-
-        public static VariableContainer Variables { get; }
-
-        internal static void Flush()
+        if (File.Exists(Filename))
         {
-            File.WriteAllBytes(Filename, MessagePackSerializer.Serialize(Variables));
+            Variables = MessagePackSerializer.Deserialize<VariableContainer>(
+                File.ReadAllBytes(Filename));
         }
+        else
+        {
+            Variables = new VariableContainer();
+        }
+    }
+
+    public static VariableContainer Variables { get; }
+
+    internal static void Flush()
+    {
+        File.WriteAllBytes(Filename, MessagePackSerializer.Serialize(Variables));
     }
 }

@@ -1,12 +1,11 @@
 ﻿using AdventureBot.Room;
 
-namespace Content.Halls
+namespace Content.Halls;
+
+[Root(Id)]
+public class HallsRoot : IRoot
 {
-    [Root(Id)]
-    public class HallsRoot : IRoot
-    {
-        public const string Id = "root/halls";
-        public string Identifier => Id;
-        public string RootRoomId => Halls.Id;
-    }
+    public const string Id = "root/halls";
+    public string Identifier => Id;
+    public string RootRoomId => Halls.Id;
 }

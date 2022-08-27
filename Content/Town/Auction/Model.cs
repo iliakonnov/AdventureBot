@@ -3,138 +3,137 @@ using System.Collections.Generic;
 using System.Linq;
 using AdventureBot;
 
-namespace Content.Town.Auction
+namespace Content.Town.Auction;
+
+public class Offers : Dictionary<string, ItemOffer>
 {
-    public class Offers : Dictionary<string, ItemOffer>
+    public VariableContainer Serialize()
     {
-        public VariableContainer Serialize()
+        var result = new VariableContainer();
+        foreach (var offer in this)
         {
-            var result = new VariableContainer();
-            foreach (var offer in this)
-            {
-                result.Set(offer.Key, offer.Value.Serialize());
-            }
-
-            return result;
+            result.Set(offer.Key, offer.Value.Serialize());
         }
 
-        public static Offers Deserialize(VariableContainer items)
-        {
-            var result = new Offers();
-            foreach (var key in items.Keys())
-            {
-                var offer = items.Get<VariableContainer>(key);
-                result[key] = ItemOffer.Deserialize(offer);
-            }
+        return result;
+    }
 
-            return result;
+    public static Offers Deserialize(VariableContainer items)
+    {
+        var result = new Offers();
+        foreach (var key in items.Keys())
+        {
+            var offer = items.Get<VariableContainer>(key);
+            result[key] = ItemOffer.Deserialize(offer);
         }
 
-        public void Save()
-        {
-            lock (GlobalVariables.Variables)
-            {
-                GlobalVariables.Variables.Set("auction.offers", Serialize());
-            }
-        }
+        return result;
+    }
 
-        public static Offers Load()
+    public void Save()
+    {
+        lock (GlobalVariables.Variables)
         {
-            lock (GlobalVariables.Variables)
-            {
-                var container = GlobalVariables.Variables.Get<VariableContainer>("auction.offers");
-                return container != null
-                    ? Deserialize(container)
-                    : new Offers();
-            }
+            GlobalVariables.Variables.Set("auction.offers", Serialize());
         }
     }
 
-    public class ItemOffer
+    public static Offers Load()
     {
-        public List<Offer> BuyOffers;
-        public List<Offer> SellOffers;
-
-        public ItemOffer(List<Offer> sellOffers, List<Offer> buyOffers)
+        lock (GlobalVariables.Variables)
         {
-            SellOffers = sellOffers;
-            BuyOffers = buyOffers;
+            var container = GlobalVariables.Variables.Get<VariableContainer>("auction.offers");
+            return container != null
+                ? Deserialize(container)
+                : new Offers();
         }
+    }
+}
 
-        public VariableContainer Serialize()
-        {
-            var result = new VariableContainer();
-            result.Set("sell", SerializeMany(SellOffers));
-            result.Set("buy", SerializeMany(BuyOffers));
-            return result;
-        }
+public class ItemOffer
+{
+    public List<Offer> BuyOffers;
+    public List<Offer> SellOffers;
 
-        private SerializableList SerializeMany(IEnumerable<Offer> offers)
-        {
-            return new SerializableList(
-                offers
-                    .Where(offer => offer.Count != 0)
-                    .Select(offer => offer.Serialize())
-                    .Cast<ISerializable>()
-                    .ToList()
-            );
-        }
+    public ItemOffer(List<Offer> sellOffers, List<Offer> buyOffers)
+    {
+        SellOffers = sellOffers;
+        BuyOffers = buyOffers;
+    }
 
-        public static ItemOffer Deserialize(VariableContainer container)
-        {
-            return new ItemOffer(
-                DeserializeMany(container.Get<SerializableList>("sell")),
-                DeserializeMany(container.Get<SerializableList>("buy"))
-            );
-        }
+    public VariableContainer Serialize()
+    {
+        var result = new VariableContainer();
+        result.Set("sell", SerializeMany(SellOffers));
+        result.Set("buy", SerializeMany(BuyOffers));
+        return result;
+    }
 
-        private static List<Offer> DeserializeMany(SerializableList list)
-        {
-            return list
-                .Cast<VariableContainer>()
-                .Select(Offer.Deserialize)
+    private SerializableList SerializeMany(IEnumerable<Offer> offers)
+    {
+        return new SerializableList(
+            offers
                 .Where(offer => offer.Count != 0)
-                .ToList();
-        }
+                .Select(offer => offer.Serialize())
+                .Cast<ISerializable>()
+                .ToList()
+        );
     }
 
-    public class Offer
+    public static ItemOffer Deserialize(VariableContainer container)
     {
-        public int Count;
-        public DateTimeOffset Created;
-        public string ItemId;
-        public decimal Price;
-        public UserId UserId;
+        return new ItemOffer(
+            DeserializeMany(container.Get<SerializableList>("sell")),
+            DeserializeMany(container.Get<SerializableList>("buy"))
+        );
+    }
 
-        public Offer(UserId userId, decimal price, int count, DateTimeOffset created, string itemId)
-        {
-            UserId = userId;
-            Price = price;
-            Count = count;
-            Created = created;
-            ItemId = itemId;
-        }
+    private static List<Offer> DeserializeMany(SerializableList list)
+    {
+        return list
+            .Cast<VariableContainer>()
+            .Select(Offer.Deserialize)
+            .Where(offer => offer.Count != 0)
+            .ToList();
+    }
+}
 
-        public VariableContainer Serialize()
-        {
-            var result = new VariableContainer();
-            result.Set("UserId", UserId);
-            result.Set("Price", new Serializable.Decimal(Price));
-            result.Set("Count", new Serializable.Int(Count));
-            result.Set("Created", new Serializable.Decimal(Created.ToUnixTimeSeconds()));
-            result.Set("ItemId", new Serializable.String(ItemId));
-            return result;
-        }
+public class Offer
+{
+    public int Count;
+    public DateTimeOffset Created;
+    public string ItemId;
+    public decimal Price;
+    public UserId UserId;
 
-        public static Offer Deserialize(VariableContainer container)
-        {
-            return new Offer(
-                (UserId) container.Get("UserId"),
-                container.Get<Serializable.Decimal>("Price"),
-                container.Get<Serializable.Int>("Count"),
-                DateTimeOffset.FromUnixTimeSeconds(container.Get<Serializable.Long>("Created")),
-                container.Get<Serializable.String>("ItemId")
-            );
-        }
+    public Offer(UserId userId, decimal price, int count, DateTimeOffset created, string itemId)
+    {
+        UserId = userId;
+        Price = price;
+        Count = count;
+        Created = created;
+        ItemId = itemId;
+    }
+
+    public VariableContainer Serialize()
+    {
+        var result = new VariableContainer();
+        result.Set("UserId", UserId);
+        result.Set("Price", new Serializable.Decimal(Price));
+        result.Set("Count", new Serializable.Int(Count));
+        result.Set("Created", new Serializable.Decimal(Created.ToUnixTimeSeconds()));
+        result.Set("ItemId", new Serializable.String(ItemId));
+        return result;
+    }
+
+    public static Offer Deserialize(VariableContainer container)
+    {
+        return new Offer(
+            (UserId) container.Get("UserId"),
+            container.Get<Serializable.Decimal>("Price"),
+            container.Get<Serializable.Int>("Count"),
+            DateTimeOffset.FromUnixTimeSeconds(container.Get<Serializable.Long>("Created")),
+            container.Get<Serializable.String>("ItemId")
+        );
     }
 }

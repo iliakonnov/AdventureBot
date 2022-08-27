@@ -3,63 +3,62 @@ using AdventureBot.Messenger;
 using AdventureBot.Room;
 using AdventureBot.User;
 
-namespace Content.Rooms
+namespace Content.Rooms;
+
+[Available(Id, Difficulity.Hard, TownRoot.Id)]
+public class Dormammu : MonsterBase
 {
-    [Available(Id, Difficulity.Hard, TownRoot.Id)]
-    public class Dormammu : MonsterBase
+    public const string Id = "monster/dormammu";
+    public override string Name => "Дормамму";
+    public override string Identifier => Id;
+    protected override decimal Health => 1_000_000;
+
+    protected override decimal GetDamage(User user)
     {
-        public const string Id = "monster/dormammu";
-        public override string Name => "Дормамму";
-        public override string Identifier => Id;
-        protected override decimal Health => 1_000_000;
+        return 70;
+    }
 
-        protected override decimal GetDamage(User user)
-        {
-            return 70;
-        }
+    protected override void Enter(User user, string[][] buttons)
+    {
+        GetRoomVariables(user).Set("diplomacy", new Serializable.Int(0));
+        SendMessage(user, "Похоже,  он собирается затянуть землю в свое измерение. Самое время его остановить!",
+            buttons);
+    }
 
-        protected override void Enter(User user, string[][] buttons)
+    public override void OnMessage(User user, ReceivedMessage message)
+    {
+        if (message.Text == "Договориться")
         {
-            GetRoomVariables(user).Set("diplomacy", new Serializable.Int(0));
-            SendMessage(user, "Похоже,  он собирается затянуть землю в свое измерение. Самое время его остановить!",
-                buttons);
-        }
+            var buttons = GetActions(user);
 
-        public override void OnMessage(User user, ReceivedMessage message)
-        {
-            if (message.Text == "Договориться")
+            SendMessage(user, "— Дормамму, я пришел договориться", buttons);
+
+            var variables = GetRoomVariables(user);
+            var current = variables.Get<Serializable.Int>("diplomacy");
+            var newValue = (int) current + 1;
+            variables.Set("diplomacy", new Serializable.Int(newValue));
+
+            if (current == 10)
             {
-                var buttons = GetActions(user);
-
-                SendMessage(user, "— Дормамму, я пришел договориться", buttons);
-
-                var variables = GetRoomVariables(user);
-                var current = variables.Get<Serializable.Int>("diplomacy");
-                var newValue = (int) current + 1;
-                variables.Set("diplomacy", new Serializable.Int(newValue));
-
-                if (current == 10)
-                {
-                    SendMessage(user, "— Аааа, иди нахрен, Кэмбербетч", buttons);
-                    user.RoomManager.Leave();
-                }
-
-                FinishTurn(user);
+                SendMessage(user, "— Аааа, иди нахрен, Кэмбербетч", buttons);
+                user.RoomManager.Leave();
             }
-            else
-            {
-                base.OnMessage(user, message);
-            }
-        }
 
-        protected override bool OnRunaway(User user)
-        {
-            return true;
+            FinishTurn(user);
         }
+        else
+        {
+            base.OnMessage(user, message);
+        }
+    }
 
-        protected override void OnWon(User user)
-        {
-            user.Info.Gold += 1000;
-        }
+    protected override bool OnRunaway(User user)
+    {
+        return true;
+    }
+
+    protected override void OnWon(User user)
+    {
+        user.Info.Gold += 1000;
     }
 }

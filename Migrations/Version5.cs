@@ -1,15 +1,13 @@
-﻿using System;
-using AdventureBot.UserManager;
+﻿using AdventureBot.UserManager;
 
-namespace Migrations
+namespace Migrations;
+
+[Migrator(5)]
+public class Version5 : IMigrator
 {
-    [Migrator(5)]
-    public class Version5 : IMigrator
+    public dynamic Migrate(dynamic user)
     {
-        public dynamic Migrate(dynamic user)
-        {
-            user["Info"]["Gold"] = user["Info"]["_gold"];
-            return user;
-        }
+        user["Info"]["Gold"] = user["Info"]["_gold"];
+        return user;
     }
 }

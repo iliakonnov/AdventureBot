@@ -2,22 +2,21 @@
 using System.Collections.Generic;
 using AdventureBot.UserManager;
 
-namespace Migrations
-{
-    [Migrator(3)]
-    public class Version3 : IMigrator
-    {
-        private static readonly Random NamesRandom = new Random();
+namespace Migrations;
 
-        public dynamic Migrate(dynamic user)
+[Migrator(3)]
+public class Version3 : IMigrator
+{
+    private static readonly Random NamesRandom = new();
+
+    public dynamic Migrate(dynamic user)
+    {
+        user["Info"]["Level"] = new Dictionary<object, object>
         {
-            user["Info"]["Level"] = new Dictionary<object, object>
-            {
-                {"Level", 0},
-                {"ExpirenceRequired", 0M},
-                {"ExpirenceCollected", 0M}
-            };
-            return user;
-        }
+            {"Level", 0},
+            {"ExpirenceRequired", 0M},
+            {"ExpirenceCollected", 0M}
+        };
+        return user;
     }
 }

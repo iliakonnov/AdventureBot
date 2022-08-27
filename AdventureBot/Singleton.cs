@@ -1,9 +1,8 @@
 ﻿using MessagePack;
 
-namespace AdventureBot
+namespace AdventureBot;
+
+public abstract class Singleton<T> where T : Singleton<T>, new()
 {
-    public abstract class Singleton<T> where T : Singleton<T>, new()
-    {
-        [IgnoreMember] public static T Instance { get; } = new T();
-    }
+    [IgnoreMember] public static T Instance { get; } = new();
 }

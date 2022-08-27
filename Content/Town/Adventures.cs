@@ -8,185 +8,184 @@ using AdventureBot.Room;
 using AdventureBot.User;
 using AdventureBot.User.Stats;
 
-namespace Content.Town
+namespace Content.Town;
+
+[Room(Id)]
+public class Adventures : RoomBase
 {
-    [Room(Id)]
-    public class Adventures : RoomBase
+    public const string Id = "town/adventures";
+
+    public Adventures()
     {
-        public const string Id = "town/adventures";
-
-        public Adventures()
+        Routes = new MessageReceived[] {RoomSelection};
+        Buttons = new NullableDictionary<MessageReceived, Dictionary<string, MessageReceived>>
         {
-            Routes = new MessageReceived[] {RoomSelection};
-            Buttons = new NullableDictionary<MessageReceived, Dictionary<string, MessageReceived>>
             {
+                null, new Dictionary<string, MessageReceived>
                 {
-                    null, new Dictionary<string, MessageReceived>
-                    {
-                        {"Налево", (user, message) => Go(user, Difficulity.Easy)},
-                        {"Направо", (user, message) => Go(user, Difficulity.Medium)},
-                        {"Прямо", (user, message) => Go(user, Difficulity.Hard)},
-                        {"Назад", (user, message) => user.RoomManager.Leave()}
-                    }
-                },
-                {
-                    RoomSelection, new Dictionary<string, MessageReceived>
-                    {
-                        {"Пойти в лес", (user, message) => RoomSelection(user, RoomSelectionMessage.Next)},
-                        {"Пойти на поляну", (user, message) => RoomSelection(user, RoomSelectionMessage.Select)}
-                    }
+                    {"Налево", (user, message) => Go(user, Difficulity.Easy)},
+                    {"Направо", (user, message) => Go(user, Difficulity.Medium)},
+                    {"Прямо", (user, message) => Go(user, Difficulity.Hard)},
+                    {"Назад", (user, message) => user.RoomManager.Leave()}
                 }
-            };
-        }
-
-        public override string Name => "Приключения";
-        public override string Identifier => Id;
-
-        public override void OnEnter(User user)
-        {
-            SwitchAction(user, null);
-            SendMessage(
-                user,
-                "Ты вышел из города на полянку. Тут стоит указательный камень, который укажет тебе путь к приключениям. Куда пойдешь?",
-                GetButtons(user)
-            );
-        }
-
-        public override bool OnLeave(User user)
-        {
-            return true;
-        }
-
-        public override void OnMessage(User user, ReceivedMessage message)
-        {
-            if (!HandleAction(user, message))
+            },
             {
-                HandleButtonAlways(user, message);
-            }
-        }
-
-        public override void OnReturn(User user)
-        {
-            const decimal k = 0.2m;
-            user.Info.ChangeStats(StatsProperty.Mana, user.Info.MaxStats.GetStat(StatsProperty.Mana) * k);
-            user.Info.ChangeStats(StatsProperty.Stamina, user.Info.MaxStats.GetStat(StatsProperty.Stamina) * k);
-            user.Info.ChangeStats(StatsProperty.Health, user.Info.MaxStats.GetStat(StatsProperty.Health) * k);
-
-            SendMessage(user, "Вы вернулись в город, отдохнули и теперь лучше себя чувствуете.");
-
-            user.Info.Statistics.RoomTraveled();
-            foreach (var info in user.ItemManager.Items)
-            {
-                if (info.Item is IAdventureItem adventureItem)
+                RoomSelection, new Dictionary<string, MessageReceived>
                 {
-                    adventureItem.OnAdventureLeave(user, info);
+                    {"Пойти в лес", (user, message) => RoomSelection(user, RoomSelectionMessage.Next)},
+                    {"Пойти на поляну", (user, message) => RoomSelection(user, RoomSelectionMessage.Select)}
                 }
             }
+        };
+    }
 
-            user.RoomManager.Leave();
-        }
+    public override string Name => "Приключения";
+    public override string Identifier => Id;
 
-        private static List<string> GetRooms(Difficulity difficulity)
-        {
-            return GetAllRooms().Items()
-                .Where(room => room.Attribute is AvailableAttribute attr
-                               && (attr.Difficulity & difficulity) != 0
-                               && attr.RootId == TownRoot.Id)
-                .OrderBy(room => room.Identificator)
-                .Select(room => room.Identificator)
-                .ToList();
-        }
+    public override void OnEnter(User user)
+    {
+        SwitchAction(user, null);
+        SendMessage(
+            user,
+            "Ты вышел из города на полянку. Тут стоит указательный камень, который укажет тебе путь к приключениям. Куда пойдешь?",
+            GetButtons(user)
+        );
+    }
 
-        private static string GetRandomRoom(User user, Difficulity difficulity)
-        {
-            var rooms = GetRooms(difficulity);
-            return rooms[user.Random.Next(rooms.Count)];
-        }
+    public override bool OnLeave(User user)
+    {
+        return true;
+    }
 
-        private void AskRoom(User user, Difficulity difficulity)
-        {
-            var selectedRoom = GetRandomRoom(user, difficulity);
-            GetRoomVariables(user).Set("room", new Serializable.String(selectedRoom));
-            SendMessage(user,
-                $"Ты идешь по лесу и видишь на поляне <b>{GetAllRooms().Get(selectedRoom)?.Name}</b>",
-                GetButtons(user)
-            );
-        }
-
-        private void RoomSelection(User user, ReceivedMessage message)
+    public override void OnMessage(User user, ReceivedMessage message)
+    {
+        if (!HandleAction(user, message))
         {
             HandleButtonAlways(user, message);
         }
+    }
 
-        private void RoomSelection(User user, RoomSelectionMessage message)
+    public override void OnReturn(User user)
+    {
+        const decimal k = 0.2m;
+        user.Info.ChangeStats(StatsProperty.Mana, user.Info.MaxStats.GetStat(StatsProperty.Mana) * k);
+        user.Info.ChangeStats(StatsProperty.Stamina, user.Info.MaxStats.GetStat(StatsProperty.Stamina) * k);
+        user.Info.ChangeStats(StatsProperty.Health, user.Info.MaxStats.GetStat(StatsProperty.Health) * k);
+
+        SendMessage(user, "Вы вернулись в город, отдохнули и теперь лучше себя чувствуете.");
+
+        user.Info.Statistics.RoomTraveled();
+        foreach (var info in user.ItemManager.Items)
         {
-            var variables = GetRoomVariables(user);
-            var difficulity = (Difficulity) (int) variables.Get<Serializable.Int>("difficulity");
-            var count = (int) variables.Get<Serializable.Int>("count");
-            count--;
-            switch (message)
+            if (info.Item is IAdventureItem adventureItem)
             {
-                case RoomSelectionMessage.Next when count <= 0:
-                {
-                    // Last room
-                    SendMessage(user, "Дальше идти некуда");
-                    break;
-                }
-                case RoomSelectionMessage.Next:
-                {
-                    AskRoom(user, difficulity);
-                    variables.Set("count", new Serializable.Int(count));
-                    break;
-                }
-                case RoomSelectionMessage.Select:
-                {
-                    var selectedRoom = (string) variables.Get<Serializable.String>("room");
-                    SwitchRoom(user, selectedRoom);
-                    break;
-                }
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(message), message, null);
+                adventureItem.OnAdventureLeave(user, info);
             }
         }
 
-        private void Go(User user, Difficulity difficulity)
+        user.RoomManager.Leave();
+    }
+
+    private static List<string> GetRooms(Difficulity difficulity)
+    {
+        return GetAllRooms().Items()
+            .Where(room => room.Attribute is AvailableAttribute attr
+                           && (attr.Difficulity & difficulity) != 0
+                           && attr.RootId == TownRoot.Id)
+            .OrderBy(room => room.Identificator)
+            .Select(room => room.Identificator)
+            .ToList();
+    }
+
+    private static string GetRandomRoom(User user, Difficulity difficulity)
+    {
+        var rooms = GetRooms(difficulity);
+        return rooms[user.Random.Next(rooms.Count)];
+    }
+
+    private void AskRoom(User user, Difficulity difficulity)
+    {
+        var selectedRoom = GetRandomRoom(user, difficulity);
+        GetRoomVariables(user).Set("room", new Serializable.String(selectedRoom));
+        SendMessage(user,
+            $"Ты идешь по лесу и видишь на поляне <b>{GetAllRooms().Get(selectedRoom)?.Name}</b>",
+            GetButtons(user)
+        );
+    }
+
+    private void RoomSelection(User user, ReceivedMessage message)
+    {
+        HandleButtonAlways(user, message);
+    }
+
+    private void RoomSelection(User user, RoomSelectionMessage message)
+    {
+        var variables = GetRoomVariables(user);
+        var difficulity = (Difficulity) (int) variables.Get<Serializable.Int>("difficulity");
+        var count = (int) variables.Get<Serializable.Int>("count");
+        count--;
+        switch (message)
         {
-            var rooms = GetRooms(difficulity);
-            if (rooms.Count == 0)
+            case RoomSelectionMessage.Next when count <= 0:
             {
-                SendMessage(user, "Ты побродил по лесу, но так ничего и не нашел.");
-                user.RoomManager.Leave();
+                // Last room
+                SendMessage(user, "Дальше идти некуда");
+                break;
             }
-            else if (user.ItemManager.Get("item/slippers") != null)
+            case RoomSelectionMessage.Next:
             {
-                SwitchAction(user, RoomSelection);
-                GetRoomVariables(user).Set("difficulity", new Serializable.Int((int) difficulity));
-                GetRoomVariables(user).Set("count", new Serializable.Int(user.Random.Next(3, 5 + 1)));
                 AskRoom(user, difficulity);
+                variables.Set("count", new Serializable.Int(count));
+                break;
             }
-            else
+            case RoomSelectionMessage.Select:
             {
-                var selectedRoom = GetRandomRoom(user, difficulity);
+                var selectedRoom = (string) variables.Get<Serializable.String>("room");
                 SwitchRoom(user, selectedRoom);
+                break;
             }
+            default:
+                throw new ArgumentOutOfRangeException(nameof(message), message, null);
         }
+    }
 
-        private static void SwitchRoom(User user, string room)
+    private void Go(User user, Difficulity difficulity)
+    {
+        var rooms = GetRooms(difficulity);
+        if (rooms.Count == 0)
         {
-            user.RoomManager.Go(room);
-            foreach (var info in user.ItemManager.Items)
+            SendMessage(user, "Ты побродил по лесу, но так ничего и не нашел.");
+            user.RoomManager.Leave();
+        }
+        else if (user.ItemManager.Get("item/slippers") != null)
+        {
+            SwitchAction(user, RoomSelection);
+            GetRoomVariables(user).Set("difficulity", new Serializable.Int((int) difficulity));
+            GetRoomVariables(user).Set("count", new Serializable.Int(user.Random.Next(3, 5 + 1)));
+            AskRoom(user, difficulity);
+        }
+        else
+        {
+            var selectedRoom = GetRandomRoom(user, difficulity);
+            SwitchRoom(user, selectedRoom);
+        }
+    }
+
+    private static void SwitchRoom(User user, string room)
+    {
+        user.RoomManager.Go(room);
+        foreach (var info in user.ItemManager.Items)
+        {
+            if (info.Item is IAdventureItem adventureItem)
             {
-                if (info.Item is IAdventureItem adventureItem)
-                {
-                    adventureItem.OnAdventureEnter(user, info);
-                }
+                adventureItem.OnAdventureEnter(user, info);
             }
         }
+    }
 
-        private enum RoomSelectionMessage
-        {
-            Next,
-            Select
-        }
+    private enum RoomSelectionMessage
+    {
+        Next,
+        Select
     }
 }

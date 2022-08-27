@@ -1,12 +1,11 @@
 ﻿using AdventureBot.Room;
 
-namespace Content
+namespace Content;
+
+[Root(Id)]
+public class TownRoot : IRoot
 {
-    [Root(Id)]
-    public class TownRoot : IRoot
-    {
-        public const string Id = "root/town";
-        public string Identifier => Id;
-        public string RootRoomId => Town.Town.Id;
-    }
+    public const string Id = "root/town";
+    public string Identifier => Id;
+    public string RootRoomId => Town.Town.Id;
 }

@@ -3,116 +3,115 @@ using AdventureBot.Room;
 using AdventureBot.Room.BetterRoom;
 using AdventureBot.User;
 
-namespace Content.Town.Auction
+namespace Content.Town.Auction;
+
+[Room(Id)]
+public class AuctionRoom : BetterRoomBase<AuctionRoom>
 {
-    [Room(Id)]
-    public class AuctionRoom : BetterRoomBase<AuctionRoom>
+    public const string Id = "town/auction";
+    public override string Name => "Рынок";
+    public override string Identifier => Id;
+
+    public override void OnEnter(User user)
     {
-        public const string Id = "town/auction";
-        public override string Name => "Рынок";
-        public override string Identifier => Id;
+        GetAction<MainAction>().Enter(user);
+    }
 
-        public override void OnEnter(User user)
+    [Action]
+    public class MainAction : ActionBase<AuctionRoom>
+    {
+        public MainAction(AuctionRoom room) : base(room)
         {
-            GetAction<MainAction>().Enter(user);
         }
 
-        [Action]
-        public class MainAction : ActionBase<AuctionRoom>
+        public void Enter(User user)
         {
-            public MainAction(AuctionRoom room) : base(room)
-            {
-            }
-
-            public void Enter(User user)
-            {
-                Room.SendMessage(user, "Здесь вы можете купить или продать что угодно по самым лучшим ценам!",
-                    Room.GetButtons(user));
-            }
-
-            [Button("Посмотреть предложения")]
-            public void ShowOffers(User user, ReceivedMessage message)
-            {
-                Room.SwitchAction<AllOffersAction>(user);
-                Room.GetAction<AllOffersAction>().Enter(user);
-            }
-
-            [Button("Мои предложения")]
-            public void MyOffers(User user, ReceivedMessage message)
-            {
-                Room.SwitchAction<MyOffersAction>(user);
-                Room.GetAction<MyOffersAction>().Enter(user);
-            }
-            
-            [Button("Уйти")]
-            public void Exit(User user, ReceivedMessage message)
-            {
-                user.RoomManager.Leave();
-            }
+            Room.SendMessage(user, "Здесь вы можете купить или продать что угодно по самым лучшим ценам!",
+                Room.GetButtons(user));
         }
 
-        [Action(0)]
-        public class MyOffersAction : MyOffersActionBase
+        [Button("Посмотреть предложения")]
+        public void ShowOffers(User user, ReceivedMessage message)
         {
-            public MyOffersAction(AuctionRoom room) : base(room)
-            {
-            }
+            Room.SwitchAction<AllOffersAction>(user);
+            Room.GetAction<AllOffersAction>().Enter(user);
         }
 
-        [Action(1)]
-        public class AllOffersAction : AllOffersActionBase
+        [Button("Мои предложения")]
+        public void MyOffers(User user, ReceivedMessage message)
         {
-            public AllOffersAction(AuctionRoom room) : base(room)
-            {
-            }
+            Room.SwitchAction<MyOffersAction>(user);
+            Room.GetAction<MyOffersAction>().Enter(user);
         }
 
-        [Action(2)]
-        public class ItemOffersAction : ItemOffersActionBase
+        [Button("Уйти")]
+        public void Exit(User user, ReceivedMessage message)
         {
-            public ItemOffersAction(AuctionRoom room) : base(room)
-            {
-            }
+            user.RoomManager.Leave();
         }
+    }
 
-        [Action(3)]
-        public class RemoveOfferAction : RemoveOfferActionBase
+    [Action(0)]
+    public class MyOffersAction : MyOffersActionBase
+    {
+        public MyOffersAction(AuctionRoom room) : base(room)
         {
-            public RemoveOfferAction(AuctionRoom room) : base(room)
-            {
-            }
         }
+    }
 
-        [Action(4)]
-        public class AddOfferAction : AddOfferActionBase
+    [Action(1)]
+    public class AllOffersAction : AllOffersActionBase
+    {
+        public AllOffersAction(AuctionRoom room) : base(room)
         {
-            public AddOfferAction(AuctionRoom room) : base(room)
-            {
-            }
         }
+    }
 
-        [Action(5)]
-        public class PriceGroupSelectionAction : PriceGroupSelectionActionBase
+    [Action(2)]
+    public class ItemOffersAction : ItemOffersActionBase
+    {
+        public ItemOffersAction(AuctionRoom room) : base(room)
         {
-            public PriceGroupSelectionAction(AuctionRoom room) : base(room)
-            {
-            }
         }
+    }
 
-        [Action(6)]
-        public class PriceSelectionAction : PriceSelectionActionBase
+    [Action(3)]
+    public class RemoveOfferAction : RemoveOfferActionBase
+    {
+        public RemoveOfferAction(AuctionRoom room) : base(room)
         {
-            public PriceSelectionAction(AuctionRoom room) : base(room)
-            {
-            }
         }
+    }
 
-        [Action(7)]
-        public class QuantitySelectionAction : QuantitySelectionActionBase
+    [Action(4)]
+    public class AddOfferAction : AddOfferActionBase
+    {
+        public AddOfferAction(AuctionRoom room) : base(room)
         {
-            public QuantitySelectionAction(AuctionRoom room) : base(room)
-            {
-            }
+        }
+    }
+
+    [Action(5)]
+    public class PriceGroupSelectionAction : PriceGroupSelectionActionBase
+    {
+        public PriceGroupSelectionAction(AuctionRoom room) : base(room)
+        {
+        }
+    }
+
+    [Action(6)]
+    public class PriceSelectionAction : PriceSelectionActionBase
+    {
+        public PriceSelectionAction(AuctionRoom room) : base(room)
+        {
+        }
+    }
+
+    [Action(7)]
+    public class QuantitySelectionAction : QuantitySelectionActionBase
+    {
+        public QuantitySelectionAction(AuctionRoom room) : base(room)
+        {
         }
     }
 }

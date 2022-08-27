@@ -5,66 +5,65 @@ using AdventureBot.Item;
 using AdventureBot.User;
 using ItemManager = AdventureBot.Item.ItemManager;
 
-namespace Content.Town
+namespace Content.Town;
+
+public static class ShopExtensions
 {
-    public static class ShopExtensions
+    public static bool BuyItem(this User user, ItemInfo item)
     {
-        public static bool BuyItem(this User user, ItemInfo item)
+        if (item.Item.Price == null)
         {
-            if (item.Item.Price == null)
-            {
-                return false;
-            }
-
-            var price = (decimal) item.Item.Price * item.Count;
-
-            if (!user.Info.TryDecreaseGold(price))
-            {
-                return false;
-            }
-
-            user.ItemManager.Add(item);
-            return true;
+            return false;
         }
 
-        public static bool SellItem(this User user, ItemInfo item)
+        var price = (decimal) item.Item.Price * item.Count;
+
+        if (!user.Info.TryDecreaseGold(price))
         {
-            if (item.Item.Price == null)
-            {
-                return false;
-            }
-
-            var price = (decimal) item.Item.Price * item.Count * user.Info.SellMultiplier;
-
-            if (!user.ItemManager.Remove(item))
-            {
-                return false;
-            }
-
-            user.Info.Gold += price;
-            return true;
+            return false;
         }
 
-        public static List<IItem> AvailableToBuy(this ItemManager manager, StructFlag<BuyGroup> filter)
+        user.ItemManager.Add(item);
+        return true;
+    }
+
+    public static bool SellItem(this User user, ItemInfo item)
+    {
+        if (item.Item.Price == null)
         {
-            return manager.Keys()
-                .Select(manager.Get)
-                .Where(item => item?.Price != null && item.Group.Intersects(filter))
-                .ToList();
+            return false;
         }
 
-        public static List<ItemInfo> AvailableToSell(this IEnumerable<ItemInfo> items, StructFlag<BuyGroup> filter)
+        var price = (decimal) item.Item.Price * item.Count * user.Info.SellMultiplier;
+
+        if (!user.ItemManager.Remove(item))
         {
-            return items
-                .Where(item => item.Item.Price != null && item.Item.Group.Intersects(filter))
-                .ToList();
+            return false;
         }
 
-        public static List<ItemInfo> AvailableToSell(this IEnumerable<ItemInfo> items)
-        {
-            return items
-                .Where(item => item.Item.Price != null)
-                .ToList();
-        }
+        user.Info.Gold += price;
+        return true;
+    }
+
+    public static List<IItem> AvailableToBuy(this ItemManager manager, StructFlag<BuyGroup> filter)
+    {
+        return manager.Keys()
+            .Select(manager.Get)
+            .Where(item => item?.Price != null && item.Group.Intersects(filter))
+            .ToList();
+    }
+
+    public static List<ItemInfo> AvailableToSell(this IEnumerable<ItemInfo> items, StructFlag<BuyGroup> filter)
+    {
+        return items
+            .Where(item => item.Item.Price != null && item.Item.Group.Intersects(filter))
+            .ToList();
+    }
+
+    public static List<ItemInfo> AvailableToSell(this IEnumerable<ItemInfo> items)
+    {
+        return items
+            .Where(item => item.Item.Price != null)
+            .ToList();
     }
 }

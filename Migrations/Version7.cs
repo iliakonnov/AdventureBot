@@ -1,14 +1,13 @@
 ﻿using AdventureBot.UserManager;
 
-namespace Migrations
+namespace Migrations;
+
+[Migrator(7)]
+public class Version7 : IMigrator
 {
-    [Migrator(7)]
-    public class Version7 : IMigrator
+    public dynamic Migrate(dynamic user)
     {
-        public dynamic Migrate(dynamic user)
-        {
-            user["Info"]["_name"] = user["Info"]["Name"];
-            return user;
-        }
+        user["Info"]["_name"] = user["Info"]["Name"];
+        return user;
     }
 }

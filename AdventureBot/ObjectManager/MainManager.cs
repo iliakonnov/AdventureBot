@@ -3,43 +3,42 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
 
-namespace AdventureBot.ObjectManager
+namespace AdventureBot.ObjectManager;
+
+internal interface IObjectManager
 {
-    internal interface IObjectManager
+    void Register(GameObjectAttribute attribute, Create<object> creator);
+}
+
+internal class MainManager : Singleton<MainManager>
+{
+    private readonly List<IObjectManager> _managers = new();
+
+    internal void Register<TMgr>(TMgr manager) where TMgr : IObjectManager
     {
-        void Register(GameObjectAttribute attribute, Create<object> creator);
+        _managers.Add(manager);
     }
 
-    internal class MainManager : Singleton<MainManager>
+    internal void LoadAssembly(Assembly assembly)
     {
-        private readonly List<IObjectManager> _managers = new List<IObjectManager>();
-
-        internal void Register<TMgr>(TMgr manager) where TMgr : IObjectManager
+        foreach (var type in assembly.GetTypes())
         {
-            _managers.Add(manager);
-        }
-
-        internal void LoadAssembly(Assembly assembly)
-        {
-            foreach (var type in assembly.GetTypes())
+            if (!(type.GetCustomAttribute(typeof(GameObjectAttribute)) is GameObjectAttribute attr))
             {
-                if (!(type.GetCustomAttribute(typeof(GameObjectAttribute)) is GameObjectAttribute attr))
-                {
-                    continue;
-                }
+                continue;
+            }
 
-                var ctor = type.GetConstructor(Type.EmptyTypes);
-                foreach (var manager in _managers)
-                {
-                    Debug.Assert(ctor != null, nameof(ctor) + " != null");
-                    manager.Register(attr, () => ctor.Invoke(new object[] { }));
-                }
+            var ctor = type.GetConstructor(Type.EmptyTypes);
+            foreach (var manager in _managers)
+            {
+                Debug.Assert(ctor != null, nameof(ctor) + " != null");
+                manager.Register(attr, () => ctor.Invoke(new object[] { }));
             }
         }
+    }
 
-        internal void LoadAssembly(string path)
-        {
-            LoadAssembly(Assembly.LoadFrom(path));
-        }
+    internal void LoadAssembly(string path)
+    {
+        LoadAssembly(Assembly.LoadFrom(path));
     }
 }

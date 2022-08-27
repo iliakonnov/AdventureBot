@@ -3,69 +3,68 @@ using System.Collections.Generic;
 using System.Reflection;
 using AdventureBot.Messenger;
 
-namespace AdventureBot.Room.BetterRoom
+namespace AdventureBot.Room.BetterRoom;
+
+public abstract class ActionBase<T> where T : BetterRoomBase<T>
 {
-    public abstract class ActionBase<T> where T : BetterRoomBase<T>
+    private readonly MessageReceived _fallback;
+    public readonly Dictionary<string, MessageReceived> Buttons;
+    protected readonly T Room;
+
+    protected ActionBase(T room)
     {
-        private readonly MessageReceived _fallback;
-        public readonly Dictionary<string, MessageReceived> Buttons;
-        protected readonly T Room;
+        Room = room;
+        var self = GetType();
 
-        protected ActionBase(T room)
+        Buttons = new Dictionary<string, MessageReceived>();
+        _fallback = null;
+
+        foreach (var method in self.GetMethods())
         {
-            Room = room;
-            var self = GetType();
-
-            Buttons = new Dictionary<string, MessageReceived>();
-            _fallback = null;
-
-            foreach (var method in self.GetMethods())
+            var attr = method.GetCustomAttribute<MessageHandlerAttribute>();
+            if (attr == null)
             {
-                var attr = method.GetCustomAttribute<MessageHandlerAttribute>();
-                if (attr == null)
-                {
-                    continue;
-                }
-
-                var handler = (MessageReceived) Delegate.CreateDelegate(typeof(MessageReceived), this, method, false);
-
-                switch (attr)
-                {
-                    case ButtonAttribute button:
-                    {
-                        if (Buttons.ContainsKey(button.Text))
-                        {
-                            throw new Exception($"Multiple handlers for button {button.Text}");
-                        }
-
-                        Buttons[button.Text] = handler;
-                        break;
-                    }
-                    case FallbackAttribute _:
-                    {
-                        if (_fallback != null)
-                        {
-                            throw new Exception("Multiple fallbacks found");
-                        }
-
-                        _fallback = handler;
-                        break;
-                    }
-                }
+                continue;
             }
 
-            if (_fallback == null)
+            var handler = (MessageReceived) Delegate.CreateDelegate(typeof(MessageReceived), this, method, false);
+
+            switch (attr)
             {
-                _fallback = Room.HandleButtonAlways;
+                case ButtonAttribute button:
+                {
+                    if (Buttons.ContainsKey(button.Text))
+                    {
+                        throw new Exception($"Multiple handlers for button {button.Text}");
+                    }
+
+                    Buttons[button.Text] = handler;
+                    break;
+                }
+                case FallbackAttribute _:
+                {
+                    if (_fallback != null)
+                    {
+                        throw new Exception("Multiple fallbacks found");
+                    }
+
+                    _fallback = handler;
+                    break;
+                }
             }
         }
 
-        public void OnMessage(User.User user, ReceivedMessage message)
+        if (_fallback == null)
         {
-            if (!Room.HandleButton(user, message))
-            {
-                _fallback(user, message);
-            }
+            _fallback = Room.HandleButtonAlways;
+        }
+    }
+
+    public void OnMessage(User.User user, ReceivedMessage message)
+    {
+        if (!Room.HandleButton(user, message))
+        {
+            _fallback(user, message);
         }
     }
 }

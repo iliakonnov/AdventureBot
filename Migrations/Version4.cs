@@ -1,17 +1,16 @@
 ﻿using System;
 using AdventureBot.UserManager;
 
-namespace Migrations
-{
-    [Migrator(4)]
-    public class Version4 : IMigrator
-    {
-        private static readonly Random NamesRandom = new Random();
+namespace Migrations;
 
-        public dynamic Migrate(dynamic user)
-        {
-            user["RoomManager"]["CurrentRootId"] = "root/town";
-            return user;
-        }
+[Migrator(4)]
+public class Version4 : IMigrator
+{
+    private static readonly Random NamesRandom = new();
+
+    public dynamic Migrate(dynamic user)
+    {
+        user["RoomManager"]["CurrentRootId"] = "root/town";
+        return user;
     }
 }

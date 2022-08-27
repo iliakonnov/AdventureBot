@@ -5,54 +5,53 @@ using AdventureBot.Room;
 using AdventureBot.User;
 using Content.Town.Auction;
 
-namespace Content.Town
+namespace Content.Town;
+
+[Room(Id)]
+public class Town : RoomBase
 {
-    [Room(Id)]
-    public class Town : RoomBase
+    public const string Id = "town";
+
+    public Town()
     {
-        public const string Id = "town";
-
-        public Town()
+        Buttons = new NullableDictionary<MessageReceived, Dictionary<string, MessageReceived>>
         {
-            Buttons = new NullableDictionary<MessageReceived, Dictionary<string, MessageReceived>>
             {
+                null, new Dictionary<string, MessageReceived>
                 {
-                    null, new Dictionary<string, MessageReceived>
-                    {
-                        {"Приключения", (user, message) => user.RoomManager.Go(Adventures.Id)},
-                        {"Зеркало", (user, message) => user.RoomManager.Go(Mirror.Id)},
-                        {"Рынок", (user, message) => user.RoomManager.Go(AuctionRoom.Id)},
-                        {"Магазин", (user, message) => user.RoomManager.Go(Market.Id)},
-                        {"Таверна", (user, message) => user.RoomManager.Go(Tavern.Id)},
-                        {"Гильдия магов", (user, message) => user.RoomManager.Go(Guild.Id)},
-                        {"Спортзал", (user, message) => user.RoomManager.Go(Gym.Id)}
-                    }
+                    {"Приключения", (user, message) => user.RoomManager.Go(Adventures.Id)},
+                    {"Зеркало", (user, message) => user.RoomManager.Go(Mirror.Id)},
+                    {"Рынок", (user, message) => user.RoomManager.Go(AuctionRoom.Id)},
+                    {"Магазин", (user, message) => user.RoomManager.Go(Market.Id)},
+                    {"Таверна", (user, message) => user.RoomManager.Go(Tavern.Id)},
+                    {"Гильдия магов", (user, message) => user.RoomManager.Go(Guild.Id)},
+                    {"Спортзал", (user, message) => user.RoomManager.Go(Gym.Id)}
                 }
-            };
-        }
+            }
+        };
+    }
 
-        public override string Identifier => Id;
-        public override string Name => "Город";
+    public override string Identifier => Id;
+    public override string Name => "Город";
 
-        public override void OnReturn(User user)
-        {
-            OnEnter(user);
-        }
+    public override void OnReturn(User user)
+    {
+        OnEnter(user);
+    }
 
-        public override void OnEnter(User user)
-        {
-            SendMessage(user, "Добро пожаловать в Город!", GetButtons(user));
-        }
+    public override void OnEnter(User user)
+    {
+        SendMessage(user, "Добро пожаловать в Город!", GetButtons(user));
+    }
 
-        public override bool OnLeave(User user)
-        {
-            // SendMessage(user, "Вы покидаете Город...", GetButtons(user));
-            return true;
-        }
+    public override bool OnLeave(User user)
+    {
+        // SendMessage(user, "Вы покидаете Город...", GetButtons(user));
+        return true;
+    }
 
-        public override void OnMessage(User user, ReceivedMessage message)
-        {
-            HandleButtonAlways(user, message);
-        }
+    public override void OnMessage(User user, ReceivedMessage message)
+    {
+        HandleButtonAlways(user, message);
     }
 }

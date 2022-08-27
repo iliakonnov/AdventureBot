@@ -1,93 +1,88 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Linq;
 using AdventureBot;
 using AdventureBot.Messenger;
 using AdventureBot.ObjectManager;
 using AdventureBot.User;
-using JetBrains.Annotations;
 using NLog;
 
-namespace Telegram
+namespace Telegram;
+
+[Messenger]
+public class Messenger : IMessenger
 {
-    [Messenger]
-    public class Messenger : IMessenger
+    // User:
+    // Telegram.Messenger/available_messengers: {
+    //    {chat_id}: {
+    //        {bot_id}: true,
+    //        ...
+    //    },
+    //    ...
+    // }
+    //
+    // Global:
+    // Telegram.Messenger/available_messengers: {
+    //    {chat_id}: {
+    //        {bot_id}: true,
+    //        ...
+    //    },
+    //    ...
+    // }
+
+    private const string RootVariable = "Telegram.Messenger/available_messengers";
+    private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
+    private readonly TelegramBot _messenger;
+
+    public Messenger()
     {
-        // User:
-        // Telegram.Messenger/available_messengers: {
-        //    {chat_id}: {
-        //        {bot_id}: true,
-        //        ...
-        //    },
-        //    ...
-        // }
-        //
-        // Global:
-        // Telegram.Messenger/available_messengers: {
-        //    {chat_id}: {
-        //        {bot_id}: true,
-        //        ...
-        //    },
-        //    ...
-        // }
+        var token = Configuration.Config.GetSection("telegram_token").Value;
+        _messenger = new TelegramBot(token, true);
+    }
 
-        private const string RootVariable = "Telegram.Messenger/available_messengers";
-        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
-        private readonly TelegramBot _messenger;
-
-        public Messenger()
+    public async void Send(SentMessage message, ReceivedMessage receivedMessage, User user)
+    {
+        const int maxSize = 4095;
+        if (message.Text.Length > maxSize)
         {
-            var token = Configuration.Config.GetSection("telegram_token").Value;
-            _messenger = new TelegramBot(token, true);
+            // Message too long, so split it to small part and all other.
+            Send(new SentMessage
+            {
+                Buttons = message.Buttons,
+                ChatId = message.ChatId,
+                Formatted = message.Formatted,
+                Text = message.Text.Substring(0, maxSize),
+                PreferToUpdate = false
+            }, receivedMessage, user);
+
+            Send(new SentMessage
+            {
+                Buttons = message.Buttons,
+                ChatId = message.ChatId,
+                Formatted = message.Formatted,
+                Text = message.Text.Substring(maxSize),
+                PreferToUpdate = false
+            }, receivedMessage, user);
+
+            return;
         }
 
-        public async void Send(SentMessage message, ReceivedMessage receivedMessage, User user)
+        await _messenger.Send(message, receivedMessage);
+    }
+
+    public event MessageHandler MessageReceived;
+
+    public void BeginPolling()
+    {
+        _messenger.OnMessageReceived += message =>
         {
-            const int maxSize = 4095;
-            if (message.Text.Length > maxSize)
+            try
             {
-                // Message too long, so split it to small part and all other.
-                Send(new SentMessage
-                {
-                    Buttons = message.Buttons,
-                    ChatId = message.ChatId,
-                    Formatted = message.Formatted,
-                    Text = message.Text.Substring(0, maxSize),
-                    PreferToUpdate = false
-                }, receivedMessage, user);
-
-                Send(new SentMessage
-                {
-                    Buttons = message.Buttons,
-                    ChatId = message.ChatId,
-                    Formatted = message.Formatted,
-                    Text = message.Text.Substring(maxSize),
-                    PreferToUpdate = false
-                }, receivedMessage, user);
-
-                return;
+                MessageReceived?.Invoke(message);
             }
-
-            await _messenger.Send(message, receivedMessage);
-        }
-
-        public event MessageHandler MessageReceived;
-
-        public void BeginPolling()
-        {
-            _messenger.OnMessageReceived += message =>
+            catch (Exception e)
             {
-                try
-                {
-                    MessageReceived?.Invoke(message);
-                }
-                catch (Exception e)
-                {
-                    Logger.Error(e, "Error");
-                }
-            };
-            _messenger.BeginPolling();
-        }
+                Logger.Error(e, "Error");
+            }
+        };
+        _messenger.BeginPolling();
     }
 }

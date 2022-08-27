@@ -3,97 +3,96 @@ using AdventureBot;
 using AdventureBot.Messenger;
 using AdventureBot.ObjectManager;
 using AdventureBot.User;
-using Microsoft.Extensions.Configuration;
 using EmbedIO;
 using EmbedIO.Actions;
 using EmbedIO.WebApi;
+using Microsoft.Extensions.Configuration;
 using NLog;
 
-namespace Api
+namespace Api;
+
+[Messenger]
+public class ApiMessenger : IMessenger
 {
-    [Messenger]
-    public class ApiMessenger : IMessenger
+    internal const int MessengerId = 3;
+    private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
+    internal static string _secret;
+
+    private static Random _random;
+    private WebServer _server;
+
+    public ApiMessenger()
     {
-        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
-        internal const int MessengerId = 3;
-        internal static string _secret;
-
-        private static Random _random;
-        private WebServer _server;
-
-        public ApiMessenger()
+        if (OnMessageReceivedStatic == null)
         {
-            if (OnMessageReceivedStatic == null)
-            {
-                OnMessageReceivedStatic += message => MessageReceived?.Invoke(message);
-            }
+            OnMessageReceivedStatic += message => MessageReceived?.Invoke(message);
         }
+    }
 
-        public void Send(SentMessage message, ReceivedMessage receivedMessage, User user)
-        {
-            // Do nothing because PublicUser.MessageManager.LastMessages already contains last messages
-        }
+    public void Send(SentMessage message, ReceivedMessage receivedMessage, User user)
+    {
+        // Do nothing because PublicUser.MessageManager.LastMessages already contains last messages
+    }
 
-        public event MessageHandler MessageReceived;
+    public event MessageHandler MessageReceived;
 
-        public void BeginPolling()
-        {
-            _random = new Random();
-            _secret = Configuration.Config.GetValue<string>("ApiSecret");
-            var url = Configuration.Config.GetValue<string>("ApiHost");
-            _server = new WebServer(o => o
+    public void BeginPolling()
+    {
+        _random = new Random();
+        _secret = Configuration.Config.GetValue<string>("ApiSecret");
+        var url = Configuration.Config.GetValue<string>("ApiHost");
+        _server = new WebServer(o => o
                 .WithUrlPrefix(url)
                 .WithMode(HttpListenerMode.EmbedIO))
-                .WithWebApi("/api", m => m.WithController<ApiController>())
-                .WithModule(new ActionModule("/", HttpVerbs.Any, ctx => ctx.SendDataAsync(new { Message = "Error" })));
-            _server.StateChanged += (s, e) => Logger.Info("WebServer New State - {0}", e.NewState);
-            _server.RunAsync();
+            .WithWebApi("/api", m => m.WithController<ApiController>())
+            .WithModule(new ActionModule("/", HttpVerbs.Any, ctx => ctx.SendDataAsync(new {Message = "Error"})));
+        _server.StateChanged += (s, e) => Logger.Info("WebServer New State - {0}", e.NewState);
+        _server.RunAsync();
+    }
+
+    internal static long LongRandom()
+    {
+        var buf = new byte[8];
+        _random.NextBytes(buf);
+        var longRand = BitConverter.ToInt64(buf, 0);
+        return Math.Abs(longRand);
+    }
+
+    internal static event MessageHandler OnMessageReceivedStatic;
+
+    internal static (ChatId, UserId)? ParseToken(string token)
+    {
+        var splitted = token.Split(':');
+        if (splitted.Length != 2)
+        {
+            return null;
         }
 
-        internal static long LongRandom()
+        if (!long.TryParse(splitted[0], out var id))
         {
-            var buf = new byte[8];
-            _random.NextBytes(buf);
-            var longRand = BitConverter.ToInt64(buf, 0);
-            return Math.Abs(longRand);
+            return null;
         }
 
-        internal static event MessageHandler OnMessageReceivedStatic;
-
-        internal static (ChatId, UserId)? ParseToken(string token)
+        if (!Guid.TryParse(splitted[1], out var guid))
         {
-            var splitted = token.Split(':');
-            if (splitted.Length != 2)
+            return null;
+        }
+
+        var user = new UserId(MessengerId, id);
+
+        using (var context = new UserContext(user))
+        {
+            if (context.User.Token != guid)
             {
                 return null;
             }
-
-            if (!long.TryParse(splitted[0], out var id))
-            {
-                return null;
-            }
-
-            if (!Guid.TryParse(splitted[1], out var guid))
-            {
-                return null;
-            }
-
-            var user = new UserId(MessengerId, id);
-
-            using (var context = new UserContext(user))
-            {
-                if (context.User.Token != guid)
-                {
-                    return null;
-                }
-            }
-
-            return (new ChatId(MessengerId, id), user);
         }
 
-        internal static void InvokeOnMessageReceived(ReceivedMessage message)
-        {
-            OnMessageReceivedStatic?.Invoke(message);
-        }
+        return (new ChatId(MessengerId, id), user);
+    }
+
+    internal static void InvokeOnMessageReceived(ReceivedMessage message)
+    {
+        OnMessageReceivedStatic?.Invoke(message);
     }
 }

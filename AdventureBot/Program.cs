@@ -10,82 +10,81 @@ using AdventureBot.Room;
 using AdventureBot.UserManager;
 using NLog;
 
-namespace AdventureBot
+namespace AdventureBot;
+
+internal static class Program
 {
-    internal static class Program
+    private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
+
+    private static void Exit()
     {
-        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
+        Logger.Info("Saving users...");
+        Cache.Instance.FlushAll();
+        Logger.Info("Saving variables...");
+        GlobalVariables.Flush();
+        Logger.Debug("Done!");
+        LogManager.Shutdown();
+        Environment.Exit(0);
+    }
 
-        private static void Exit()
+    private static void Main()
+    {
+        Events.Start();
+
+        AppDomain.CurrentDomain.UnhandledException += (sender, args) =>
         {
-            Logger.Info("Saving users...");
-            Cache.Instance.FlushAll();
-            Logger.Info("Saving variables...");
-            GlobalVariables.Flush();
-            Logger.Debug("Done!");
-            LogManager.Shutdown();
-            Environment.Exit(0);
-        }
-
-        private static void Main()
-        {
-            Events.Start();
-
-            AppDomain.CurrentDomain.UnhandledException += (sender, args) =>
-            {
-                Logger.Error(args.ExceptionObject as Exception, "Unhandled error");
-                Exit();
-            };
-
-            Logger.Debug("Loading...");
-
-            ObjectManager<IRoom>.Instance.RegisterManager<RoomManager>();
-            ObjectManager<IRoot>.Instance.RegisterManager<RootManager>();
-            ObjectManager<IItem>.Instance.RegisterManager<ItemManager>();
-            ObjectManager<IQuest>.Instance.RegisterManager<QuestManager>();
-            ObjectManager<IMessenger>.Instance.RegisterManager<MessengerManager>();
-            ObjectManager<IMigrator>.Instance.RegisterManager<MigratorManager>();
-
-            Logger.Debug("Loading objects...");
-            MainManager.Instance.LoadAssembly(Assembly.GetExecutingAssembly());
-            foreach (var assembly in Configuration.Config.GetSection("assemblies").GetChildren())
-            {
-                MainManager.Instance.LoadAssembly(assembly.Value);
-            }
-
-            Logger.Debug("Loading other...");
-
-            ObjectManager<IMessenger>.Instance.Get<MessengerManager>().BeginPolling();
-
-            Logger.Info("Working!");
-
-            // To allow long strings
-            Console.SetIn(new StreamReader(Console.OpenStandardInput(),
-                Console.InputEncoding,
-                false,
-                16384));
-
-            Console.CancelKeyPress += (sender, args) =>
-            {
-                args.Cancel = true;
-                Console.Error.WriteLine("\nUse `/q` to quit.");
-            };
-
-            while (true)
-            {
-                Console.WriteLine("Working...");
-                var cmd = Console.ReadLine();
-                if (cmd != "/q")
-                {
-                    Console.Error.WriteLine("Use `/q` to quit.");
-                }
-                else
-                {
-                    break;
-                }
-            }
-            
+            Logger.Error(args.ExceptionObject as Exception, "Unhandled error");
             Exit();
+        };
+
+        Logger.Debug("Loading...");
+
+        ObjectManager<IRoom>.Instance.RegisterManager<RoomManager>();
+        ObjectManager<IRoot>.Instance.RegisterManager<RootManager>();
+        ObjectManager<IItem>.Instance.RegisterManager<ItemManager>();
+        ObjectManager<IQuest>.Instance.RegisterManager<QuestManager>();
+        ObjectManager<IMessenger>.Instance.RegisterManager<MessengerManager>();
+        ObjectManager<IMigrator>.Instance.RegisterManager<MigratorManager>();
+
+        Logger.Debug("Loading objects...");
+        MainManager.Instance.LoadAssembly(Assembly.GetExecutingAssembly());
+        foreach (var assembly in Configuration.Config.GetSection("assemblies").GetChildren())
+        {
+            MainManager.Instance.LoadAssembly(assembly.Value);
         }
+
+        Logger.Debug("Loading other...");
+
+        ObjectManager<IMessenger>.Instance.Get<MessengerManager>().BeginPolling();
+
+        Logger.Info("Working!");
+
+        // To allow long strings
+        Console.SetIn(new StreamReader(Console.OpenStandardInput(),
+            Console.InputEncoding,
+            false,
+            16384));
+
+        Console.CancelKeyPress += (sender, args) =>
+        {
+            args.Cancel = true;
+            Console.Error.WriteLine("\nUse `/q` to quit.");
+        };
+
+        while (true)
+        {
+            Console.WriteLine("Working...");
+            var cmd = Console.ReadLine();
+            if (cmd != "/q")
+            {
+                Console.Error.WriteLine("Use `/q` to quit.");
+            }
+            else
+            {
+                break;
+            }
+        }
+
+        Exit();
     }
 }

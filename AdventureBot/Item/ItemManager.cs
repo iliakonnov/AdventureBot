@@ -1,8 +1,7 @@
 ﻿using AdventureBot.ObjectManager;
 
-namespace AdventureBot.Item
+namespace AdventureBot.Item;
+
+public class ItemManager : StorageManager<IItem, ItemAttribute>
 {
-    public class ItemManager : StorageManager<IItem, ItemAttribute>
-    {
-    }
 }

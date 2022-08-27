@@ -13,13 +13,13 @@ namespace Content.Items
     public class Cheat : ItemBase
     {
         public const string Id = "item/cheat";
-        public override StructFlag<BuyGroup> Group => new StructFlag<BuyGroup>();
+        public override StructFlag<BuyGroup> Group => new();
         public override string Name => "Отладочный предмет";
         public override string Description => "Его у вас быть не должно.";
         public override decimal? Price => short.MaxValue;
         public override string Identifier => Id;
 
-        public override StatsEffect Effect => new StatsEffect(ChangeType.Set, new Dictionary<StatsProperty, decimal>
+        public override StatsEffect Effect => new(ChangeType.Set, new Dictionary<StatsProperty, decimal>
         {
             {StatsProperty.Health, 300},
             {StatsProperty.Defence, 300},
