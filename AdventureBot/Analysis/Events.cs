@@ -50,12 +50,12 @@ public static class Events
 
     private static void Received(User.User user, ReceivedMessage message)
     {
-        Log("id<{id}> '{message}'", "messageReceived", user, message.MessageId, message.Text);
+        Log("id<{id}> '{msg}'", "messageReceived", user, message.MessageId, message.Text);
     }
 
     private static void Sent(User.User user, Tuple<SentMessage, ReceivedMessage> message)
     {
-        Log("in reply to '{reply}': {message}", "messageSent", user,
+        Log("in reply to '{reply}': {msg}", "messageSent", user,
             message.Item2?.MessageId,
             message.Item1.Text);
     }
