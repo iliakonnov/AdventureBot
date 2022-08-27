@@ -1,0 +1,21 @@
+version: '3.7'
+services:
+  bot:
+    container_name: bot
+    image: cr.yandex/crprntimcbd0ve7l3aph/adventure-bot
+    ports:
+      - "80:8080"
+    restart: always
+    volumes:
+      - /home/yc-user/work:/app/work
+      - /home/yc-user/logs:/app/work/logs
+
+x-yc-disks:
+  - device_name: compute-disk-data
+    fs_type: ext4
+    host_path: /home/yc-user/work
+    partition: 1
+  - device_name: compute-disk-data
+    fs_type: ext4
+    host_path: /home/yc-user/logs
+    partition: 2
