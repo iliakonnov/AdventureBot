@@ -27,6 +27,27 @@ internal static class Program
         Environment.Exit(0);
     }
 
+    public static void Initialize()
+    {
+        ObjectManager<IRoom>.Instance.RegisterManager<RoomManager>();
+        ObjectManager<IRoot>.Instance.RegisterManager<RootManager>();
+        ObjectManager<IItem>.Instance.RegisterManager<ItemManager>();
+        ObjectManager<IQuest>.Instance.RegisterManager<QuestManager>();
+        ObjectManager<IMessenger>.Instance.RegisterManager<MessengerManager>();
+        ObjectManager<IMigrator>.Instance.RegisterManager<MigratorManager>();
+        
+        Logger.Debug("Loading objects...");
+        MainManager.Instance.LoadAssembly(Assembly.GetExecutingAssembly());
+        foreach (var assembly in Configuration.Config.GetSection("assemblies").GetChildren())
+        {
+            MainManager.Instance.LoadAssembly(assembly.Value);
+        }
+
+        Logger.Debug("Loading other...");
+
+        ObjectManager<IMessenger>.Instance.Get<MessengerManager>().BeginPolling();
+    }
+
     private static void Main()
     {
         Events.Start();
@@ -38,24 +59,7 @@ internal static class Program
         };
 
         Logger.Debug("Loading...");
-
-        ObjectManager<IRoom>.Instance.RegisterManager<RoomManager>();
-        ObjectManager<IRoot>.Instance.RegisterManager<RootManager>();
-        ObjectManager<IItem>.Instance.RegisterManager<ItemManager>();
-        ObjectManager<IQuest>.Instance.RegisterManager<QuestManager>();
-        ObjectManager<IMessenger>.Instance.RegisterManager<MessengerManager>();
-        ObjectManager<IMigrator>.Instance.RegisterManager<MigratorManager>();
-
-        Logger.Debug("Loading objects...");
-        MainManager.Instance.LoadAssembly(Assembly.GetExecutingAssembly());
-        foreach (var assembly in Configuration.Config.GetSection("assemblies").GetChildren())
-        {
-            MainManager.Instance.LoadAssembly(assembly.Value);
-        }
-
-        Logger.Debug("Loading other...");
-
-        ObjectManager<IMessenger>.Instance.Get<MessengerManager>().BeginPolling();
+        Initialize();
 
         Logger.Info("Working!");
 
