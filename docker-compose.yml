@@ -3,19 +3,24 @@ services:
   bot:
     container_name: bot
     image: cr.yandex/crprntimcbd0ve7l3aph/adventure-bot:latest
+    build: .
+    tty: true
+    stdin_open: true
     ports:
       - "80:8080"
     restart: always
     volumes:
-      - /home/yc-user/work:/app/work
-      - /home/yc-user/logs:/app/work/logs
+      - ./data:/app/work
 
-x-yc-disks:
-  - device_name: epdaaaaaaaaaaaaaaaaa
-    fs_type: ext4
-    host_path: /home/yc-user/work
-    partition: 1
-  - device_name: epdaaaaaaaaaaaaaaaaa
-    fs_type: ext4
-    host_path: /home/yc-user/logs
-    partition: 2
+  fluentbit:
+    container_name: fluentbit
+    image: cr.yandex/yc/fluent-bit-plugin-yandex:v2.0.3-fluent-bit-1.9.3
+    ports:
+      - 24224:24224
+      - 24224:24224/udp
+    restart: always
+    environment:
+      YC_GROUP_ID: e23gv6es69klidersvue
+    volumes:
+      - ./fluent-bit/fluentbit.conf:/fluent-bit/etc/fluent-bit.conf
+      - ./fluent-bit/parsers.conf:/fluent-bit/etc/parsers.conf

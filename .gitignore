@@ -1,5 +1,5 @@
-publish/
-deploy.bat
+/publish
+/data
 
 
 ## Ignore Visual Studio temporary files, build results, and
