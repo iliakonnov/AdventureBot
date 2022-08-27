@@ -2,7 +2,8 @@
   <PropertyGroup>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <LangVersion>default</LangVersion>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
+    <Nullable>disable</Nullable>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <DebugSymbols>true</DebugSymbols>
@@ -11,7 +12,8 @@
     <ProjectReference Include="..\AdventureBot\AdventureBot.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="EmbedIO" Version="3.4.3" />
-    <PackageReference Include="MessagePack" Version="2.1.165" />
+    <PackageReference Include="EmbedIO" Version="3.5.0" />
+    <PackageReference Include="MessagePack" Version="2.4.35" />
+    <PackageReference Include="Unosquare.Swan.Lite" Version="3.1.0" />
   </ItemGroup>
 </Project>

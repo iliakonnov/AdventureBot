@@ -3,7 +3,8 @@
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <LangVersion>default</LangVersion>
     <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
+    <Nullable>disable</Nullable>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <DebugSymbols>true</DebugSymbols>
@@ -19,15 +20,15 @@
     <FileVersion>0.0.0.0</FileVersion>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="JetBrains.Annotations" Version="2020.1.0" />
-    <PackageReference Include="MessagePack" Version="2.1.165" />
-    <PackageReference Include="MessagePack.ImmutableCollection" Version="2.1.165" />
+    <PackageReference Include="JetBrains.Annotations" Version="2022.1.0" />
+    <PackageReference Include="MessagePack" Version="2.4.35" />
+    <PackageReference Include="MessagePack.ImmutableCollection" Version="2.4.35" />
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
-    <PackageReference Include="Microsoft.Data.Sqlite" Version="3.1.7" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="3.1.7" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="3.1.7" />
-    <PackageReference Include="NLog" Version="4.7.4" />
-    <PackageReference Include="System.Security.Permissions" Version="4.7.0" />
+    <PackageReference Include="Microsoft.Data.Sqlite" Version="6.0.8" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="6.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="6.0.0" />
+    <PackageReference Include="NLog" Version="5.0.2" />
+    <PackageReference Include="System.Security.Permissions" Version="6.0.0" />
   </ItemGroup>
   <ItemGroup>
     <None Update="nlog.config">

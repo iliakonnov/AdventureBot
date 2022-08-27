@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net;
+using System.Threading;
 using System.Threading.Tasks;
 using AdventureBot;
 using AdventureBot.Messenger;
@@ -9,6 +10,8 @@ using NLog;
 using Telegram.Bot;
 using Telegram.Bot.Args;
 using Telegram.Bot.Exceptions;
+using Telegram.Bot.Polling;
+using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
 using ChatId = Telegram.Bot.Types.ChatId;
@@ -27,31 +30,12 @@ namespace Telegram
         {
             Token = token;
             ReciveMessages = reciveMessages;
-            Id = int.Parse(Token.Split(':')[0]);
+            Id = long.Parse(Token.Split(':')[0]);
         }
 
-        public TelegramBot(string token, bool reciveMessages, string proxyHost, int proxyPort)
-            : this(token, reciveMessages)
-        {
-            ProxyHost = proxyHost;
-            ProxyPort = proxyPort;
-        }
-
-        public TelegramBot(string token, bool reciveMessages, string proxyHost,
-            int proxyPort, string proxyUser, string proxyPassword)
-            : this(token, reciveMessages, proxyHost, proxyPort)
-        {
-            ProxyUser = proxyUser;
-            ProxyPassword = proxyPassword;
-        }
-
-        public int Id { get; }
+        public long Id { get; }
         public string Token { get; }
         public bool ReciveMessages { get; }
-        public string ProxyHost { get; }
-        public int ProxyPort { get; }
-        public string ProxyUser { get; }
-        public string ProxyPassword { get; }
         public Messenger Messenger { get; internal set; }
 
         public DateTime LastMessageSent { get; private set; }
@@ -86,15 +70,11 @@ namespace Telegram
                     simpleButtons[i] = new KeyboardButton[buttons.Length];
                     for (var j = 0; j < buttons.Length; j++)
                     {
-                        inlineButtons[i][j] = new InlineKeyboardButton
+                        inlineButtons[i][j] = new InlineKeyboardButton(buttons[j])
                         {
-                            Text = buttons[j],
                             CallbackData = buttons[j],
                         };
-                        simpleButtons[i][j] = new KeyboardButton
-                        {
-                            Text = buttons[j],
-                        };
+                        simpleButtons[i][j] = new KeyboardButton(buttons[j]);
                         keyboard = true;
                     }
                 }
@@ -107,17 +87,26 @@ namespace Telegram
             }
 
             const bool enableInline = false;
-            var parseMode = message.Formatted ? ParseMode.Html : ParseMode.Default;
+            ParseMode? parseMode = message.Formatted ? ParseMode.Html : null;
 
             var text = message.Text;
             if (associatedData?.ReplyMessageId != null)
             {
                 text += $"\n<a href=\"tg://user?id={associatedData.ReplyMessageId}\">@</a>";
             }
-            
+
             try
             {
-                if (enableInline)
+                if (!enableInline)
+                {
+                    await _bot.SendTextMessageAsync(
+                        message.ChatId.Id,
+                        text,
+                        parseMode,
+                        replyMarkup: buttonsKeyboardMarkup
+                    );
+                }
+                else
                 {
                     var inlineId = associatedData?.InlineMessageId;
                     if (inlineId != null && message.PreferToUpdate == true)
@@ -152,19 +141,10 @@ namespace Telegram
                         );
                     }
                 }
-                else
-                {
-                    await _bot.SendTextMessageAsync(
-                        message.ChatId.Id,
-                        text,
-                        parseMode,
-                        replyMarkup: buttonsKeyboardMarkup
-                    );
-                }
             }
             catch (Exception e)
             {
-                if (e is ForbiddenException)
+                if (e is ApiRequestException {ErrorCode: 403})
                 {
                     Logger.Info(e, "Bot is stopped by user {0}", message.ChatId.Id);
                 }
@@ -179,32 +159,21 @@ namespace Telegram
 
         public async void BeginPolling()
         {
-            if (ProxyHost != null)
-            {
-                IWebProxy proxy;
-                if (ProxyUser != null && ProxyPassword != null)
-                {
-                    proxy = new HttpToSocks5Proxy(ProxyHost, ProxyPort, ProxyUser, ProxyPassword);
-                }
-                else
-                {
-                    proxy = new HttpToSocks5Proxy(ProxyHost, ProxyPort);
-                }
-
-                _bot = new TelegramBotClient(Token, proxy);
-            }
-            else
-            {
-                _bot = new TelegramBotClient(Token);
-            }
+            _bot = new TelegramBotClient(Token);
 
             var me = await _bot.GetMeAsync();
             _username = me.Username;
             if (ReciveMessages)
             {
-                _bot.OnMessage += MessageReceivedHandler;
-                _bot.OnCallbackQuery += CallbackReceivedHandler;
-                _bot.StartReceiving(Array.Empty<UpdateType>());
+                _bot.StartReceiving(
+                    updateHandler: HandleUpdateAsync,
+                    pollingErrorHandler: HandlePollingErrorAsync,
+                    receiverOptions: new ReceiverOptions
+                    {
+                        AllowedUpdates = Array.Empty<UpdateType>()
+                    },
+                    cancellationToken: new CancellationToken()
+                );
                 Logger.Info("Start receiving for @{username}", _username);
             }
             else
@@ -213,65 +182,87 @@ namespace Telegram
             }
         }
 
-        private void CallbackReceivedHandler(object sender, CallbackQueryEventArgs args)
+        Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
         {
-            var msgId = $"{_username}/{args.CallbackQuery.Message.Chat.Id}/{args.CallbackQuery.Message.MessageId}";
+            if (update.Message is { } message)
+            {
+                MessageReceivedHandler(message);
+            }
+            else if (update.CallbackQuery is { } callbackQuery)
+            {
+                CallbackReceivedHandler(callbackQuery);
+            }
 
-            // ReSharper disable once SwitchStatementMissingSomeCases
+            return Task.CompletedTask;
+        }
+
+        private static Task HandlePollingErrorAsync(ITelegramBotClient botClient, Exception exception,
+            CancellationToken cancellationToken)
+        {
+            var errorMessage = exception switch
+            {
+                ApiRequestException apiRequestException
+                    => $"Telegram API Error:\n[{apiRequestException.ErrorCode}]\n{apiRequestException.Message}",
+                _ => exception.ToString()
+            };
+
+            Logger.Error(errorMessage);
+            return Task.CompletedTask;
+        }
+
+        private void CallbackReceivedHandler(CallbackQuery args)
+        {
+            var msgId = $"{_username}/{args.Message.Chat.Id}/{args.Message.MessageId}";
+
             var message = new ReceivedMessage
             {
-                ChatId = new AdventureBot.ChatId(MessengerId, args.CallbackQuery.Message.Chat.Id),
-                UserId = new UserId(MessengerId, args.CallbackQuery.From.Id),
-                Text = args.CallbackQuery.Data,
-                MessengerSpecificData = ReceivedMessageAssociatedData.Inline(args.CallbackQuery.Message.Chat.Id, args.CallbackQuery.Message.MessageId),
+                ChatId = new AdventureBot.ChatId(MessengerId, args.Message.Chat.Id),
+                UserId = new UserId(MessengerId, args.From.Id),
+                Text = args.Data,
+                MessengerSpecificData = ReceivedMessageAssociatedData.Inline(args.Message.Chat.Id,
+                    args.Message.MessageId),
                 MessageId = msgId,
             };
             OnMessageReceived?.Invoke(message);
         }
 
-        private async void MessageReceivedHandler(object sender, MessageEventArgs args)
+        private async void MessageReceivedHandler(Message message)
         {
-            int? replyId;
-            if (args.Message.Chat.Type != ChatType.Private)
+            long? replyId;
+            if (message.Chat.Type != ChatType.Private)
             {
-                replyId = args.Message.From.Id;
+                replyId = message.From.Id;
             }
             else
             {
-                await _bot.SendChatActionAsync(new ChatId(args.Message.Chat.Id), ChatAction.Typing);
+                await _bot.SendChatActionAsync(new ChatId(message.Chat.Id), ChatAction.Typing);
                 replyId = null;
             }
 
-            var msgId = $"{_username}/{args.Message.MessageId}";
+            var msgId = $"{_username}/{message.MessageId}";
 
-            // ReSharper disable once SwitchStatementMissingSomeCases
-            ReceivedMessage message;
-            if (args.Message.Type == MessageType.Text)
-            {
-                if (args.Message.Text == "/remove_keyboard")
-                {
-                    await _bot.SendTextMessageAsync(args.Message.Chat.Id, "А теперь отправьте /repeat",
-                        replyMarkup: new ReplyKeyboardRemove());
-                    return;
-                }
-                else
-                {
-                    message = new ReceivedMessage
-                    {
-                        ChatId = new AdventureBot.ChatId(MessengerId, args.Message.Chat.Id),
-                        UserId = new UserId(MessengerId, args.Message.From.Id),
-                        Text = args.Message.Text,
-                        MessengerSpecificData = ReceivedMessageAssociatedData.Reply(replyId),
-                        MessageId = msgId
-                    };
-                }
-            }
-            else
+            if (message.Type != MessageType.Text)
             {
                 return;
             }
 
-            OnMessageReceived?.Invoke(message);
+            if (message.Text == "/remove_keyboard")
+            {
+                await _bot.SendTextMessageAsync(message.Chat.Id, "А теперь отправьте /repeat",
+                    replyMarkup: new ReplyKeyboardRemove());
+                return;
+            }
+
+            var parsed = new ReceivedMessage
+            {
+                ChatId = new AdventureBot.ChatId(MessengerId, message.Chat.Id),
+                UserId = new UserId(MessengerId, message.From.Id),
+                Text = message.Text,
+                MessengerSpecificData = ReceivedMessageAssociatedData.Reply(replyId),
+                MessageId = msgId
+            };
+
+            OnMessageReceived?.Invoke(parsed);
         }
     }
 
@@ -291,10 +282,10 @@ namespace Telegram
 
         public static ReceivedMessageAssociatedData Inline(ChatId chatId, int messageId)
         {
-            var inlineMessageId = (chatId.Identifier, messageId);
+            var inlineMessageId = (chatId.Identifier.Value, messageId);
             return new ReceivedMessageAssociatedData(true, inlineMessageId, null);
         }
-        
+
         public static ReceivedMessageAssociatedData Reply(long? messageId)
         {
             return new ReceivedMessageAssociatedData(false, null, messageId);

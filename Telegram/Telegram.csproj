@@ -2,7 +2,8 @@
   <PropertyGroup>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <LangVersion>default</LangVersion>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
+    <Nullable>disable</Nullable>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <DebugSymbols>true</DebugSymbols>
@@ -12,6 +13,6 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="HttpToSocks5Proxy" Version="1.4.0" />
-    <PackageReference Include="Telegram.Bot" Version="15.7.1" />
+    <PackageReference Include="Telegram.Bot" Version="18.0.0" />
   </ItemGroup>
 </Project>
