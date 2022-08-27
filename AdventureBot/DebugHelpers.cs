@@ -83,7 +83,6 @@ public class BadWrapDisposable<T> where T : IDisposable
         catch (Exception e)
         {
             Console.Error.WriteLine(e);
-            throw;
         }
     }
 
