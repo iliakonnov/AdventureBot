@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Reflection;
+using System.Threading;
 using AdventureBot.Analysis;
 using AdventureBot.Item;
 using AdventureBot.Messenger;
@@ -63,32 +64,14 @@ internal static class Program
 
         Logger.Info("Working!");
 
-        // To allow long strings
-        Console.SetIn(new StreamReader(Console.OpenStandardInput(),
-            Console.InputEncoding,
-            false,
-            16384));
-
+        var ev = new AutoResetEvent(false);
         Console.CancelKeyPress += (sender, args) =>
         {
             args.Cancel = true;
-            Console.Error.WriteLine("\nUse `/q` to quit.");
+            ev.Set();
         };
 
-        while (true)
-        {
-            Console.WriteLine("Working...");
-            var cmd = Console.ReadLine();
-            if (cmd != "/q")
-            {
-                Console.Error.WriteLine("Use `/q` to quit.");
-            }
-            else
-            {
-                break;
-            }
-        }
-
+        ev.WaitOne();
         Exit();
     }
 }
