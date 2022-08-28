@@ -6,6 +6,7 @@ using AdventureBot.User;
 using EmbedIO;
 using EmbedIO.Routing;
 using EmbedIO.WebApi;
+using JetBrains.Annotations;
 using MessagePack;
 
 namespace Api;
@@ -13,6 +14,7 @@ namespace Api;
 public class ApiController : WebApiController
 {
     [Route(HttpVerbs.Get, "/register")]
+    [UsedImplicitly]
     public string Register([QueryField] string secret, [QueryField] long? id)
     {
         if (secret != ApiMessenger._secret)
@@ -26,6 +28,7 @@ public class ApiController : WebApiController
     }
 
     [Route(HttpVerbs.Post, "/{tokenArg}")]
+    [UsedImplicitly]
     public async Task PostMessage(string tokenArg)
     {
         var token = ApiMessenger.ParseToken(tokenArg);
@@ -48,6 +51,7 @@ public class ApiController : WebApiController
     }
 
     [Route(HttpVerbs.Get, "/{tokenArg}")]
+    [UsedImplicitly]
     public async Task GetState([QueryField] bool? json, string tokenArg)
     {
         var token = ApiMessenger.ParseToken(tokenArg);
@@ -72,9 +76,7 @@ public class ApiController : WebApiController
             HttpContext.Response.ContentType = "application/x-msgpack";
         }
 
-        using (var stream = HttpContext.OpenResponseStream())
-        {
-            await stream.WriteAsync(bytes, 0, bytes.Length);
-        }
+        await using var stream = HttpContext.OpenResponseStream();
+        await stream.WriteAsync(bytes, 0, bytes.Length);
     }
 }

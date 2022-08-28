@@ -9,6 +9,6 @@
         <DebugSymbols>true</DebugSymbols>
     </PropertyGroup>
     <ItemGroup>
-        <ProjectReference Include="..\AdventureBot\AdventureBot.csproj"/>
+        <ProjectReference Include="..\AdventureBot\AdventureBot.csproj" />
     </ItemGroup>
 </Project>
