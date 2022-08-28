@@ -2,16 +2,18 @@
 using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using AdventureBot;
 using AdventureBot.Messenger;
 using AdventureBot.ObjectManager;
 using Newtonsoft.Json;
 using NLog;
 using VkNet;
+using VkNet.Enums.SafetyEnums;
 using VkNet.Model;
 using VkNet.Model.Keyboard;
 using VkNet.Model.RequestParams;
-using VkNet.Utils;
 using User = AdventureBot.User.User;
 
 namespace VkMessenger;
@@ -21,13 +23,22 @@ public class Messenger : IMessenger
 {
     internal const int MessengerId = 2;
 
-    internal const string AccessToken =
-        "SecretSecretSecretSecretSecretSecretSecretSecretSecretSecretSecretSecretSecretSecret";
-
-    internal const ulong GroupId = 169319191;
-
     private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
+
+    private readonly string _accessToken;
+    private readonly ulong _groupId;
     private VkApi _api;
+
+    public Messenger()
+    {
+        _accessToken = Configuration.Config.GetSection("vk_token").Value;
+        _groupId = ulong.Parse(Configuration.Config.GetSection("vk_group").Value);
+    }
+
+    private static string StripHTML(string input)
+    {
+        return Regex.Replace(input, "<[/a-z]*?>", string.Empty);
+    }
 
     public async Task Send(SentMessage message, ReceivedMessage receivedMessage, User user)
     {
@@ -38,17 +49,24 @@ public class Messenger : IMessenger
 
         var parameters = new MessagesSendParams
         {
-            Message = message.Text,
+            Message = message.Formatted ? StripHTML(message.Text) : message.Text,
             PeerId = message.ChatId.Id,
             Keyboard = new MessageKeyboard
             {
                 OneTime = false,
                 Buttons = message.Buttons?.Select(row => row.Select(button => new MessageKeyboardButton
                 {
-                    Action = new MessageKeyboardButtonAction {Label = button}
-                }).ToReadOnlyCollection()).ToReadOnlyCollection()
-            }
+                    Action = new MessageKeyboardButtonAction {Label = button, Type = KeyboardButtonActionType.Text}
+                }).ToArray()).ToArray()
+            },
+            RandomId = Random.Shared.NextInt64()
         };
+
+        if (parameters.Keyboard?.Buttons == null)
+        {
+            parameters.Keyboard = null;
+        }
+
         if (receivedMessage?.MessengerSpecificData != null)
         {
             parameters.ForwardMessages = new[] {(long) receivedMessage.MessengerSpecificData};
@@ -62,42 +80,42 @@ public class Messenger : IMessenger
     public void BeginPolling()
     {
         _api = new VkApi();
-        _api.Authorize(new ApiAuthParams
-        {
-            AccessToken = AccessToken
-        });
+        _api.Authorize(new ApiAuthParams {AccessToken = _accessToken});
 
         BeginPoll();
 
-        Logger.Info($"Start listening for {_api.Account.GetProfileInfo().ScreenName}");
+        Logger.Info("Start listening for VK");
     }
 
     private async void BeginPoll()
     {
-        var longpoll = await _api.Groups.GetLongPollServerAsync(GroupId);
-        var parameters = new LongpollParameters(longpoll);
-        const int timeout = 25;
+        var longpoll = await _api.Groups.GetLongPollServerAsync(_groupId);
+        var parameters = new LongpollParameters(_groupId, longpoll);
+        const int timeout = 30;
 
-        using (var client = new HttpClient())
+        using var client = new HttpClient();
+        client.Timeout = TimeSpan.FromSeconds(timeout);
+
+        while (true)
         {
-            client.Timeout = TimeSpan.FromSeconds(timeout);
-
-            while (true)
+            try
             {
-                var request = new HttpRequestMessage(HttpMethod.Get, parameters.GetUrl(timeout));
-                using (var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead))
-                using (var body = await response.Content.ReadAsStreamAsync())
-                using (var reader = new StreamReader(body))
+                var request = new HttpRequestMessage(HttpMethod.Get, parameters.GetUrl(timeout - 5));
+                using var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
+                await using var body = await response.Content.ReadAsStreamAsync();
+                using var reader = new StreamReader(body);
+                var json = reader.ReadToEnd();
+                var result = JsonConvert.DeserializeObject<LongpollResponse>(json);
+                foreach (var message in result.Updates)
                 {
-                    var json = reader.ReadToEnd();
-                    var result = JsonConvert.DeserializeObject<LongpollResponse>(json);
-                    foreach (var message in result.Updates)
-                    {
-                        MessageReceived?.Invoke(message.ToReceivedMessage());
-                    }
-
-                    await parameters.Update(_api, result);
+                    MessageReceived?.Invoke(message.ToReceivedMessage());
                 }
+
+                await parameters.Update(_api, result);
+            }
+            catch (TimeoutException e)
+            {
+                Logger.Warn(e, "longpoll timed out");
             }
         }
 

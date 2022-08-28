@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+﻿using System;
 using System.Threading.Tasks;
 using AdventureBot;
 using AdventureBot.Messenger;
@@ -10,12 +10,14 @@ namespace VkMessenger;
 
 public class LongpollParameters
 {
+    public ulong GroupId; 
     public string Key;
     public string Server;
     public ulong Timestamp;
 
-    public LongpollParameters(LongPollServerResponse longPollServerResponse)
+    public LongpollParameters(ulong groupId, LongPollServerResponse longPollServerResponse)
     {
+        GroupId = groupId;
         Timestamp = ulong.Parse(longPollServerResponse.Ts);
         Key = longPollServerResponse.Key;
         Server = longPollServerResponse.Server;
@@ -51,7 +53,7 @@ public class LongpollParameters
 
     private async Task Update(VkApi api, bool key, bool ts)
     {
-        var response = await api.Groups.GetLongPollServerAsync(Messenger.GroupId);
+        var response = await api.Groups.GetLongPollServerAsync(GroupId);
         if (key)
         {
             Key = response.Key;
@@ -93,8 +95,7 @@ public class Update
         long? replyUserId = null;
         if (Message.ChatId == null)
         {
-            Debug.Assert(Message.FromId != null, "Message.FromId != null");
-            chatId = (long) Message.FromId;
+            chatId = Message.FromId ?? Message.UserId ?? throw new NullReferenceException();
         }
         else
         {

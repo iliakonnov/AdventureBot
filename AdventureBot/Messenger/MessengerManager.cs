@@ -59,9 +59,9 @@ public class MessengerManager : IManager<IMessenger>
                     {
                         user.MessageManager.SendImmediately(new SentMessage
                         {
-                            Text = $@"Ваш токен: `{user.Token}`.
-Используйте его чтобы связать другой аккаунт с этим персонажем (`/link {user.Info.UserId.Messenger} {user.Info.UserId.Id} {user.Token}`).
-Чтобы сгенерировать новый токен используйте `/revoke`",
+                            Text = $@"Ваш токен: <code>{user.Token}</code>.
+Используйте его чтобы связать другой аккаунт с этим персонажем (<code>/link {user.Info.UserId.Messenger} {user.Info.UserId.Id} {user.Token}</code>).
+Чтобы сгенерировать новый токен используйте <code>/revoke</code>",
                             Intent = "command-token"
                         });
                         break;
