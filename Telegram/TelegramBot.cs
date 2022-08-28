@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using AdventureBot;
 using AdventureBot.Messenger;
+using JetBrains.Annotations;
 using MessagePack;
 using NLog;
 using Telegram.Bot;
@@ -33,9 +35,48 @@ internal class TelegramBot
     public long Id { get; }
     public string Token { get; }
     public bool ReciveMessages { get; }
-    public Messenger Messenger { get; internal set; }
 
     public DateTime LastMessageSent { get; private set; }
+
+    private string EncodeButton(int idx, string button)
+    {
+        var len = Math.Min(32, button.Length);
+        var head = button[..len];
+        return $"{idx}@{head}";
+    }
+
+    [CanBeNull] private string DecodeButton(string[] buttons, [CanBeNull] string data)
+    {
+        if (data == null)
+        {
+            return null;
+        }
+
+        var splitted = data.Split('@', 2);
+        if (splitted.Length != 2)
+        {
+            return null;
+        }
+
+        if (!int.TryParse(splitted[0], out var buttonId))
+        {
+            return null;
+        }
+        
+        if (buttons == null || buttonId < 0 || buttonId >= buttons.Length)
+        {
+            return null;
+        }
+
+        var text = buttons[buttonId];
+        var len = Math.Min(32, text.Length);
+        if (text[..len] != splitted[1])
+        {
+            return null;
+        }
+
+        return text;
+    }
 
     public async Task Send(SentMessage message, ReceivedMessage receivedMessage)
     {
@@ -60,6 +101,7 @@ internal class TelegramBot
             var inlineButtons = new InlineKeyboardButton[message.Buttons.Length][];
             var simpleButtons = new KeyboardButton[message.Buttons.Length][];
             var keyboard = false;
+            var btnCounter = 0;
             for (var i = 0; i < message.Buttons.Length; i++)
             {
                 var buttons = message.Buttons[i];
@@ -69,7 +111,7 @@ internal class TelegramBot
                 {
                     inlineButtons[i][j] = new InlineKeyboardButton(buttons[j])
                     {
-                        CallbackData = buttons[j]
+                        CallbackData = EncodeButton(btnCounter++, buttons[j])
                     };
                     simpleButtons[i][j] = new KeyboardButton(buttons[j]);
                     keyboard = true;
@@ -83,7 +125,6 @@ internal class TelegramBot
             }
         }
 
-        const bool enableInline = false;
         ParseMode? parseMode = message.Formatted ? ParseMode.Html : null;
 
         var text = message.Text;
@@ -92,52 +133,30 @@ internal class TelegramBot
             text += $"\n<a href=\"tg://user?id={associatedData.ReplyMessageId}\">@</a>";
         }
 
+        var inlineId = associatedData?.InlineMessageId;
+
         try
         {
-            if (!enableInline)
+            if (inlineId != null && message.PreferToUpdate != false)
             {
-                await _bot.SendTextMessageAsync(
-                    message.ChatId.Id,
-                    text,
-                    parseMode,
-                    replyMarkup: buttonsKeyboardMarkup
-                );
+                // We already had a message and message still allows itself to be inlined. So let's update it.
+                var (chatId, messageId) = inlineId.Value;
+                await _bot.EditMessageTextAsync(chatId, messageId, text, parseMode, replyMarkup: inlineKeyboardMarkup);
+                message.MessengerSpecificData[MessengerId] = new SentMessageAssociatedData(_username, chatId, messageId);
+                return;
             }
-            else
-            {
-                var inlineId = associatedData?.InlineMessageId;
-                if (inlineId != null && message.PreferToUpdate == true)
-                {
-                    var (chatId, messageId) = inlineId.Value;
-                    await _bot.EditMessageTextAsync(
-                        chatId,
-                        messageId,
-                        text,
-                        parseMode,
-                        replyMarkup: inlineKeyboardMarkup
-                    );
-                }
-                else
-                {
-                    if (inlineId != null)
-                    {
-                        // PreferToUpdate is null, but inlineId is not null, so remove old buttons
-                        // Also we do not want to wait until they are removed.
-#pragma warning disable 4014
-                        var (chatId, messageId) = inlineId.Value;
-                        _bot.EditMessageReplyMarkupAsync(chatId, messageId,
-                            new InlineKeyboardMarkup(new InlineKeyboardButton[0]));
-#pragma warning restore 4014
-                    }
 
-                    await _bot.SendTextMessageAsync(
-                        message.ChatId.Id,
-                        text,
-                        parseMode,
-                        replyMarkup: inlineKeyboardMarkup
-                    );
-                }
+            if (inlineId != null)
+            {
+                // We already had a message, but now we do not want inline keyboard. Let's delete old message.
+                var (chatId, messageId) = inlineId.Value;
+                await _bot.DeleteMessageAsync(chatId, messageId);
             }
+
+            // Otherwise send a new message
+            IReplyMarkup replyMarkup = message.PreferToUpdate != false ? inlineKeyboardMarkup : buttonsKeyboardMarkup;
+            var sent = await _bot.SendTextMessageAsync(message.ChatId.Id, text, parseMode, replyMarkup: replyMarkup);
+            message.MessengerSpecificData[MessengerId] = new SentMessageAssociatedData(_username, sent.Chat.Id, sent.MessageId);
         }
         catch (Exception e)
         {
@@ -168,8 +187,7 @@ internal class TelegramBot
                 new ReceiverOptions
                 {
                     AllowedUpdates = Array.Empty<UpdateType>()
-                },
-                new CancellationToken()
+                }
             );
             Logger.Info("Start receiving for @{username}", _username);
         }
@@ -211,11 +229,37 @@ internal class TelegramBot
     {
         var msgId = $"{_username}/{args.Message.Chat.Id}/{args.Message.MessageId}";
 
+        var userId = new UserId(MessengerId, args.From.Id);
+        SentMessage inReplyTo;
+        using (var context = new UserContext(userId))
+        {
+            // ReSharper disable once ReplaceWithSingleCallToLastOrDefault
+            inReplyTo = context.User.MessageManager.LastMessages
+                .Where(msg => msg.ChatId.Messenger == MessengerId)
+                .Where(msg => msg.ChatId.Id == args.Message.Chat.Id)
+                .Where(msg => msg.MessengerSpecificData != null)
+                .Where(msg => msg.MessengerSpecificData.ContainsKey(MessengerId))
+                .Where(msg => msg.MessengerSpecificData[MessengerId]["MessageId"] == args.Message.MessageId)
+                .LastOrDefault();
+        }
+
+        if (inReplyTo == null)
+        {
+            return;
+        }
+
+        var buttons = inReplyTo.Buttons?.SelectMany(x => x).ToArray();
+        var text = DecodeButton(buttons, args.Data);
+        if (text == null)
+        {
+            return;
+        }
+
         var message = new ReceivedMessage
         {
             ChatId = new AdventureBot.ChatId(MessengerId, args.Message.Chat.Id),
-            UserId = new UserId(MessengerId, args.From.Id),
-            Text = args.Data,
+            UserId = userId,
+            Text = text,
             MessengerSpecificData = ReceivedMessageAssociatedData.Inline(args.Message.Chat.Id,
                 args.Message.MessageId),
             MessageId = msgId
@@ -286,5 +330,20 @@ internal class ReceivedMessageAssociatedData
     public static ReceivedMessageAssociatedData Reply(long? messageId)
     {
         return new ReceivedMessageAssociatedData(false, null, messageId);
+    }
+}
+
+[MessagePackObject(true)]
+internal class SentMessageAssociatedData
+{
+    public readonly string Username;
+    public readonly long ChatId;
+    public readonly long MessageId;
+
+    public SentMessageAssociatedData(string username, long chatId, long messageId)
+    {
+        Username = username;
+        ChatId = chatId;
+        MessageId = messageId;
     }
 }

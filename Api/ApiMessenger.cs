@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using AdventureBot;
 using AdventureBot.Messenger;
 using AdventureBot.ObjectManager;
@@ -29,9 +30,10 @@ public class ApiMessenger : IMessenger
         }
     }
 
-    public void Send(SentMessage message, ReceivedMessage receivedMessage, User user)
+    public Task Send(SentMessage message, ReceivedMessage receivedMessage, User user)
     {
         // Do nothing because PublicUser.MessageManager.LastMessages already contains last messages
+        return Task.CompletedTask;
     }
 
     public event MessageHandler MessageReceived;

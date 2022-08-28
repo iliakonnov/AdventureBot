@@ -37,7 +37,7 @@ public enum ShownStats
 [MessagePackObject]
 public class MessageManager
 {
-    [Key(nameof(LastMessages))] internal readonly Queue<SentMessage> LastMessages = new();
+    [Key("LastMessages")] private readonly Queue<SentMessage> _lastMessages = new();
     [Key("intent")] private string _intent;
 
     /// <summary>
@@ -70,14 +70,14 @@ public class MessageManager
         Buttons = buttons ?? new string[0][];
         PreferToUpdate = preferToUpdate;
         ReceivedMessage = recievedMessage;
-        LastMessages = lastMessages;
+        _lastMessages = lastMessages;
         ChatId = chatId;
         ShownStats = shownStats;
         _intent = intent;
-        LastMessage = LastMessages.LastOrDefault();
     }
 
-    [IgnoreMember] [CanBeNull] public SentMessage LastMessage { get; private set; }
+    [IgnoreMember] public IReadOnlyCollection<SentMessage> LastMessages => _lastMessages;
+    [IgnoreMember] [CanBeNull] public SentMessage LastMessage => _lastMessages.LastOrDefault();
 
     [Key("queue")] private List<SentMessage> Queue { get; } = new();
     [Key("buttons")] [NotNull] private string[][] Buttons { get; set; } = new string[0][];
@@ -127,7 +127,7 @@ public class MessageManager
             Text = message.Text,
             Buttons = message.Buttons,
             Intent = message.Intent,
-            PreferToUpdate = false,
+            PreferToUpdate = message.PreferToUpdate,
             ChatId = ChatId
         }, null, User);
     }
@@ -284,17 +284,16 @@ public class MessageManager
         var room = User.RoomManager.Rooms.FirstOrDefault();
         if (room != null)
         {
-            room.LastMessage = LastMessages.LastOrDefault();
+            room.LastMessage = _lastMessages.LastOrDefault();
         }
 
         ObjectManager<IMessenger>.Instance.Get<MessengerManager>().Reply(message, ReceivedMessage, User);
-        while (LastMessages.Count > 10)
+        while (_lastMessages.Count > 10)
         {
-            LastMessages.Dequeue();
+            _lastMessages.Dequeue();
         }
 
-        LastMessages.Enqueue(message);
-        LastMessage = message;
+        _lastMessages.Enqueue(message);
 
         Queue.Clear();
         PreferToUpdate = true;

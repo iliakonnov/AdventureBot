@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using AdventureBot.ObjectManager;
 using AdventureBot.User;
 using JetBrains.Annotations;
@@ -51,7 +52,7 @@ public class MessengerManager : IManager<IMessenger>
                     }
                     case "/repeat":
                     {
-                        user.MessageManager.SendImmediately(user.MessageManager.LastMessages.Last());
+                        user.MessageManager.SendImmediately(user.MessageManager.LastMessage);
                         break;
                     }
                     case "/token":
@@ -184,9 +185,7 @@ public class MessengerManager : IManager<IMessenger>
     public void Reply(SentMessage message, [CanBeNull] ReceivedMessage receivedMessage, User.User user)
     {
         OnReply?.Invoke(user, new Tuple<SentMessage, ReceivedMessage>(message, receivedMessage));
-        foreach (var messenger in _messengers)
-        {
-            messenger.Send(message, receivedMessage, user);
-        }
+        var tasks = _messengers.Select(messenger => messenger.Send(message, receivedMessage, user)).ToArray();
+        Task.WaitAll(tasks);
     }
 }

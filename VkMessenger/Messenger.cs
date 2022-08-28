@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Threading.Tasks;
 using AdventureBot.Messenger;
 using AdventureBot.ObjectManager;
 using Newtonsoft.Json;
@@ -28,7 +29,7 @@ public class Messenger : IMessenger
     private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
     private VkApi _api;
 
-    public async void Send(SentMessage message, ReceivedMessage receivedMessage, User user)
+    public async Task Send(SentMessage message, ReceivedMessage receivedMessage, User user)
     {
         if (message.ChatId.Messenger != MessengerId)
         {

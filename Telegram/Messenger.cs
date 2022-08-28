@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using AdventureBot;
 using AdventureBot.Messenger;
 using AdventureBot.ObjectManager;
@@ -38,7 +39,7 @@ public class Messenger : IMessenger
         _messenger = new TelegramBot(token, true);
     }
 
-    public async void Send(SentMessage message, ReceivedMessage receivedMessage, User user)
+    public async Task Send(SentMessage message, ReceivedMessage receivedMessage, User user)
     {
         const int maxSize = 4095;
         if (message.Text.Length > maxSize)

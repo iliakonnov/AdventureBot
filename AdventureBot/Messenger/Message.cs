@@ -1,4 +1,5 @@
-﻿using JetBrains.Annotations;
+﻿using System.Collections.Generic;
+using JetBrains.Annotations;
 using MessagePack;
 
 namespace AdventureBot.Messenger;
@@ -11,7 +12,7 @@ public class ReceivedMessage
     [IgnoreMember] [CanBeNull] public Handler Action;
     public ChatId ChatId;
     public string MessageId;
-    public object MessengerSpecificData = null;
+    public dynamic MessengerSpecificData = null;
     public string Text;
     public UserId UserId;
 }
@@ -21,6 +22,7 @@ public class SentMessage
 {
     [CanBeNull] public string[][] Buttons = null;
     public ChatId ChatId = new(int.MinValue, long.MinValue);
+    public Dictionary<int, dynamic> MessengerSpecificData = new();
     public bool Formatted = true;
     public bool? PreferToUpdate = null;
 
