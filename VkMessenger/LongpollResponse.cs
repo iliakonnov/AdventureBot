@@ -110,6 +110,7 @@ public class Update
         {
             Text = Message.Body,
             ChatId = new ChatId(Messenger.MessengerId, chatId),
+            UserId = new UserId(Messenger.MessengerId, chatId),
             MessengerSpecificData = replyUserId
         };
     }
