@@ -123,7 +123,7 @@ public abstract class MonsterBase : RoomBase, IMonster
 
         SendMessage(
             user,
-            $"HP: {hp} <i>{diff.Format()}</i>"
+            $"HP: {hp.Format()} <i>{diff.Format()}</i>"
         );
 
         var dmg = GetDamage(user);
