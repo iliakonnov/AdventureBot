@@ -121,7 +121,10 @@ internal class TelegramBot
             if (keyboard)
             {
                 inlineKeyboardMarkup = new InlineKeyboardMarkup(inlineButtons);
-                buttonsKeyboardMarkup = new ReplyKeyboardMarkup(simpleButtons);
+                buttonsKeyboardMarkup = new ReplyKeyboardMarkup(simpleButtons)
+                {
+                    OneTimeKeyboard = true
+                };
             }
         }
 
