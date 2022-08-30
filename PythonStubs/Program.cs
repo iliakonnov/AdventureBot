@@ -1,136 +1,103 @@
 ﻿using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
+using PythonStubs;
 
-string TypeName(Type type)
+static class Program
 {
-    var name = type.FullName ?? $"'{type.Name}'";
-    return Regex.Replace(name, @"`\d+", "");
-}
+    private static Queue<Type> scheduled = new();
+    private static HashSet<Guid> written = new();
+    private static Dictionary<string, StubFile> files = new();
 
-string SimpleName(Type type)
-{
-    var name = type.Name;
-    return name.Split('`')[0];
-}
-
-void WriteType(TextWriter writer, Type type)
-{
-    if (type.IsClass)
+    public static void Schedule(Type type)
     {
-        var inherits = type.GetInterfaces()
-            .Concat(type.BaseType != null ? new[] {type.BaseType} : new Type[] { })
-            .Select(TypeName);
-        writer.WriteLine($"class {SimpleName(type)}({string.Join(", ", inherits)}):");
-
-        writer.WriteLine("    def __init__(self, *args, **kwargs): ...");
-        foreach (var field in type.GetFields().Where(f => f.IsPublic && !f.IsStatic))
+        if (written.Contains(type.GUID))
         {
-            writer.WriteLine($"        self.{field.Name}: {TypeName(field.FieldType)}");
+            return;
         }
 
-        writer.WriteLine();
-
-        foreach (var ctor in type.GetConstructors().Where(ctor => ctor.IsPublic))
-        {
-            writer.WriteLine("    @typing.overload");
-            writer.WriteLine("    def __init__(self, ");
-            foreach (var parameter in ctor.GetParameters())
-            {
-                writer.WriteLine($"        {parameter.Name}: {TypeName(parameter.ParameterType)},");
-            }
-
-            writer.WriteLine("    ): ...");
-        }
-
-        writer.WriteLine();
-
-        foreach (var property in type.GetProperties())
-        {
-            var getter = property.GetMethod?.IsPublic == true;
-            var setter = property.SetMethod?.IsPublic == true;
-
-            if (getter)
-            {
-                writer.WriteLine($"    @property");
-                writer.WriteLine($"    def {property.Name}(self) -> {TypeName(property.PropertyType)}: ...");
-            }
-
-            if (getter && setter)
-            {
-                writer.WriteLine($"    @{property.Name}.setter");
-                writer.WriteLine($"    def {property.Name}(self, val: {TypeName(property.PropertyType)}): ...");
-            }
-
-            if (!getter && setter)
-            {
-                writer.WriteLine($"    {property.Name}: {TypeName(property.PropertyType)} = property(None, lambda val: ...)");
-            }
-
-            writer.WriteLine();
-        }
-    }
-}
-
-void Main()
-{
-    var outDir = Environment.GetCommandLineArgs()[1];
-    var namespaces = new Dictionary<string, HashSet<string>>();
-    var types = AdventureBot.Configuration.Config.GetSection("assemblies").GetChildren()
-        .Select(x => x.Value)
-        .Select(Assembly.LoadFrom)
-        .Concat(new[] {Assembly.Load("AdventureBot")})
-        .SelectMany(assembly => assembly.GetTypes());
-
-    if (Directory.Exists(outDir))
-    {
-        Directory.Delete(outDir, true);
+        scheduled.Enqueue(type);
     }
 
-    foreach (var type in types)
+    public static void Main()
     {
-        var compilerGenerated = type.GetCustomAttribute(typeof(CompilerGeneratedAttribute), true) != null;
-        if (type.IsNotPublic || type.Namespace == null || compilerGenerated)
+        var outDir = Environment.GetCommandLineArgs()[1];
+        var namespaces = new Dictionary<string, HashSet<string>>();
+        var types = AdventureBot.Configuration.Config.GetSection("assemblies").GetChildren()
+            .Select(x => x.Value)
+            .Select(Assembly.LoadFrom)
+            .Concat(new[]
+            {
+                Assembly.Load("AdventureBot"),
+            })
+            .SelectMany(assembly => assembly.GetTypes());
+        scheduled = new Queue<Type>(types);
+
+        if (Directory.Exists(outDir))
         {
-            continue;
+            Directory.Delete(outDir, true);
         }
 
-        Console.WriteLine(type);
-        var namespacePath = type.Namespace!.Replace('.', Path.DirectorySeparatorChar);
-        var directory = Path.Join(outDir, namespacePath);
-        var filename = SimpleName(type);
-        var path = Path.Join(directory, $"{filename}.py");
-
-        Directory.CreateDirectory(directory);
-        if (!File.Exists(path))
+        while (scheduled.TryDequeue(out var type))
         {
-            File.WriteAllText(path, "import typing\n\n");
+            if (!written.Add(type.GUID))
+            {
+                continue;
+            }
+
+            if (type.IsNotPublic || type.Namespace == null || type.IsCompilerGenerated())
+            {
+                Console.WriteLine($"Skipping {type}");
+                continue;
+            }
+
+            if (type.IsGenericType)
+            {
+                type = type.GetGenericTypeDefinition();
+            }
+            
+            var name = type.FullName!.Replace('+', '.').Split('[')[0];
+            name = Regex.Replace(name, @"`\d+", "");
+            var namespacePath = string.Join('.', name.Split('.').SkipLast(1)).Replace('.', Path.DirectorySeparatorChar);
+            Console.WriteLine($"{type} -> {namespacePath}");
+            var directory = Path.Join(outDir, namespacePath);
+            var path = Path.Join(directory, "__init__.pyi");
+
+            if (!files.ContainsKey(path))
+            {
+                files[path] = new StubFile();
+            }
+
+            files[path].WriteType(type);
+
+            if (!namespaces.ContainsKey(directory))
+            {
+                namespaces[directory] = new HashSet<string>();
+            }
         }
 
-        using (var output = new StreamWriter(path, true))
+        foreach (var (path, file) in files)
         {
-            WriteType(output, type);
+            var directory = Path.GetDirectoryName(path);
+            Directory.CreateDirectory(directory);
+            using var writer = new StreamWriter(path);
+            file.Save(writer);
         }
 
-        if (!namespaces.ContainsKey(directory))
-        {
-            namespaces[directory] = new HashSet<string>();
-        }
+        Directory.CreateDirectory(Path.Combine(outDir, "stubhelper"));
+        File.WriteAllText(Path.Combine(outDir, "stubhelper", "__init__.py"),
+            @"import typing
 
-        namespaces[directory].Add(filename);
+T = typing.TypeVar('T')
+
+class ref(typing.Generic[T]):
+    def __init__(self, val: T):
+        self.val = val
+
+class ptr(typing.Generic[T]):
+    def __init__(self, val: T):
+        self.val = val
+");
+
+        File.Create(Path.Join(outDir, "__init__.pyi"));
     }
-
-    foreach (var (directory, classes) in namespaces)
-    {
-        var path = Path.Join(directory, "__init__.py");
-        using var output = new StreamWriter(path);
-        foreach (var cls in classes)
-        {
-            output.WriteLine($"from .{cls} import {cls} as {cls}");
-        }
-    }
-
-    File.Create(Path.Join(outDir, "__init__.py"));
 }
-
-Main();
