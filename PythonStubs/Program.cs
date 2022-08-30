@@ -22,14 +22,11 @@ static class Program
     {
         var outDir = Environment.GetCommandLineArgs()[1];
         var namespaces = new Dictionary<string, HashSet<string>>();
-        var types = AdventureBot.Configuration.Config.GetSection("assemblies").GetChildren()
-            .Select(x => x.Value)
-            .Select(Assembly.LoadFrom)
-            .Concat(new[]
-            {
-                Assembly.Load("AdventureBot"),
-            })
-            .SelectMany(assembly => assembly.GetTypes());
+        var assemblies = new[]
+        {
+            Assembly.Load("AdventureBot"),
+        };
+        var types = assemblies.SelectMany(assembly => assembly.GetTypes());
         scheduled = new Queue<Type>(types);
 
         if (Directory.Exists(outDir))
@@ -46,7 +43,6 @@ static class Program
 
             if (type.IsNotPublic || type.Namespace == null || type.IsCompilerGenerated())
             {
-                Console.WriteLine($"Skipping {type}");
                 continue;
             }
 
@@ -54,11 +50,10 @@ static class Program
             {
                 type = type.GetGenericTypeDefinition();
             }
-            
+
             var name = type.FullName!.Replace('+', '.').Split('[')[0];
             name = Regex.Replace(name, @"`\d+", "");
             var namespacePath = string.Join('.', name.Split('.').SkipLast(1)).Replace('.', Path.DirectorySeparatorChar);
-            Console.WriteLine($"{type} -> {namespacePath}");
             var directory = Path.Join(outDir, namespacePath);
             var path = Path.Join(directory, "__init__.pyi");
 
