@@ -213,15 +213,15 @@ class MarshalByValueComponent(System.ComponentModel.IComponent, System.IDisposab
         ...
 
     @typing.overload
-    def ToString(self, ) -> System.String:
-        ...
-
-    @typing.overload
     def Dispose(self, ) -> None:
         ...
 
     @typing.overload
     def GetService(self, service: System.Type, ) -> System.Object:
+        ...
+
+    @typing.overload
+    def ToString(self, ) -> System.String:
         ...
 
 class IBindingListView(System.ComponentModel.IBindingList, System.Collections.IList, System.Collections.ICollection, System.Collections.IEnumerable, abc.ABC):
