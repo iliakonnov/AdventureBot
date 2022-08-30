@@ -58,7 +58,15 @@ internal static class Program
 
         AppDomain.CurrentDomain.UnhandledException += (sender, args) =>
         {
-            Logger.Error(args.ExceptionObject as Exception, "Unhandled error");
+            try
+            {
+                Logger.Error(args.ExceptionObject as Exception, "Unhandled error");
+            }
+            catch (Exception)
+            {
+                // ignored
+            }
+
             Exit();
         };
         AppDomain.CurrentDomain.ProcessExit += (sender, args) => { Exit(); };
@@ -75,7 +83,7 @@ internal static class Program
         {
             AutoIndent = true,
         };
-        
+
         engine.Runtime.LoadAssembly(Assembly.GetExecutingAssembly());
         repl.Run(engine, console, options);
     }
