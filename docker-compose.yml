@@ -2,18 +2,17 @@ version: '3.7'
 services:
   bot:
     container_name: bot
-    image: cr.yandex/crprntimcbd0ve7l3aph/adventure-bot:latest
-    build: .
     tty: true
-    stdin_open: true
+    image: cr.yandex/crprntimcbd0ve7l3aph/adventure-bot:r17
     ports:
       - "80:8080"
     restart: always
     volumes:
-      - ./data:/app/work
+      - /data/work:/app/work
+      - /data/logs:/app/work/logs
 
-  fluentbit:
-    container_name: fluentbit
+  fluentd:
+    container_name: fluentd
     image: cr.yandex/yc/fluent-bit-plugin-yandex:v2.0.3-fluent-bit-1.9.3
     ports:
       - 24224:24224
@@ -22,5 +21,16 @@ services:
     environment:
       YC_GROUP_ID: e23gv6es69klidersvue
     volumes:
-      - ./fluent-bit/fluentbit.conf:/fluent-bit/etc/fluent-bit.conf
-      - ./fluent-bit/parsers.conf:/fluent-bit/etc/parsers.conf
+      - /data/work/fluent-bit/fluentbit.conf:/fluent-bit/etc/fluent-bit.conf
+      - /data/work/fluent-bit/parsers.conf:/fluent-bit/etc/parsers.conf
+
+x-yc-disks:
+  - device_name: epdtvkhk624aiec7rjok
+    fs_type: ext4
+    host_path: /data/work
+    partition: 1
+  - device_name: epdtvkhk624aiec7rjok
+    fs_type: ext4
+    host_path: /data/logs
+    partition: 2
+

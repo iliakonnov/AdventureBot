@@ -1,6 +1,13 @@
 name: deploy
 
-on: workflow_dispatch
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - master
+
+env:
+  VERSION: ${{ github.run_number }}
 
 jobs:
   deploy:
@@ -8,6 +15,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
+    - name: Setup .NET 6
+      uses: actions/setup-dotnet@v2
+      with:
+        dotnet-version: '6.0.x'
+    - name: Update python stubs
+      run: dotnet run --project PythonStubs ./python/stubs
+    - name: Patch docker-compose
+      shell: bash
+      run: |
+        sed -ri "s|(cr.yandex/[a-z0-9]*/adventure-bot):(r[0-9]+)|\1:r${VERSION}|g" ./docker-compose.yml
     - name: Docker meta
       id: meta
       uses: docker/metadata-action@v4
@@ -26,11 +43,30 @@ jobs:
         registry: cr.yandex
         username: json_key
         password: ${{ secrets.YANDEX_KEY_JSON }}
-    - name: Build and push
+    - name: Build and push image
       uses: docker/build-push-action@v3
       with:
         context: .
         push: true
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
-
+    - name: Create release commit
+      uses: EndBug/add-and-commit@v9
+      with:
+        add: './python/stubs ./docker-compose.yml'
+        default_author: github_actions
+        message: 'Release r${{ github.run_number }}'
+        pathspec_error_handling: exitImmediately
+        tag: 'r${{ github.run_number }}'
+    - name: Deploy to Y.Cloud
+      shell: bash
+      env:
+        YANDEX_KEY: ${{ secrets.YANDEX_KEY_JSON }}
+      run: |
+        curl https://storage.yandexcloud.net/yandexcloud-yc/install.sh | bash -s -- -i /opt/yandex-cloud -n
+        echo "$YANDEX_KEY" > key.json
+        /opt/yandex-cloud/bin/yc config set service-account-key key.json
+        /opt/yandex-cloud/bin/yc compute instance update-container \
+            --id epda1ne2ssb222i08a16 \
+            --docker-compose-file ./docker-compose.yml
+        rm key.json
