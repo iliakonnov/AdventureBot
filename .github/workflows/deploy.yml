@@ -2,9 +2,6 @@ name: deploy
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - master
 
 env:
   VERSION: ${{ github.run_number }}
