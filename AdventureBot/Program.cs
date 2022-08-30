@@ -47,6 +47,10 @@ internal static class Program
         {
             MainManager.Instance.LoadAssembly(assembly.Value);
         }
+        foreach (var python in Configuration.Config.GetSection("python").GetChildren())
+        {
+            MainManager.Instance.LoadPython(Path.GetDirectoryName(python.Value), Path.GetFileName(python.Value));
+        }
 
         Logger.Debug("Loading other...");
 
