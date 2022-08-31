@@ -4,7 +4,7 @@ using PythonStubs;
 
 static class Program
 {
-    private static Queue<Type> scheduled = new();
+    private static SortedSet<Type> scheduled = new();
     private static HashSet<Guid> written = new();
     private static Dictionary<string, StubFile> files = new();
 
@@ -15,7 +15,7 @@ static class Program
             return;
         }
 
-        scheduled.Enqueue(type);
+        scheduled.Add(type);
     }
 
     public static void Main()
@@ -25,17 +25,21 @@ static class Program
         var assemblies = new[]
         {
             Assembly.Load("AdventureBot"),
+            Assembly.Load("IronPython"),
         };
         var types = assemblies.SelectMany(assembly => assembly.GetTypes());
-        scheduled = new Queue<Type>(types);
+        scheduled = new SortedSet<Type>(types, Comparer<Type>.Create((a, b) => a.GUID.CompareTo(b.GUID)));
 
         if (Directory.Exists(outDir))
         {
             Directory.Delete(outDir, true);
         }
 
-        while (scheduled.TryDequeue(out var type))
+        while (scheduled.Count != 0)
         {
+            var type = scheduled.Min;
+            scheduled.Remove(type);
+
             if (!written.Add(type.GUID))
             {
                 continue;
