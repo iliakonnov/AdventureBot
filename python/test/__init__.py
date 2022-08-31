@@ -1,10 +1,11 @@
 import AdventureBot.Room
 import System
 
+import clrtype
 
+
+@AdventureBot.Room.RootAttribute("root/town")
 class Root(AdventureBot.Room.IRoot):
-    __attrs__ = [AdventureBot.Room.RootAttribute("root/town")]
-
     @property
     def Identifier(self) -> System.String:
         return "root/town"
@@ -14,9 +15,8 @@ class Root(AdventureBot.Room.IRoot):
         return "monster/foo"
 
 
+@AdventureBot.Room.AvailableAttribute("monster/foo", AdventureBot.Room.Difficulity.Easy, "root/town")
 class Monster(AdventureBot.Room.MonsterBase):
-    __attrs__ = [AdventureBot.Room.AvailableAttribute("monster/foo", AdventureBot.Room.Difficulity.Easy, "root/town")]
-
     @property
     def Health(self) -> System.Decimal:
         return 100

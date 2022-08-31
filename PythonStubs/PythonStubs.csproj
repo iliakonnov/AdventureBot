@@ -12,4 +12,13 @@
       <ProjectReference Include="..\AdventureBot\AdventureBot.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="static" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <EmbeddedResource Include="static\clrtype.pyi" />
+      <EmbeddedResource Include="static\stubhelper.pyi" />
+    </ItemGroup>
+
 </Project>

@@ -82,21 +82,18 @@ static class Program
             file.Save(writer);
         }
 
-        Directory.CreateDirectory(Path.Combine(outDir, "stubhelper"));
-        File.WriteAllText(Path.Combine(outDir, "stubhelper", "__init__.py"),
-            @"import typing
+        var assembly = Assembly.GetExecutingAssembly();
+        foreach (var resource in assembly.GetManifestResourceNames())
+        {
+            if (!resource.StartsWith("PythonStubs.static.") || !resource.EndsWith(".pyi"))
+            {
+                continue;
+            }
 
-T = typing.TypeVar('T')
-
-class ref(typing.Generic[T]):
-    def __init__(self, val: T):
-        self.val = val
-
-class ptr(typing.Generic[T]):
-    def __init__(self, val: T):
-        self.val = val
-");
-
-        File.Create(Path.Join(outDir, "__init__.pyi"));
+            var path = resource["PythonStubs.static.".Length..][..^".pyi".Length].Replace('.', Path.DirectorySeparatorChar) + ".pyi";
+            using var stream = assembly.GetManifestResourceStream(resource)!;
+            using var file = File.Create(Path.Combine(outDir, path));
+            stream.CopyTo(file);
+        }
     }
 }
