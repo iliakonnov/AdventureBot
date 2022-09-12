@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using System.Reflection;
 using IronPython.Hosting;
+using IronPython.Runtime;
 using IronPython.Runtime.Types;
+using Microsoft.Scripting.Hosting;
+using Microsoft.Scripting.Runtime;
 
 namespace AdventureBot.ObjectManager;
 
@@ -22,22 +24,27 @@ internal class MainManager : Singleton<MainManager>
     {
         _managers.Add(manager);
     }
+    
+    private void LoadType(Type type)
+    {
+        if (!(type.GetCustomAttribute(typeof(GameObjectAttribute)) is GameObjectAttribute attr))
+        {
+            return;
+        }
+
+        var ctor = type.GetConstructor(Type.EmptyTypes);
+        foreach (var manager in _managers)
+        {
+            Debug.Assert(ctor != null, nameof(ctor) + " != null");
+            manager.Register(attr, () => ctor.Invoke(new object[] { }));
+        }
+    }
 
     internal void LoadAssembly(Assembly assembly)
     {
         foreach (var type in assembly.GetTypes())
         {
-            if (!(type.GetCustomAttribute(typeof(GameObjectAttribute)) is GameObjectAttribute attr))
-            {
-                continue;
-            }
-
-            var ctor = type.GetConstructor(Type.EmptyTypes);
-            foreach (var manager in _managers)
-            {
-                Debug.Assert(ctor != null, nameof(ctor) + " != null");
-                manager.Register(attr, () => ctor.Invoke(new object[] { }));
-            }
+            LoadType(type);
         }
     }
 
@@ -46,35 +53,48 @@ internal class MainManager : Singleton<MainManager>
         LoadAssembly(Assembly.LoadFrom(path));
     }
 
-    public void LoadPython(string root, string module)
+    public void LoadPython(string module)
     {
         var engine = Python.CreateEngine();
         engine.Runtime.LoadAssembly(Assembly.GetExecutingAssembly());
 
         var paths = engine.GetSearchPaths().ToList();
-        paths.Add(root);
+        paths.AddRange(Configuration.Config.GetSection("python_paths").GetChildren().Select(path => path.Value));
         engine.SetSearchPaths(paths);
 
+        var parts = module.Split('.').ToList();
+        parts.Add("__all__");
+        using var currPart = parts.GetEnumerator();
+
+        currPart.MoveNext();
         var scope = engine.ImportModule(module);
-        foreach (var (key, value) in scope.GetItems())
+        
+        currPart.MoveNext();
+        dynamic prev = null;
+        var curr = scope.GetVariable(currPart.Current);
+
+        while (currPart.MoveNext())
         {
-            if (value is not PythonType)
+            prev = curr;
+            curr = ((ObjectDictionaryExpando) ((PythonModule) curr).Scope.Storage).Dictionary[currPart.Current];
+        }
+
+        foreach (var name in ((IList<object>) curr).Cast<string>())
+        {
+            var value = ((ObjectDictionaryExpando) ((PythonModule) prev).Scope.Storage).Dictionary[name];
+            if (value is not PythonType type)
             {
                 continue;
             }
 
             try
             {
-                var attrs = (IList<object>) value.__attrs__;
-                var attr = attrs.OfType<GameObjectAttribute>().Single();
-                foreach (var manager in _managers)
-                {
-                    manager.Register(attr, () => engine.Operations.CreateInstance(value));
-                }
+                LoadType(type);
             }
-            catch
+            catch (Exception exception)
             {
-                // ignored
+                Console.Error.WriteLine(engine.GetService<ExceptionOperations>().FormatException(exception));
+                throw;
             }
         }
     }

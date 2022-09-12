@@ -49,7 +49,7 @@ internal static class Program
         }
         foreach (var python in Configuration.Config.GetSection("python").GetChildren())
         {
-            MainManager.Instance.LoadPython(Path.GetDirectoryName(python.Value), Path.GetFileName(python.Value));
+            MainManager.Instance.LoadPython(python.Value);
         }
 
         Logger.Debug("Loading other...");
