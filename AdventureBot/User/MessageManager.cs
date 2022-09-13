@@ -108,12 +108,6 @@ public class MessageManager
         {
             PreferToUpdate = PreferToUpdate && message.PreferToUpdate.Value;
         }
-
-        if (message.Intent != null)
-        {
-            PreferToUpdate = PreferToUpdate && message.Intent == _intent;
-            _intent = message.Intent;
-        }
     }
 
     /// <summary>
