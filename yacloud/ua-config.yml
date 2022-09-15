@@ -41,20 +41,20 @@ routes:
       config:
         proc_directory: "/ua_proc"
         namespace: sys
-      channel:
-        channel_ref:
-          name: cloud_monitoring
+    channel:
+      channel_ref:
+        name: cloud_monitoring
           
   - input:
       plugin: metrics_pull
       config:
-        url: http://localhost:9100
+        url: http://localhost:9100/metrics
         format:
           prometheus: { }
         namespace: app
-      channel:
-        channel_ref:
-          name: cloud_monitoring
+    channel:
+      channel_ref:
+        name: cloud_monitoring
 
 import:
   - /etc/yandex/unified_agent/conf.d/*.yml
