@@ -72,7 +72,7 @@ internal static class Program
         };
         AppDomain.CurrentDomain.ProcessExit += (sender, args) => { Exit(); };
         
-        var server = new MetricServer(hostname: "localhost", port: 9100);
+        var server = new MetricServer(hostname: "*", port: 9100);
         server.Start();
 
         Logger.Debug("Loading...");
