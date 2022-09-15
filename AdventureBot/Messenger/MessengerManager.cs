@@ -177,7 +177,20 @@ public class MessengerManager : IManager<IMessenger>
 
     public void BeginPolling()
     {
-        _messengers.ForEach(m => m.BeginPolling());
+        _messengers.ForEach(m =>
+        {
+            while (true)
+            {
+                try
+                {
+                    m.BeginPolling();
+                }
+                catch (Exception e)
+                {
+                    Logger.Error(e, "Messenger `{messenger}` failed", m);
+                }
+            }
+        });
     }
 
     public static event GameEventHandler<Tuple<SentMessage, ReceivedMessage>> OnReply;
