@@ -31,9 +31,6 @@ services:
     entrypoint: ""
     ports:
       - "16241:16241"
-    environment:
-      FOLDER_ID: b1guohhtr6sb4o7qtgdi
-      PROC_DIRECTORY: /ua_proc
     volumes:
       - /proc:/ua_proc
       - /data/work/ua-config.yml:/etc/yandex/unified_agent/config.yml

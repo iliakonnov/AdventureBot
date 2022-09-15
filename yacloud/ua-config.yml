@@ -18,7 +18,7 @@ channels:
       output:
         plugin: yc_metrics
         config:
-          folder_id: "$FOLDER_ID"
+          folder_id: "b1guohhtr6sb4o7qtgdi"
           iam:
             cloud_meta: {}
 
@@ -48,7 +48,7 @@ routes:
   - input:
       plugin: metrics_pull
       config:
-        url: http://localhost:9100/metrics
+        url: http://bot:9100/metrics
         format:
           prometheus: { }
         namespace: app
