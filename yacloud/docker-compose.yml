@@ -3,7 +3,7 @@ services:
   bot:
     container_name: bot
     tty: true
-    image: cr.yandex/crprntimcbd0ve7l3aph/adventure-bot:r28
+    image: cr.yandex/crprntimcbd0ve7l3aph/adventure-bot:r29
     ports:
       - "80:8080"
       - "9100:9100"
