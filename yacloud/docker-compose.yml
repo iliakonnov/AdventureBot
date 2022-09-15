@@ -6,6 +6,7 @@ services:
     image: cr.yandex/crprntimcbd0ve7l3aph/adventure-bot:r23
     ports:
       - "80:8080"
+      - "9100:9100"
     restart: always
     volumes:
       - /data/work:/app/work
@@ -15,14 +16,28 @@ services:
     container_name: fluentd
     image: cr.yandex/yc/fluent-bit-plugin-yandex:v2.0.3-fluent-bit-1.9.3
     ports:
-      - 24224:24224
-      - 24224:24224/udp
+      - "24224:24224"
+      - "24224:24224/udp"
     restart: always
     environment:
       YC_GROUP_ID: e23gv6es69klidersvue
     volumes:
       - /data/work/fluent-bit/fluentbit.conf:/fluent-bit/etc/fluent-bit.conf
       - /data/work/fluent-bit/parsers.conf:/fluent-bit/etc/parsers.conf
+
+  unified-agent:
+    container_name: ua
+    image: cr.yandex/yc/unified-agent
+    entrypoint: ""
+    ports:
+      - "16241:16241"
+    environment:
+      FOLDER_ID: b1guohhtr6sb4o7qtgdi
+      PROC_DIRECTORY: /ua_proc
+    volumes:
+      - /proc:/ua_proc
+      - /data/work/ua-config.yml:/etc/yandex/unified_agent/config.yml
+      - /data/work/ua-storage:/var/lib/yandex/unified_agent/main
 
 x-yc-disks:
   - device_name: epdtvkhk624aiec7rjok

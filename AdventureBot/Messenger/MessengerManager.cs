@@ -6,12 +6,17 @@ using AdventureBot.ObjectManager;
 using AdventureBot.User;
 using JetBrains.Annotations;
 using NLog;
+using Prometheus;
 
 namespace AdventureBot.Messenger;
 
 public class MessengerManager : IManager<IMessenger>
 {
     private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
+    private static readonly Counter MessageReceivedCounter = Metrics.CreateCounter("messages_total_count", "Number of messages received");
+    private static readonly Counter MessageErrorsCounter = Metrics.CreateCounter("messages_errors_count", "Number of messages failed");
+    private static readonly Counter PollingErrorsCounter = Metrics.CreateCounter("polling_errors_count", "Number of times messenger failed to poll");
+
     private readonly List<IMessenger> _messengers = new();
 
     public void Register(GameObjectAttribute attribute, Create<IMessenger> creator)
@@ -32,6 +37,8 @@ public class MessengerManager : IManager<IMessenger>
         {
             return;
         }
+
+        MessageReceivedCounter.Inc();
 
         using (var context = new UserContext(message.UserId, message.ChatId))
         {
@@ -158,6 +165,7 @@ public class MessengerManager : IManager<IMessenger>
             }
             catch (Exception e)
             {
+                MessageErrorsCounter.Inc();
                 Logger.Error(e, "Error for user {UserId}@{ChatId}", message.UserId, message.ChatId);
                 var error = MessageManager.Escape(e.ToString());
                 user.MessageManager.SendImmediately(new SentMessage
@@ -187,6 +195,7 @@ public class MessengerManager : IManager<IMessenger>
                 }
                 catch (Exception e)
                 {
+                    PollingErrorsCounter.Inc();
                     Logger.Error(e, "Messenger `{messenger}` failed", m);
                 }
             }

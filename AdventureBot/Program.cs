@@ -12,6 +12,7 @@ using AdventureBot.UserManager;
 using IronPython.Hosting;
 using Microsoft.Scripting.Hosting.Shell;
 using NLog;
+using Prometheus;
 
 namespace AdventureBot;
 
@@ -70,6 +71,9 @@ internal static class Program
             Exit();
         };
         AppDomain.CurrentDomain.ProcessExit += (sender, args) => { Exit(); };
+        
+        var server = new MetricServer(hostname: "localhost", port: 9100);
+        server.Start();
 
         Logger.Debug("Loading...");
         Initialize();

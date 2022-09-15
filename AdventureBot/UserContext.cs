@@ -2,12 +2,15 @@
 using System.Timers;
 using AdventureBot.UserManager;
 using NLog;
+using Prometheus;
 
 namespace AdventureBot;
 
 public class UserContext : IDisposable
 {
     private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
+    private static readonly Histogram UserOpenedDuration = Metrics.CreateHistogram("user_opened_duration", "Duration user was opened (ms)");
+
     private DateTime _opened;
     private Timer _timer;
     private User.User _unlinked;
@@ -27,6 +30,7 @@ public class UserContext : IDisposable
 
     public void Dispose()
     {
+        UserOpenedDuration.Observe((DateTime.Now - _opened).TotalMilliseconds);
         Logger.Debug("User closed in {time}", DateTime.Now - _opened);
         _timer.Stop();
         UserProxy.Save(User);
