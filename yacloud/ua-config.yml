@@ -1,5 +1,6 @@
 status:
   port: "16241"
+  host: null
 
 storages:
   - name: main
