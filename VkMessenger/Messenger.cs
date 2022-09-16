@@ -104,7 +104,7 @@ public class Messenger : IMessenger
                 using var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
                 await using var body = await response.Content.ReadAsStreamAsync();
                 using var reader = new StreamReader(body);
-                var json = reader.ReadToEnd();
+                var json = await reader.ReadToEndAsync();
                 var result = JsonConvert.DeserializeObject<LongpollResponse>(json);
                 foreach (var message in result.Updates)
                 {
@@ -116,6 +116,10 @@ public class Messenger : IMessenger
             catch (TimeoutException e)
             {
                 Logger.Warn(e, "longpoll timed out");
+            }
+            catch (Exception e)
+            {
+                Logger.Error(e, "failed to get updates");
             }
         }
 

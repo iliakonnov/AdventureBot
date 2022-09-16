@@ -62,7 +62,7 @@ internal class TelegramBot
         {
             return null;
         }
-        
+
         if (buttons == null || buttonId < 0 || buttonId >= buttons.Length)
         {
             return null;
@@ -189,7 +189,7 @@ internal class TelegramBot
                 HandlePollingErrorAsync,
                 new ReceiverOptions
                 {
-                    AllowedUpdates = Array.Empty<UpdateType>()
+                    AllowedUpdates = new[] {UpdateType.Message, UpdateType.CallbackQuery},
                 }
             );
             Logger.Info("Start receiving for @{username}", _username);
@@ -214,7 +214,7 @@ internal class TelegramBot
         return Task.CompletedTask;
     }
 
-    private static Task HandlePollingErrorAsync(ITelegramBotClient botClient, Exception exception,
+    private Task HandlePollingErrorAsync(ITelegramBotClient botClient, Exception exception,
         CancellationToken cancellationToken)
     {
         var errorMessage = exception switch
@@ -225,6 +225,7 @@ internal class TelegramBot
         };
 
         Logger.Error(errorMessage);
+        BeginPolling();
         return Task.CompletedTask;
     }
 
