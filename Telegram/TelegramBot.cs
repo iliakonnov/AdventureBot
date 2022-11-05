@@ -7,6 +7,7 @@ using AdventureBot.Messenger;
 using JetBrains.Annotations;
 using MessagePack;
 using NLog;
+using Prometheus;
 using Telegram.Bot;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Polling;
@@ -21,6 +22,13 @@ internal class TelegramBot
 {
     private const int MessengerId = 1;
     private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
+
+    private static readonly Counter ApiRequestsTotal =
+        Metrics.CreateCounter("telegram_api_requests_total", "Total number of telegram api requests");
+    private static readonly Counter ApiRequestsFailed =
+        Metrics.CreateCounter("telegram_api_requests_failed", "Total number of failed telegram api responses");
+    private static readonly Counter ErrorCounter =
+        Metrics.CreateCounter("telegram_messenger_errors", "Total number of errors in TelegramMessenger");
 
     private TelegramBotClient _bot;
     private string _username;
@@ -169,6 +177,7 @@ internal class TelegramBot
             }
             else
             {
+                ErrorCounter.Inc();
                 Logger.Error(e, "Error while sending message");
             }
         }
@@ -179,6 +188,14 @@ internal class TelegramBot
     public async void BeginPolling()
     {
         _bot = new TelegramBotClient(Token);
+        _bot.OnMakingApiRequest += async (_, _, _) => ApiRequestsTotal.Inc();
+        _bot.OnApiResponseReceived += async (_, args, _) =>
+        {
+            if (!args.ResponseMessage.IsSuccessStatusCode)
+            {
+                ApiRequestsFailed.Inc();
+            }
+        };
 
         var me = await _bot.GetMeAsync();
         _username = me.Username;
@@ -224,6 +241,7 @@ internal class TelegramBot
             _ => exception.ToString()
         };
 
+        ErrorCounter.Inc();
         Logger.Error(errorMessage);
         BeginPolling();
         return Task.CompletedTask;

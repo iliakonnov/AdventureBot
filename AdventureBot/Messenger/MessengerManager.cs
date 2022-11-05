@@ -15,7 +15,6 @@ public class MessengerManager : IManager<IMessenger>
     private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
     private static readonly Counter MessageReceivedCounter = Metrics.CreateCounter("messages_total_count", "Number of messages received");
     private static readonly Counter MessageErrorsCounter = Metrics.CreateCounter("messages_errors_count", "Number of messages failed");
-    private static readonly Counter PollingErrorsCounter = Metrics.CreateCounter("polling_errors_count", "Number of times messenger failed to poll");
 
     private readonly List<IMessenger> _messengers = new();
 

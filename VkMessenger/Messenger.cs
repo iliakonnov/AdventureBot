@@ -9,6 +9,7 @@ using AdventureBot.Messenger;
 using AdventureBot.ObjectManager;
 using Newtonsoft.Json;
 using NLog;
+using Prometheus;
 using VkNet;
 using VkNet.Enums.SafetyEnums;
 using VkNet.Model;
@@ -24,6 +25,12 @@ public class Messenger : IMessenger
     internal const int MessengerId = 2;
 
     private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
+    private static readonly Counter ApiRequestsTotal =
+        Metrics.CreateCounter("vk_api_requests_total", "Total number of vk api requests");
+    private static readonly Counter ApiRequestsFailed =
+        Metrics.CreateCounter("vk_api_requests_failed", "Total number of failed vk api responses");
+    private static readonly Counter ErrorCounter =
+        Metrics.CreateCounter("vk_messenger_errors", "Total number of errors in VkMessenger");
 
     private readonly string _accessToken;
     private readonly ulong _groupId;
@@ -72,7 +79,18 @@ public class Messenger : IMessenger
             parameters.ForwardMessages = new[] {(long) receivedMessage.MessengerSpecificData};
         }
 
-        await _api.Messages.SendAsync(parameters);
+        try
+        {
+            ApiRequestsTotal.Inc();
+            await _api.Messages.SendAsync(parameters);
+        }
+        catch (Exception e)
+        {
+            ApiRequestsFailed.Inc();
+            ErrorCounter.Inc();
+            Logger.Error(e, "Failed to send messager");
+            throw;
+        }
     }
 
     public event MessageHandler MessageReceived;
@@ -100,8 +118,14 @@ public class Messenger : IMessenger
         {
             try
             {
+                ApiRequestsTotal.Inc();
                 var request = new HttpRequestMessage(HttpMethod.Get, parameters.GetUrl(timeout - 5));
                 using var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
+                if (!response.IsSuccessStatusCode)
+                {
+                    ApiRequestsFailed.Inc();
+                }
+
                 await using var body = await response.Content.ReadAsStreamAsync();
                 using var reader = new StreamReader(body);
                 var json = await reader.ReadToEndAsync();
@@ -119,6 +143,7 @@ public class Messenger : IMessenger
             }
             catch (Exception e)
             {
+                ErrorCounter.Inc();
                 Logger.Error(e, "failed to get updates");
             }
         }
