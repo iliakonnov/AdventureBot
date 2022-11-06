@@ -22,11 +22,13 @@ static class Program
     {
         var outDir = Environment.GetCommandLineArgs()[1];
         var namespaces = new Dictionary<string, HashSet<string>>();
+        var foo = IronPython.Runtime.ClrModule.Convert;
         var assemblies = new[]
         {
             Assembly.Load("AdventureBot"),
             Assembly.Load("Content"),
             Assembly.Load("IronPython"),
+            Assembly.Load("IronPython.Modules"),
         };
         var types = assemblies.SelectMany(assembly => assembly.GetTypes());
         scheduled = new SortedSet<Type>(types, Comparer<Type>.Create((a, b) => a.GUID.CompareTo(b.GUID)));

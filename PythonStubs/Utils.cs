@@ -22,6 +22,8 @@ public static class Utils
 
     public static string FormatName(string name)
     {
+        name = name.Split('.').Last();
+        
         if (name is "None" or "True" or "False" or "except" or "finally" or "from" or "global" or "break" or "continue")
         {
             return name + "_";

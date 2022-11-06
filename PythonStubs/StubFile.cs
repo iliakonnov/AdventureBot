@@ -172,8 +172,8 @@ public class StubFile
 
     private void WriteProperty(PropertyInfo property)
     {
-        var getter = property.GetMethod?.IsPrivate != true;
-        var setter = property.SetMethod?.IsPrivate != true;
+        var getter = property.GetMethod != null;
+        var setter = property.SetMethod != null;
 
         var method = (property.GetMethod ?? property.SetMethod)!;
         var name = Utils.FormatName(property.Name);
@@ -213,7 +213,7 @@ public class StubFile
             }
 
             writer.WriteLine(
-                $"    {property.Name}: {TypeName(property.PropertyType)} = property(None, lambda val: ...)");
+                $"    {name}: {TypeName(property.PropertyType)} = property(None, lambda val: ...)");
         }
 
         writer.WriteLine();
