@@ -29,6 +29,8 @@ public class Messenger : IMessenger
         Metrics.CreateCounter("vk_api_requests_total", "Total number of vk api requests");
     private static readonly Counter ApiRequestsFailed =
         Metrics.CreateCounter("vk_api_requests_failed", "Total number of failed vk api responses");
+    private static readonly Counter LongpollFailed =
+        Metrics.CreateCounter("vk_longpoll_failed", "Total number of failed longpoll responses");
     private static readonly Counter ErrorCounter =
         Metrics.CreateCounter("vk_messenger_errors", "Total number of errors in VkMessenger");
 
@@ -121,16 +123,17 @@ public class Messenger : IMessenger
                 ApiRequestsTotal.Inc();
                 var request = new HttpRequestMessage(HttpMethod.Get, parameters.GetUrl(timeout - 5));
                 using var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
-                if (!response.IsSuccessStatusCode)
-                {
-                    ApiRequestsFailed.Inc();
-                }
+                response.EnsureSuccessStatusCode();
 
                 await using var body = await response.Content.ReadAsStreamAsync();
                 using var reader = new StreamReader(body);
                 var json = await reader.ReadToEndAsync();
                 Logger.Debug("received updates from vk: {json}", json);
                 var result = JsonConvert.DeserializeObject<LongpollResponse>(json);
+                if (result.Failed != null)
+                {
+                    LongpollFailed.Inc();
+                }
 
                 if (result.Updates != null)
                 {
@@ -144,10 +147,16 @@ public class Messenger : IMessenger
             }
             catch (TimeoutException e)
             {
+                ApiRequestsFailed.Inc();
                 Logger.Warn(e, "longpoll timed out");
             }
             catch (Exception e)
             {
+                if (e is HttpRequestException)
+                {
+                    ApiRequestsFailed.Inc();
+                }
+                
                 ErrorCounter.Inc();
                 Logger.Error(e, "failed to get updates");
                 await Task.Delay(1000);
