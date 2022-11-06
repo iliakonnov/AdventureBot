@@ -12,6 +12,12 @@ public class StubFile
 
     private string TypeName(Type type)
     {
+        if (PrimitiveName(type) is { } primitive)
+        {
+            Program.Schedule(type);
+            return primitive;
+        }
+        
         if (type == typeof(void))
         {
             return "None";
@@ -69,12 +75,14 @@ public class StubFile
 
     private void WriteEnum(Type type)
     {
-        var underlying = TypeName(type.GetEnumUnderlyingType());
+        var underlying = type.GetEnumUnderlyingType();
+        var underlyingName = TypeName(underlying);
 
         writer.WriteLine($"class {SimpleName(type)}(enum.Enum, {Inherits(type)}):");
         foreach (var (name, value) in type.GetEnumNames().Zip(type.GetEnumValues().Cast<object>()))
         {
-            writer.WriteLine($"    {Utils.FormatName(name)}: {underlying} = {value}");
+            var realValue = Convert.ChangeType(value, underlying);
+            writer.WriteLine($"    {Utils.FormatName(name)}: {underlyingName} = {realValue}");
         }
 
         writer.WriteLine();
@@ -92,20 +100,36 @@ public class StubFile
 
     private void WriteClass(Type type)
     {
+        if (PrimitiveName(type) is {} primitive)
+        {
+            writer.WriteLine($"{SimpleName(type)} = {primitive}");
+            writer.WriteLine();
+            return;
+        }
+
+        var bindingAttr = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance; 
+        
         writer.WriteLine($"class {SimpleName(type)}({Inherits(type)}):");
 
         writer.WriteLine("    @typing.overload");
         writer.WriteLine("    def __init__(self, **kwargs):");
-        foreach (var field in type.GetFields().Where(f => f.IsPublic && !f.IsStatic))
+        foreach (var field in type.GetFields(bindingAttr).Where(f => !f.IsPrivate && !f.IsStatic))
         {
             writer.WriteLine($"        self.{Utils.FormatName(field.Name)}: {TypeName(field.FieldType)}");
         }
 
         writer.WriteLine("        ...");
+        
+        writer.WriteLine("\n    # static fields");
+
+        foreach (var field in type.GetFields(bindingAttr).Where(f => !f.IsPrivate && f.IsStatic))
+        {
+            writer.WriteLine($"    {Utils.FormatName(field.Name)}: {TypeName(field.FieldType)} = ...");
+        }
 
         writer.WriteLine("\n    # properties");
 
-        foreach (var property in type.GetProperties())
+        foreach (var property in type.GetProperties(bindingAttr))
         {
             WriteProperty(property);
         }
@@ -123,10 +147,29 @@ public class StubFile
         }
     }
 
+    private static string? PrimitiveName(Type type)
+    {
+        return Type.GetTypeCode(type) switch
+        {
+            TypeCode.Empty => "None",
+            TypeCode.Boolean => "bool",
+            TypeCode.SByte or TypeCode.Byte => "int",
+            TypeCode.Int16 or TypeCode.UInt16 => "int",
+            TypeCode.Int32 or TypeCode.UInt32 => "int",
+            TypeCode.Int64 or TypeCode.UInt64 => "int",
+            TypeCode.Single or TypeCode.Double => "float",
+            TypeCode.Char or TypeCode.String => "str",
+            TypeCode.Decimal or TypeCode.DateTime => null,  // python types are too different
+            TypeCode.DBNull => null,
+            TypeCode.Object => null,
+            _ => null
+        };
+    }
+
     private void WriteProperty(PropertyInfo property)
     {
-        var getter = property.GetMethod?.IsPublic == true;
-        var setter = property.SetMethod?.IsPublic == true;
+        var getter = property.GetMethod?.IsPrivate != true;
+        var setter = property.SetMethod?.IsPrivate != true;
 
         var method = (property.GetMethod ?? property.SetMethod)!;
         var name = Utils.FormatName(property.Name);
@@ -202,7 +245,12 @@ public class StubFile
 
         foreach (var parameter in method.GetParameters())
         {
-            writer.Write($"{Utils.FormatName(parameter.Name)}: {TypeName(parameter.ParameterType)}, ");
+            writer.Write($"{Utils.FormatName(parameter.Name)}: {TypeName(parameter.ParameterType)}");
+            if (parameter.HasDefaultValue)
+            {
+                writer.Write(" = ...");
+            }
+            writer.Write(", ");
         }
 
         writer.Write(")");

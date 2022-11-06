@@ -25,6 +25,7 @@ static class Program
         var assemblies = new[]
         {
             Assembly.Load("AdventureBot"),
+            Assembly.Load("Content"),
             Assembly.Load("IronPython"),
         };
         var types = assemblies.SelectMany(assembly => assembly.GetTypes());

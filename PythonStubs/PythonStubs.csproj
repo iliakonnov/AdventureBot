@@ -10,6 +10,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\AdventureBot\AdventureBot.csproj" />
+      <ProjectReference Include="..\Content\Content.csproj" />
     </ItemGroup>
 
     <ItemGroup>
