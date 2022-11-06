@@ -4,80 +4,34 @@ using System.Text.RegularExpressions;
 
 namespace PythonStubs;
 
+public class Member
+{
+    public string Name;
+    public List<string> Items = new();
+
+    public Member(string name)
+    {
+        Name = name;
+    }
+}
+
 public class StubFile
 {
     private HashSet<string> _imports = new();
     private HashSet<string> _typeVars = new();
     private StringWriter writer = new();
+    public List<Member> members = new();
 
     private string TypeName(Type type)
     {
-        if (PrimitiveName(type) is { } primitive)
-        {
-            Program.Schedule(type);
-            return primitive;
-        }
-
-        if (type == typeof(void))
-        {
-            return "None";
-        }
-
-        if (type.IsArray)
-        {
-            return $"System.Array[{TypeName(type.GetElementType()!)}]";
-        }
-
-        if (type.IsByRef)
-        {
-            return $"ref[{TypeName(type.GetElementType())}]";
-        }
-
-        if (type.IsPointer)
-        {
-            return $"ptr[{TypeName(type.GetElementType())}]";
-        }
-
-        if (type.IsGenericParameter)
-        {
-            _typeVars.Add(type.Name);
-            return type.Name;
-        }
-
-        Program.Schedule(type);
-
-        var name = type.IsGenericType ? type.GetGenericTypeDefinition().FullName : type.FullName;
-        name = name!.Replace('+', '.');
-        name = Regex.Replace(name, @"`\d+", "");
-
-        name = name.Split('`')[0];
-        var ns = string.Join('.', name.Split('.').SkipLast(1));
-        _imports.Add(ns);
-
-        if (type.GenericTypeArguments.Length == 0)
-        {
-            return name;
-        }
-
-        var arguments = type.GenericTypeArguments.Select(TypeName).ToArray();
-        return name + "[" + string.Join(", ", arguments) + "]";
-    }
-
-    private static string SimpleName(Type type)
-    {
-        Program.Schedule(type);
-
-        var name = type.Name;
-        name = name.Split('`')[0];
-
-        return Utils.FormatName(name);
+        return Utils.TypeName(type, _imports, _typeVars);
     }
 
     private void WriteEnum(Type type)
     {
         var underlying = TypeName(type.GetEnumUnderlyingType());
 
-        writer.WriteLine($"class {SimpleName(type)}(enum.Enum, {Inherits(type)}):");
+        writer.WriteLine($"class {Utils.SimpleName(type)}(enum.Enum, {Inherits(type)}):");
         foreach (var name in type.GetEnumNames())
         {
             writer.WriteLine($"    {Utils.FormatName(name)}: {underlying} = ...");
@@ -98,21 +52,25 @@ public class StubFile
 
     private void WriteClass(Type type)
     {
-        if (PrimitiveName(type) is { } primitive)
+        if (Utils.PrimitiveName(type) is { } primitive)
         {
-            writer.WriteLine($"{SimpleName(type)} = {primitive}");
+            writer.WriteLine($"{Utils.SimpleName(type)} = {primitive}");
             writer.WriteLine();
             return;
         }
 
+        var name = Utils.SimpleName(type);
+        var member = new Member(name);
+
         var bindingAttr = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static;
 
-        writer.WriteLine($"class {SimpleName(type)}({Inherits(type)}):");
+        writer.WriteLine($"class {name}({Inherits(type)}):");
 
         writer.WriteLine("    @typing.overload");
         writer.WriteLine("    def __init__(self, **kwargs):");
         foreach (var field in type.GetFields(bindingAttr).Where(f => !f.IsPrivate && !f.IsStatic))
         {
+            member.Items.Add(Utils.FormatName(field.Name));
             writer.WriteLine($"        self.{Utils.FormatName(field.Name)}: {TypeName(field.FieldType)}");
         }
 
@@ -122,6 +80,7 @@ public class StubFile
 
         foreach (var field in type.GetFields(bindingAttr).Where(f => !f.IsPrivate && f.IsStatic))
         {
+            member.Items.Add(Utils.FormatName(field.Name));
             writer.WriteLine($"    {Utils.FormatName(field.Name)}: {TypeName(field.FieldType)} = ...");
         }
 
@@ -129,6 +88,7 @@ public class StubFile
 
         foreach (var property in type.GetProperties(bindingAttr))
         {
+            member.Items.Add(Utils.FormatName(property.Name));
             WriteProperty(property);
         }
 
@@ -144,30 +104,14 @@ public class StubFile
                      .Select(x => x.ToArray()))
         {
             var haveOverloads = group.Length != 1;
+            member.Items.Add(Utils.FormatName(group[0].Name));
             foreach (var method in group)
             {
                 WriteMethod(method, haveOverloads);
             }
         }
-    }
 
-    private static string? PrimitiveName(Type type)
-    {
-        return Type.GetTypeCode(type) switch
-        {
-            TypeCode.Empty => "None",
-            TypeCode.Boolean => "bool",
-            TypeCode.SByte or TypeCode.Byte => "int",
-            TypeCode.Int16 or TypeCode.UInt16 => "int",
-            TypeCode.Int32 or TypeCode.UInt32 => "int",
-            TypeCode.Int64 or TypeCode.UInt64 => "int",
-            TypeCode.Single or TypeCode.Double => "float",
-            TypeCode.Char or TypeCode.String => "str",
-            TypeCode.Decimal or TypeCode.DateTime => null, // python types are too different
-            TypeCode.DBNull => null,
-            TypeCode.Object => null,
-            _ => null
-        };
+        members.Add(member);
     }
 
     private void WriteProperty(PropertyInfo property)

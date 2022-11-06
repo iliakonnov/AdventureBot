@@ -1,7 +1,6 @@
 import System
 import attributes
 import clrtype
-import clr
 from AdventureBot.Item import ItemInfo
 from AdventureBot.Room import MonsterBase
 from AdventureBot.User import User
