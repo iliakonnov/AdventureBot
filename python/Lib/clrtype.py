@@ -162,7 +162,6 @@ class ClrType(type):
     def get_clr_type_name(self):
         ns = getattr(self, "_clrnamespace", self.__module__)
         name = ns + "." + self.__name__
-        print('name', name)
         return name
 
     def create_type(self, typebld):
@@ -532,8 +531,10 @@ class ClrClass(ClrInterface):
 
 def make_cab(attrib_type, *args, **kwds):
     clrtype = clr.GetClrType(attrib_type)
-    argtypes = tuple(map(lambda x:clr.GetClrType(type(x)), args))
+    argtypes = tuple(System.Int32 if isinstance(x, int) else clr.GetClrType(type(x)) for x in args)
     ci = clrtype.GetConstructor(argtypes)
+    if not ci:
+        raise TypeError(f'No constructor found for {clrtype} with args {argtypes}')
 
     props = ([],[])
     fields = ([],[])
