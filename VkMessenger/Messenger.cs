@@ -101,12 +101,12 @@ public class Messenger : IMessenger
         _api.Authorize(new ApiAuthParams {AccessToken = _accessToken});
 
         BeginPoll();
-
-        Logger.Info("Start listening for VK");
     }
 
     private async void BeginPoll()
     {
+        Logger.Info("Start listening for VK");
+
         var longpoll = await _api.Groups.GetLongPollServerAsync(_groupId);
         var parameters = new LongpollParameters(_groupId, longpoll);
         const int timeout = 30;
@@ -129,10 +129,15 @@ public class Messenger : IMessenger
                 await using var body = await response.Content.ReadAsStreamAsync();
                 using var reader = new StreamReader(body);
                 var json = await reader.ReadToEndAsync();
+                Logger.Debug("received updates from vk: {json}", json);
                 var result = JsonConvert.DeserializeObject<LongpollResponse>(json);
-                foreach (var message in result.Updates)
+
+                if (result.Updates != null)
                 {
-                    MessageReceived?.Invoke(message.ToReceivedMessage());
+                    foreach (var message in result.Updates)
+                    {
+                        MessageReceived?.Invoke(message.ToReceivedMessage());
+                    }
                 }
 
                 await parameters.Update(_api, result);
@@ -145,6 +150,9 @@ public class Messenger : IMessenger
             {
                 ErrorCounter.Inc();
                 Logger.Error(e, "failed to get updates");
+                await Task.Delay(1000);
+                BeginPoll();
+                throw;
             }
         }
 

@@ -79,7 +79,7 @@ public class LongpollResponse
     [JsonProperty("failed")] public int? Failed;
     [JsonProperty("ts")] public string Timestamp;
 
-    [JsonProperty("updates")] public Update[] Updates;
+    [JsonProperty("updates")] public Update[]? Updates;
 }
 
 public class Update
