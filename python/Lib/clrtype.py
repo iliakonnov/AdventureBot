@@ -5,6 +5,7 @@
 __all__ = ["ClrClass", "ClrInterface", "accepts", "returns", "attribute", "propagate_attributes"]
 
 import clr
+
 clr.AddReference("Microsoft.Dynamic")
 clr.AddReference("Microsoft.Scripting")
 clr.AddReference("IronPython")
@@ -27,12 +28,13 @@ from IronPython.Runtime.Types import PythonType, ReflectedField, ReflectedProper
 PropertyAttributes_None = getattr(PropertyAttributes, "None")
 ParameterAttributes_None = getattr(ParameterAttributes, "None")
 
-def validate_clr_types(signature_types, var_signature = False):
+
+def validate_clr_types(signature_types, var_signature=False):
     if not isinstance(signature_types, tuple):
         signature_types = (signature_types,)
     for t in signature_types:
-        if type(t) is type(System.IComparable): # type overloaded on generic arity, eg IComparable and IComparable[T]
-            t = t[()] # select non-generic version
+        if type(t) is type(System.IComparable):  # type overloaded on generic arity, eg IComparable and IComparable[T]
+            t = t[()]  # select non-generic version
         clr_type = clr.GetClrType(t)
         if t == Void:
             raise TypeError("Void cannot be used in signature")
@@ -49,6 +51,7 @@ def validate_clr_types(signature_types, var_signature = False):
             if hasattr(System, "ArgIterator") and t == System.ArgIterator:
                 raise TypeError("Stack-referencing types can only be used as arguments and locals")
 
+
 class TypedFunction(object):
     """
     A strongly-typed function can get wrapped up as a staticmethod, a property, etc.
@@ -56,11 +59,13 @@ class TypedFunction(object):
     it is decorated with.
     Other information is stored as attributes on the function. See propagate_attributes
     """
-    def __init__(self, function, is_static = False, prop_name_if_prop_get = None, prop_name_if_prop_set = None):
+
+    def __init__(self, function, is_static=False, prop_name_if_prop_get=None, prop_name_if_prop_set=None):
         self.function = function
         self.is_static = is_static
         self.prop_name_if_prop_get = prop_name_if_prop_get
         self.prop_name_if_prop_set = prop_name_if_prop_set
+
 
 class ClrType(type):
     """
@@ -71,7 +76,21 @@ class ClrType(type):
         if hasattr(function, "arg_types") != hasattr(function, "return_type"):
             raise TypeError("One of @accepts and @returns is missing for %s" % function.__name__)
 
-        return hasattr(function, "arg_types")
+        if hasattr(function, 'arg_types'):
+            return True
+
+        annotations = function.__annotations__
+        variables = [var for n, var in enumerate(function.__code__.co_varnames) if (n, var) != (0, 'self')]
+        for var in variables:
+            if var not in annotations:
+                return False
+        if 'return' not in annotations:
+            return False
+
+        annotations = {k: v if v is not None else System.Void for k, v in annotations.items()}
+        function.arg_types = System.Array[System.Type]([annotations[var] for var in variables])
+        function.return_type = annotations['return']
+        return True
 
     def get_typed_properties(self):
         for item_name, item in self.__dict__.items():
@@ -99,7 +118,8 @@ class ClrType(type):
             setter = self.emitted_methods[(prop.fset.__name__, prop.fset.arg_types)]
             prpbld.SetSetMethod(setter)
 
-    def dummy_function(self): raise RuntimeError("this should not get called")
+    def dummy_function(self):
+        raise RuntimeError("this should not get called")
 
     def get_typed_methods(self):
         """
@@ -170,6 +190,7 @@ class ClrType(type):
         self.map_members(new_type)
         return new_type
 
+
 class ClrInterface(ClrType):
     """
     Set __metaclass__ in a Python class declaration to declare a
@@ -182,7 +203,7 @@ class ClrInterface(ClrType):
         return super(ClrInterface, self).__init__(*args)
 
     def emit_method(self, typebld, function_info):
-        assert(not function_info.is_static)
+        assert (not function_info.is_static)
         function = function_info.function
         attributes = MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.Abstract
         method_builder = typebld.DefineMethod(
@@ -208,7 +229,8 @@ class ClrInterface(ClrType):
         self.emit_properties(typebld)
         self.emit_classattribs(typebld)
 
-    def map_members(self, new_type): pass
+    def map_members(self, new_type):
+        pass
 
     interface_module_builder = None
 
@@ -246,7 +268,7 @@ class ClrInterface(ClrType):
         bases = list(self.__bases__)
         bases.remove(object)
         bases = tuple(bases)
-        if False: # Snippets currently does not support creating interfaces
+        if False:  # Snippets currently does not support creating interfaces
             typegen = Snippets.Shared.DefineType(self.get_clr_type_name(), bases, True, False)
             typebld = typegen.TypeBuilder
         else:
@@ -254,6 +276,7 @@ class ClrInterface(ClrType):
         clr_type = self.create_type(typebld)
         self.map_clr_type(clr_type)
         return clr_type
+
 
 # Note that ClrClass inherits from ClrInterface to satisfy Python requirements of metaclasses.
 # A metaclass of a subtype has to be subtype of the metaclass of a base type. As a result,
@@ -328,12 +351,14 @@ class ClrClass(ClrInterface):
         # Type.GetMethod raises an AmbiguousMatchException if there is a generic and a non-generic method
         # (like DynamicOperations.GetMember) with the same name and signature. So we have to do things
         # the hard way
-        get_member_search = [m for m in clr.GetClrType(DynamicOperations).GetMethods() if m.Name == "GetMember" and not m.IsGenericMethod and m.GetParameters().Length == 2]
-        assert(len(get_member_search) == 1)
+        get_member_search = [m for m in clr.GetClrType(DynamicOperations).GetMethods() if
+                             m.Name == "GetMember" and not m.IsGenericMethod and m.GetParameters().Length == 2]
+        assert (len(get_member_search) == 1)
         get_member = get_member_search[0]
 
-        set_member_search = [m for m in clr.GetClrType(DynamicOperations).GetMethods() if m.Name == "SetMember" and not m.IsGenericMethod and m.GetParameters().Length == 3]
-        assert(len(set_member_search) == 1)
+        set_member_search = [m for m in clr.GetClrType(DynamicOperations).GetMethods() if
+                             m.Name == "SetMember" and not m.IsGenericMethod and m.GetParameters().Length == 3]
+        assert (len(set_member_search) == 1)
         set_member = set_member_search[0]
 
         convert_to = clr.GetClrType(DynamicOperations).GetMethod(
@@ -485,13 +510,13 @@ class ClrClass(ClrInterface):
             ctorparams = ctor.GetParameters()
 
             # leave out the PythonType argument
-            assert(ctorparams[0].ParameterType == clr.GetClrType(PythonType))
+            assert (ctorparams[0].ParameterType == clr.GetClrType(PythonType))
             ctorparams = ctorparams[1:]
 
             ctorbld = typebld.DefineConstructor(
-                        ctor.Attributes,
-                        ctor.CallingConvention,
-                        tuple([p.ParameterType for p in ctorparams]))
+                ctor.Attributes,
+                ctor.CallingConvention,
+                tuple([p.ParameterType for p in ctorparams]))
             ilgen = ctorbld.GetILGenerator()
             ilgen.Emit(OpCodes.Ldarg, 0)
             ilgen.Emit(OpCodes.Ldsfld, python_type_field)
@@ -529,6 +554,7 @@ class ClrClass(ClrInterface):
         typebld = typegen.TypeBuilder
         return self.create_type(typebld)
 
+
 def make_cab(attrib_type, *args, **kwds):
     clrtype = clr.GetClrType(attrib_type)
     argtypes = tuple(System.Int32 if isinstance(x, int) else clr.GetClrType(type(x)) for x in args)
@@ -536,8 +562,8 @@ def make_cab(attrib_type, *args, **kwds):
     if not ci:
         raise TypeError(f'No constructor found for {clrtype} with args {argtypes}')
 
-    props = ([],[])
-    fields = ([],[])
+    props = ([], [])
+    fields = ([], [])
 
     for kwd in kwds:
         pi = clrtype.GetProperty(kwd)
@@ -553,29 +579,36 @@ def make_cab(attrib_type, *args, **kwds):
                 raise TypeError("No %s Member found on %s" % (kwd, clrtype.Name))
 
     return CustomAttributeBuilder(ci, args,
-        tuple(props[0]), tuple(props[1]),
-        tuple(fields[0]), tuple(fields[1]))
+                                  tuple(props[0]), tuple(props[1]),
+                                  tuple(fields[0]), tuple(fields[1]))
+
 
 def accepts(*args):
     """
     TODO - needs to be merged with clr.accepts
     """
     validate_clr_types(args, True)
+
     def decorator(function):
         function.arg_types = args
         return function
+
     return decorator
 
-def returns(return_type = Void):
+
+def returns(return_type=Void):
     """
     TODO - needs to be merged with clr.returns
     """
     if return_type != Void:
         validate_clr_types(return_type)
+
     def decorator(function):
         function.return_type = return_type
         return function
+
     return decorator
+
 
 class CustomAttributeDecorator(object):
     """
@@ -590,6 +623,7 @@ class CustomAttributeDecorator(object):
     query it. Hence, we need to store the arguments required to store the
     CustomAttributeBuilder so that pseudo-custom-attributes can get to the information.
     """
+
     def __init__(self, attrib_type, *args, **kwargs):
         self.attrib_type = attrib_type
         self.args = args
@@ -608,13 +642,17 @@ class CustomAttributeDecorator(object):
         assert not self.attrib_type in [DllImportAttribute]
         return make_cab(self.attrib_type, *self.args, **self.kwargs)
 
+
 def attribute(attrib_type):
     """
     This decorator is used to specify a CustomAttribute for a type or method.
     """
+
     def make_decorator(*args, **kwargs):
         return CustomAttributeDecorator(attrib_type, *args, **kwargs)
+
     return make_decorator
+
 
 def propagate_attributes(old_function, new_function):
     """
