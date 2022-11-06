@@ -53,28 +53,32 @@ public static class DebugHelpers
     /// <summary>
     /// Загружает и возвращает пользователя по id мессенджера и id пользователя
     /// </summary>
-    public static BadWrapDisposable<UserContext> LoadUser(int messenger_id, long user_id)
+    public static BadWrapDisposable<UserContext> LoadUser(int messengerId, long userId)
     {
-        var ctx = new UserContext(new UserId(messenger_id, user_id));
+        var ctx = new UserContext(new UserId(messengerId, userId));
         var wrap = new BadWrapDisposable<UserContext>(ctx);
         return wrap;
     }
 }
 
-public class BadWrapDisposable<T> where T : IDisposable
+public class BadWrapDisposable<T> : IDisposable where T : class, IDisposable
 {
     private static int _counter;
-    public T Item;
+    [CanBeNull] public T Item;
 
     public BadWrapDisposable(T item)
     {
         _counter++;
-        Console.Error.WriteLine("BadWrapDisposable#{0} is constructed!", _counter);
         Item = item;
     }
 
     ~BadWrapDisposable()
     {
+        if (Item == null)
+        {
+            return;
+        }
+
         Console.Error.WriteLine("BadWrapDisposable#{0} is destructed!", _counter);
         try
         {
@@ -84,6 +88,12 @@ public class BadWrapDisposable<T> where T : IDisposable
         {
             Console.Error.WriteLine(e);
         }
+    }
+
+    public void Dispose()
+    {
+        Item?.Dispose();
+        Item = null;
     }
 
     public static implicit operator T(BadWrapDisposable<T> wrap)
