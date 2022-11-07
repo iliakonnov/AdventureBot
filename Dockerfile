@@ -13,6 +13,7 @@ RUN dotnet publish -c Release -o out
 
 FROM mcr.microsoft.com/dotnet/runtime:6.0
 WORKDIR /app/work
+COPY ./python /app/python
 COPY --from=build-env /app/out /app/bin
 ENTRYPOINT ["dotnet", "/app/bin/AdventureBot.dll"]
 

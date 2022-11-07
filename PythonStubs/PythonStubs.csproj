@@ -10,6 +10,15 @@
 
     <ItemGroup>
       <ProjectReference Include="..\AdventureBot\AdventureBot.csproj" />
+      <ProjectReference Include="..\Content\Content.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="static" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <EmbeddedResource Include="static\stubhelper.pyi" />
     </ItemGroup>
 
 </Project>

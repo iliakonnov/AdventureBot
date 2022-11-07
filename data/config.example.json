@@ -7,5 +7,12 @@
         "/app/bin/Content.dll",
         "/app/bin/Telegram.dll",
         "/app/bin/Migrations.dll"
+    ],
+    "python_paths": [
+        "/app/python/Lib",
+        "/app/python"
+    ],
+    "python": [
+        "PyRooms"
     ]
 }

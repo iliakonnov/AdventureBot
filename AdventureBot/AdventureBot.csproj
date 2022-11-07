@@ -21,6 +21,7 @@
     </PropertyGroup>
     <ItemGroup>
         <PackageReference Include="IronPython" Version="3.4.0-beta1" />
+        <PackageReference Include="IronPython.StdLib" Version="3.4.0-beta1" />
         <PackageReference Include="JetBrains.Annotations" Version="2022.1.0" />
         <PackageReference Include="MessagePack" Version="2.4.35" />
         <PackageReference Include="MessagePack.ImmutableCollection" Version="2.4.35" />

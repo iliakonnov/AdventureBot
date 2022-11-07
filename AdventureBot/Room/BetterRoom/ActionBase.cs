@@ -5,13 +5,13 @@ using AdventureBot.Messenger;
 
 namespace AdventureBot.Room.BetterRoom;
 
-public abstract class ActionBase<T> where T : BetterRoomBase<T>
+public abstract class ActionBase
 {
     private readonly MessageReceived _fallback;
     public readonly Dictionary<string, MessageReceived> Buttons;
-    protected readonly T Room;
+    protected internal readonly BetterRoomBase Room;
 
-    protected ActionBase(T room)
+    protected ActionBase(BetterRoomBase room)
     {
         Room = room;
         var self = GetType();
@@ -27,7 +27,7 @@ public abstract class ActionBase<T> where T : BetterRoomBase<T>
                 continue;
             }
 
-            var handler = (MessageReceived) Delegate.CreateDelegate(typeof(MessageReceived), this, method, false);
+            var handler = (MessageReceived)Delegate.CreateDelegate(typeof(MessageReceived), this, method, false);
 
             switch (attr)
             {
@@ -67,4 +67,13 @@ public abstract class ActionBase<T> where T : BetterRoomBase<T>
             _fallback(user, message);
         }
     }
+}
+
+public abstract class ActionBase<T> : ActionBase where T : BetterRoomBase
+{
+    protected ActionBase(T room) : base(room)
+    {
+    }
+
+    protected new T Room => (T)((ActionBase)this).Room;
 }

@@ -6,19 +6,28 @@ using AdventureBot.Messenger;
 
 namespace AdventureBot.Room.BetterRoom;
 
-public abstract class BetterRoomBase<T> : RoomBase where T : BetterRoomBase<T>
+public abstract class BetterRoomBase : RoomBase
 {
-    private readonly Dictionary<Type, ActionBase<T>> _actions = new();
-    private readonly ActionBase<T> _rootAction;
-    private readonly Type _rootActionType;
+    private protected readonly Dictionary<Type, ActionBase> _actions = new();
+    private protected ActionBase _rootAction;
+    private Type _rootActionType;
+
+    protected virtual Type[] actions { get; } = Type.EmptyTypes;
 
     protected BetterRoomBase()
     {
         Buttons = new NullableDictionary<MessageReceived, Dictionary<string, MessageReceived>>();
-        var routes = new List<Tuple<int, ActionBase<T>>>();
+
+        var self = GetType();
+        _build(self);
+    }
+
+    private void _build(Type self)
+    {
+        var routes = new List<Tuple<int, ActionBase>>();
         var indexes = new HashSet<int>();
-        var self = typeof(T);
-        foreach (var type in self.GetNestedTypes())
+        
+        foreach (var type in self.GetNestedTypes().Concat(actions))
         {
             var action = type.GetCustomAttribute<ActionAttribute>();
             if (action == null)
@@ -26,30 +35,30 @@ public abstract class BetterRoomBase<T> : RoomBase where T : BetterRoomBase<T>
                 continue;
             }
 
-            if (!typeof(ActionBase<T>).IsAssignableFrom(type))
+            if (!typeof(ActionBase).IsAssignableFrom(type))
             {
                 throw new Exception("Action must inherit from ActionBase");
             }
 
-            var ctor = type.GetConstructor(new[] {typeof(T)});
+            var ctor = type.GetConstructor(new[] { self });
             if (ctor == null)
             {
                 throw new Exception("Action must have constructor without parameters");
             }
 
-            var instance = (ActionBase<T>) ctor.Invoke(new object[] {this});
+            var instance = (ActionBase)ctor.Invoke(new object[] { this });
 
-            ActionBase<T> handler = null;
+            ActionBase handler = null;
             if (action.Index != null)
             {
-                var index = (int) action.Index;
+                var index = (int)action.Index;
                 if (indexes.Contains(index))
                 {
                     throw new Exception($"Muliply definition of action with index {action.Index}");
                 }
 
-                indexes.Add((int) action.Index);
-                routes.Add(new Tuple<int, ActionBase<T>>(index, instance));
+                indexes.Add((int)action.Index);
+                routes.Add(new Tuple<int, ActionBase>(index, instance));
                 handler = instance;
             }
             else
@@ -81,7 +90,7 @@ public abstract class BetterRoomBase<T> : RoomBase where T : BetterRoomBase<T>
 
         Routes = routes
             .OrderBy(r => r.Item1)
-            .Select(r => (MessageReceived) r.Item2.OnMessage)
+            .Select(r => (MessageReceived)r.Item2.OnMessage)
             .ToArray();
     }
 
@@ -97,17 +106,17 @@ public abstract class BetterRoomBase<T> : RoomBase where T : BetterRoomBase<T>
         }
     }
 
-    public void SwitchAction<TAction>(User.User user) where TAction : ActionBase<T>
+    public void SwitchAction<TAction>(User.User user) where TAction : ActionBase
     {
         SwitchAction(user, typeof(TAction));
     }
 
-    public TAction GetAction<TAction>() where TAction : ActionBase<T>
+    public TAction GetAction<TAction>() where TAction : ActionBase
     {
         return (TAction) GetAction(typeof(TAction));
     }
 
-    public ActionBase<T> GetAction(Type action)
+    private ActionBase GetAction(Type action)
     {
         return _actions[action] ?? _rootAction;
     }
@@ -119,5 +128,23 @@ public abstract class BetterRoomBase<T> : RoomBase where T : BetterRoomBase<T>
             // Null action
             _rootAction.OnMessage(user, message);
         }
+    }
+}
+
+public abstract class BetterRoomBase<T> : BetterRoomBase where T : BetterRoomBase<T>
+{
+    public new void SwitchAction<TAction>(User.User user) where TAction : ActionBase<T>
+    {
+        SwitchAction(user, typeof(TAction));
+    }
+
+    public new TAction GetAction<TAction>() where TAction : ActionBase<T>
+    {
+        return (TAction) GetAction(typeof(TAction));
+    }
+
+    public new ActionBase<T> GetAction(Type action)
+    {
+        return (ActionBase<T>)(_actions[action] ?? _rootAction);
     }
 }

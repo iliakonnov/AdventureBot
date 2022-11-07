@@ -1,5 +1,6 @@
 /publish
 /data
+/python/stubs
 
 
 ## Ignore Visual Studio temporary files, build results, and

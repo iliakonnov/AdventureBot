@@ -4,7 +4,7 @@ using PythonStubs;
 
 static class Program
 {
-    private static Queue<Type> scheduled = new();
+    private static SortedSet<Type> scheduled = new();
     private static HashSet<Guid> written = new();
     private static Dictionary<string, StubFile> files = new();
 
@@ -15,7 +15,7 @@ static class Program
             return;
         }
 
-        scheduled.Enqueue(type);
+        scheduled.Add(type);
     }
 
     public static void Main()
@@ -25,17 +25,22 @@ static class Program
         var assemblies = new[]
         {
             Assembly.Load("AdventureBot"),
+            Assembly.Load("Content"),
+            Assembly.Load("IronPython"),
         };
         var types = assemblies.SelectMany(assembly => assembly.GetTypes());
-        scheduled = new Queue<Type>(types);
+        scheduled = new SortedSet<Type>(types, Comparer<Type>.Create((a, b) => a.GUID.CompareTo(b.GUID)));
 
         if (Directory.Exists(outDir))
         {
             Directory.Delete(outDir, true);
         }
 
-        while (scheduled.TryDequeue(out var type))
+        while (scheduled.Count != 0)
         {
+            var type = scheduled.Min;
+            scheduled.Remove(type);
+
             if (!written.Add(type.GUID))
             {
                 continue;
@@ -51,11 +56,7 @@ static class Program
                 type = type.GetGenericTypeDefinition();
             }
 
-            var name = type.FullName!.Replace('+', '.').Split('[')[0];
-            name = Regex.Replace(name, @"`\d+", "");
-            var namespacePath = string.Join('.', name.Split('.').SkipLast(1)).Replace('.', Path.DirectorySeparatorChar);
-            var directory = Path.Join(outDir, namespacePath);
-            var path = Path.Join(directory, "__init__.pyi");
+            var path = TypeToPath(outDir, type);
 
             if (!files.ContainsKey(path))
             {
@@ -64,6 +65,7 @@ static class Program
 
             files[path].WriteType(type);
 
+            var directory = Path.GetDirectoryName(path);
             if (!namespaces.ContainsKey(directory))
             {
                 namespaces[directory] = new HashSet<string>();
@@ -78,21 +80,67 @@ static class Program
             file.Save(writer);
         }
 
-        Directory.CreateDirectory(Path.Combine(outDir, "stubhelper"));
-        File.WriteAllText(Path.Combine(outDir, "stubhelper", "__init__.py"),
-            @"import typing
+        GenerateModules(assemblies, outDir);
 
-T = typing.TypeVar('T')
+        var self = Assembly.GetExecutingAssembly();
+        foreach (var resource in self.GetManifestResourceNames())
+        {
+            if (!resource.StartsWith("PythonStubs.static.") || !resource.EndsWith(".pyi"))
+            {
+                continue;
+            }
 
-class ref(typing.Generic[T]):
-    def __init__(self, val: T):
-        self.val = val
+            var path = resource["PythonStubs.static.".Length..][..^".pyi".Length]
+                .Replace('.', Path.DirectorySeparatorChar) + ".pyi";
+            using var stream = self.GetManifestResourceStream(resource)!;
+            using var file = File.Create(Path.Combine(outDir, path));
+            stream.CopyTo(file);
+        }
+    }
 
-class ptr(typing.Generic[T]):
-    def __init__(self, val: T):
-        self.val = val
-");
+    private static void GenerateModules(Assembly[] assemblies, string outDir)
+    {
+        foreach (var assembly in assemblies)
+        {
+            foreach (var module in assembly.GetCustomAttributes<IronPython.Runtime.PythonModuleAttribute>())
+            {
+                var memberName = Utils.FormatName(module.Type.Name);
+                var imports = new HashSet<string>();
+                var typeVars = new HashSet<string>();
+                var typeName = Utils.TypeName(module.Type, imports, typeVars);
+                var stub = files[TypeToPath(outDir, module.Type)];
+                using var writer = new StreamWriter(Path.Combine(outDir, $"{module.Name}.pyi"));
 
-        File.Create(Path.Join(outDir, "__init__.pyi"));
+                foreach (var import in imports)
+                {
+                    writer.WriteLine($"import {import}");
+                }
+
+                if (typeVars.Count != 0)
+                {
+                    writer.WriteLine("import typing");
+                }
+
+                foreach (var typeVar in typeVars)
+                {
+                    writer.WriteLine($"{typeVar} = typing.TypeVar('T')");
+                }
+
+                foreach (var item in stub.members.Where(x => x.Name == memberName).SelectMany(x => x.Items))
+                {
+                    writer.WriteLine($"{item} = {typeName}.{item}");
+                }
+            }
+        }
+    }
+
+    private static string TypeToPath(string outDir, Type type)
+    {
+        var name = type.FullName!.Replace('+', '.').Split('[')[0];
+        name = Regex.Replace(name, @"`\d+", "");
+        var namespacePath = string.Join('.', name.Split('.').SkipLast(1)).Replace('.', Path.DirectorySeparatorChar);
+        var directory = Path.Join(outDir, namespacePath);
+        var path = Path.Join(directory, "__init__.pyi");
+        return path;
     }
 }
