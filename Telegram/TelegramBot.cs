@@ -25,8 +25,10 @@ internal class TelegramBot
 
     private static readonly Counter ApiRequestsTotal =
         Metrics.CreateCounter("telegram_api_requests_total", "Total number of telegram api requests");
+
     private static readonly Counter ApiRequestsFailed =
         Metrics.CreateCounter("telegram_api_requests_failed", "Total number of failed telegram api responses");
+
     private static readonly Counter ErrorCounter =
         Metrics.CreateCounter("telegram_messenger_errors", "Total number of errors in TelegramMessenger");
 
@@ -53,7 +55,8 @@ internal class TelegramBot
         return $"{idx}@{head}";
     }
 
-    [CanBeNull] private string DecodeButton(string[] buttons, [CanBeNull] string data)
+    [CanBeNull]
+    private string DecodeButton(string[] buttons, [CanBeNull] string data)
     {
         if (data == null)
         {
@@ -93,7 +96,7 @@ internal class TelegramBot
             return;
         }
 
-        var associatedData = (ReceivedMessageAssociatedData) receivedMessage?.MessengerSpecificData;
+        var associatedData = (ReceivedMessageAssociatedData)receivedMessage?.MessengerSpecificData;
 
         LastMessageSent = DateTime.Now;
 
@@ -152,7 +155,19 @@ internal class TelegramBot
             {
                 // We already had a message and message still allows itself to be inlined. So let's update it.
                 var (chatId, messageId) = inlineId.Value;
-                await _bot.EditMessageTextAsync(chatId, messageId, text, parseMode, replyMarkup: inlineKeyboardMarkup);
+                try
+                {
+                    await _bot.EditMessageTextAsync(chatId, messageId, text, parseMode,
+                        replyMarkup: inlineKeyboardMarkup);
+                }
+                catch (ApiRequestException e)
+                {
+                    if (!e.Message.Contains("message is not modified"))
+                    {
+                        throw;
+                    }
+                }
+
                 message.MessengerSpecificData[MessengerId] = new SentMessageAssociatedData(_username, chatId, messageId);
                 return;
             }
@@ -167,11 +182,12 @@ internal class TelegramBot
             // Otherwise send a new message
             IReplyMarkup replyMarkup = message.PreferToUpdate != false ? inlineKeyboardMarkup : buttonsKeyboardMarkup;
             var sent = await _bot.SendTextMessageAsync(message.ChatId.Id, text, parseMode, replyMarkup: replyMarkup);
-            message.MessengerSpecificData[MessengerId] = new SentMessageAssociatedData(_username, sent.Chat.Id, sent.MessageId);
+            message.MessengerSpecificData[MessengerId] =
+                new SentMessageAssociatedData(_username, sent.Chat.Id, sent.MessageId);
         }
         catch (Exception e)
         {
-            if (e is ApiRequestException {ErrorCode: 403})
+            if (e is ApiRequestException { ErrorCode: 403 })
             {
                 Logger.Info(e, "Bot is stopped by user {0}", message.ChatId.Id);
             }
@@ -206,7 +222,7 @@ internal class TelegramBot
                 HandlePollingErrorAsync,
                 new ReceiverOptions
                 {
-                    AllowedUpdates = new[] {UpdateType.Message, UpdateType.CallbackQuery},
+                    AllowedUpdates = new[] { UpdateType.Message, UpdateType.CallbackQuery },
                 }
             );
             Logger.Info("Start receiving for @{username}", _username);
