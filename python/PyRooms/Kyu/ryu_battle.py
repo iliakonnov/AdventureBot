@@ -22,8 +22,7 @@ class RyuBattle(MonsterBase, metaclass=clrtype.ClrClass):
     def Health(self) -> System.Decimal:
         return 2000.0
 
-    @property
-    def GetDamage(self) -> System.Decimal:
+    def GetDamage(self, user: User) -> System.Decimal:
         return 90.0
 
     def Enter(self, user: User, buttons: System.Array[System.Array[str]]):

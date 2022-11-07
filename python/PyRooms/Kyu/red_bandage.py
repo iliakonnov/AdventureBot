@@ -7,7 +7,6 @@ import System
 from System import Decimal
 from AdventureBot import StructFlag
 from AdventureBot.Item import ItemInfo, ItemBase, BuyGroup
-from AdventureBot.ObjectManager import ItemAttribute
 from AdventureBot.User.Stats import StatsProperty, StatsEffect, ChangeType
 
 
