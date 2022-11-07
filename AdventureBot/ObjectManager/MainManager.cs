@@ -62,34 +62,40 @@ internal class MainManager : Singleton<MainManager>
         LoadAssembly(Assembly.LoadFrom(path));
     }
 
+    private void LoadPythonObject(object value)
+    {
+        switch (value)
+        {
+            case PythonType type:
+                LoadType(type);
+                return;
+            case PythonModule module:
+            {
+                var storage = ((ObjectDictionaryExpando)module.Scope.Storage).Dictionary;
+                var nested = storage.TryGetValue("__all__", out var all)
+                    ? ((IList<object>)all).Cast<string>()
+                    : storage.Keys.Cast<string>().Where(var => !var.StartsWith("_"));
+
+                foreach (var name in nested)
+                {
+                    LoadPythonObject(storage[name]);
+                }
+
+                return;
+            }
+        }
+    }
+
     private void LoadPythonInternal(ScriptEngine engine, string module)
     {
-        var parts = module.Split('.').ToList();
-        parts.Add("__all__");
-        using var currPart = parts.GetEnumerator();
-
-        currPart.MoveNext();
         var scope = engine.ImportModule(module);
 
-        currPart.MoveNext();
-        dynamic prev = null;
-        var curr = scope.GetVariable(currPart.Current);
-
-        while (currPart.MoveNext())
+        var nested = scope.ContainsVariable("__all__")
+            ? ((IList<object>)scope.GetVariable("__all__")).Cast<string>()
+            : scope.GetVariableNames().Where(x => !x.StartsWith("_"));
+        foreach (var variable in nested.Select(scope.GetVariable))
         {
-            prev = curr;
-            curr = ((ObjectDictionaryExpando)((PythonModule)curr).Scope.Storage).Dictionary[currPart.Current];
-        }
-
-        foreach (var name in ((IList<object>)curr).Cast<string>())
-        {
-            var value = ((ObjectDictionaryExpando)((PythonModule)prev).Scope.Storage).Dictionary[name];
-            if (value is not PythonType type)
-            {
-                continue;
-            }
-
-            LoadType(type);
+            LoadPythonObject(variable);
         }
     }
 
@@ -104,7 +110,7 @@ internal class MainManager : Singleton<MainManager>
         var paths = engine.GetSearchPaths().ToList();
         paths.AddRange(Configuration.Config.GetSection("python_paths").GetChildren().Select(path => path.Value));
         engine.SetSearchPaths(paths);
-        
+
         try
         {
             LoadPythonInternal(engine, module);
