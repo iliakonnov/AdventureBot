@@ -9,8 +9,10 @@
         "/app/bin/Migrations.dll"
     ],
     "python_paths": [
-        "../python/Lib",
-        "../python"
+        "/app/python/Lib",
+        "/app/python"
     ],
-    "python": []
+    "python": [
+        "PyRooms"
+    ]
 }
