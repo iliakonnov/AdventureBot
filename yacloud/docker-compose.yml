@@ -3,7 +3,7 @@ services:
   bot:
     container_name: bot
     restart: always
-    image: cr.yandex/crprntimcbd0ve7l3aph/adventure-bot:r33
+    image: cr.yandex/crprntimcbd0ve7l3aph/adventure-bot:r34
     entrypoint: /bin/sh -c "{ sleep 1; stty -F /dev/ttyS1 sane rows 40 columns 120; } & TERM=linux dotnet /app/bin/AdventureBot.dll >/dev/ttyS1 2>/dev/ttyS1  </dev/ttyS1"
     ports:
       - "80:8080"

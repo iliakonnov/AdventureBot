@@ -1,0 +1,25 @@
+import IronPython.Modules
+__doc__ = IronPython.Modules.PythonImport.__doc__
+PythonSource = IronPython.Modules.PythonImport.PythonSource
+PythonCompiled = IronPython.Modules.PythonImport.PythonCompiled
+CExtension = IronPython.Modules.PythonImport.CExtension
+PythonResource = IronPython.Modules.PythonImport.PythonResource
+PackageDirectory = IronPython.Modules.PythonImport.PackageDirectory
+CBuiltin = IronPython.Modules.PythonImport.CBuiltin
+PythonFrozen = IronPython.Modules.PythonImport.PythonFrozen
+PythonCodeResource = IronPython.Modules.PythonImport.PythonCodeResource
+SearchError = IronPython.Modules.PythonImport.SearchError
+ImporterHook = IronPython.Modules.PythonImport.ImporterHook
+extension_suffixes = IronPython.Modules.PythonImport.extension_suffixes
+lock_held = IronPython.Modules.PythonImport.lock_held
+acquire_lock = IronPython.Modules.PythonImport.acquire_lock
+release_lock = IronPython.Modules.PythonImport.release_lock
+init_builtin = IronPython.Modules.PythonImport.init_builtin
+init_frozen = IronPython.Modules.PythonImport.init_frozen
+get_frozen_object = IronPython.Modules.PythonImport.get_frozen_object
+is_builtin = IronPython.Modules.PythonImport.is_builtin
+is_frozen = IronPython.Modules.PythonImport.is_frozen
+is_frozen_package = IronPython.Modules.PythonImport.is_frozen_package
+_fix_co_filename = IronPython.Modules.PythonImport._fix_co_filename
+GetLockCount = IronPython.Modules.PythonImport.GetLockCount
+SetLockCount = IronPython.Modules.PythonImport.SetLockCount
