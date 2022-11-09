@@ -33,6 +33,8 @@
         <PackageReference Include="NLog.Targets.Fluentd.Net5" Version="1.0.2" />
         <PackageReference Include="prometheus-net" Version="6.0.0" />
         <PackageReference Include="System.Security.Permissions" Version="6.0.0" />
+        <PackageReference Include="Ydb.Sdk" Version="0.0.5" />
+        <PackageReference Include="Ydb.Sdk.Yc.Auth" Version="0.0.5" />
     </ItemGroup>
     <ItemGroup>
         <None Update="nlog.config">

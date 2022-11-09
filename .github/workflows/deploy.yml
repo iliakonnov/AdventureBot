@@ -20,7 +20,7 @@ jobs:
         with:
           dotnet-version: '6.0.x'
       - name: Update python stubs
-        run: dotnet run --project PythonStubs ./python/stubs
+        run: dotnet run --project src/PythonStubs ./python/stubs
       - name: Patch docker-compose
         shell: bash
         run: |
