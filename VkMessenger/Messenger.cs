@@ -145,7 +145,7 @@ public class Messenger : IMessenger
 
                 await parameters.Update(_api, result);
             }
-            catch (TimeoutException e)
+            catch (OperationCanceledException e) when (e.InnerException is TimeoutException)
             {
                 ApiRequestsFailed.Inc();
                 Logger.Warn(e, "longpoll timed out");
