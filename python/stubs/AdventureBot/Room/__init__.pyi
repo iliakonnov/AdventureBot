@@ -109,20 +109,20 @@ class RoomBase(AdventureBot.Room.IRoom, System.Object, abc.ABC):
     def __init__(self, ):
         ...
 
-    def GetRoomVariables(self, user: AdventureBot.User.User, ) -> AdventureBot.VariableContainer:
-        ...
-
     @abc.abstractmethod
     def OnMessage(self, user: AdventureBot.User.User, message: AdventureBot.Messenger.ReceivedMessage, ) -> None:
+        ...
+
+    def OnEnter(self, user: AdventureBot.User.User, ) -> None:
         ...
 
     def OnLeave(self, user: AdventureBot.User.User, ) -> bool:
         ...
 
-    def UpdateCounter(self, containerName: str, diff: int, ) -> int:
+    def GetRoomVariables(self, user: AdventureBot.User.User, ) -> AdventureBot.VariableContainer:
         ...
 
-    def OnEnter(self, user: AdventureBot.User.User, ) -> None:
+    def UpdateCounter(self, containerName: str, diff: int, ) -> int:
         ...
 
     def OnReturn(self, user: AdventureBot.User.User, ) -> None:
@@ -270,10 +270,6 @@ class BossBase(AdventureBot.Room.IRoom, AdventureBot.Room.IMonster, AdventureBot
     def __init__(self, ):
         ...
 
-    @abc.abstractmethod
-    def GetDamage(self, user: AdventureBot.User.User, ) -> System.Decimal:
-        ...
-
     def MakeDamage(self, user: AdventureBot.User.User, damage: System.Decimal, ) -> None:
         ...
 
@@ -287,6 +283,10 @@ class BossBase(AdventureBot.Room.IRoom, AdventureBot.Room.IMonster, AdventureBot
         ...
 
     def OnLeave(self, user: AdventureBot.User.User, ) -> bool:
+        ...
+
+    @abc.abstractmethod
+    def GetDamage(self, user: AdventureBot.User.User, ) -> System.Decimal:
         ...
 
     def GetActions(self, user: AdventureBot.User.User, ) -> System.Array[System.Array[str]]:
@@ -508,18 +508,6 @@ class MonsterBase(AdventureBot.Room.IRoom, AdventureBot.Room.IMonster, Adventure
     def OnRunaway(self, user: AdventureBot.User.User, ) -> bool:
         ...
 
-    @abc.abstractmethod
-    def GetDamage(self, user: AdventureBot.User.User, ) -> System.Decimal:
-        ...
-
-    @abc.abstractmethod
-    def Enter(self, user: AdventureBot.User.User, buttons: System.Array[System.Array[str]], ) -> None:
-        ...
-
-    @abc.abstractmethod
-    def OnWon(self, user: AdventureBot.User.User, ) -> None:
-        ...
-
     def GetCurrentHealth(self, user: AdventureBot.User.User, ) -> System.Decimal:
         ...
 
@@ -540,5 +528,17 @@ class MonsterBase(AdventureBot.Room.IRoom, AdventureBot.Room.IMonster, Adventure
         ...
 
     def GetActions(self, user: AdventureBot.User.User, ) -> System.Array[System.Array[str]]:
+        ...
+
+    @abc.abstractmethod
+    def GetDamage(self, user: AdventureBot.User.User, ) -> System.Decimal:
+        ...
+
+    @abc.abstractmethod
+    def Enter(self, user: AdventureBot.User.User, buttons: System.Array[System.Array[str]], ) -> None:
+        ...
+
+    @abc.abstractmethod
+    def OnWon(self, user: AdventureBot.User.User, ) -> None:
         ...
 

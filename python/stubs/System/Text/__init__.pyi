@@ -1699,6 +1699,9 @@ class Decoder(System.Object, abc.ABC):
     def __init__(self, ):
         ...
 
+    def Reset(self, ) -> None:
+        ...
+
     @abc.abstractmethod
     @typing.overload
     def GetCharCount(self, bytes: System.Array[int], index: int, count: int, ) -> int:
@@ -1731,9 +1734,6 @@ class Decoder(System.Object, abc.ABC):
 
     @typing.overload
     def GetChars(self, bytes: System.ReadOnlySpan[int], chars: System.Span[str], flush: bool, ) -> int:
-        ...
-
-    def Reset(self, ) -> None:
         ...
 
     @typing.overload

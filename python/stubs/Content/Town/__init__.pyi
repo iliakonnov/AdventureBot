@@ -14,51 +14,7 @@ import Content.Town
 import Content.Quests
 
 
-class Guild(AdventureBot.Room.IRoom, AdventureBot.Room.RoomBase):
-    @typing.overload
-    def __init__(self, **kwargs):
-        ...
-
-    # static fields
-    Id: str = ...
-
-    # properties
-    @property
-    def Name(self) -> str:
-        ...
-
-    @property
-    def Identifier(self) -> str:
-        ...
-
-    @property
-    def Routes(self) -> System.Array[AdventureBot.Room.MessageReceived]:
-        ...
-    @Routes.setter
-    def Routes(self, val: System.Array[AdventureBot.Room.MessageReceived]):
-        ...
-
-    @property
-    def Buttons(self) -> AdventureBot.NullableDictionary[AdventureBot.Room.MessageReceived, System.Collections.Generic.Dictionary[str, AdventureBot.Room.MessageReceived]]:
-        ...
-    @Buttons.setter
-    def Buttons(self, val: AdventureBot.NullableDictionary[AdventureBot.Room.MessageReceived, System.Collections.Generic.Dictionary[str, AdventureBot.Room.MessageReceived]]):
-        ...
-
-    # methods
-    def __init__(self, ):
-        ...
-
-    def OnEnter(self, user: AdventureBot.User.User, ) -> None:
-        ...
-
-    def OnLeave(self, user: AdventureBot.User.User, ) -> bool:
-        ...
-
-    def OnMessage(self, user: AdventureBot.User.User, message: AdventureBot.Messenger.ReceivedMessage, ) -> None:
-        ...
-
-class Town(AdventureBot.Room.IRoom, AdventureBot.Room.RoomBase):
+class Market(AdventureBot.Room.IRoom, AdventureBot.Room.RoomBase):
     @typing.overload
     def __init__(self, **kwargs):
         ...
@@ -93,9 +49,6 @@ class Town(AdventureBot.Room.IRoom, AdventureBot.Room.RoomBase):
     def __init__(self, ):
         ...
 
-    def OnReturn(self, user: AdventureBot.User.User, ) -> None:
-        ...
-
     def OnEnter(self, user: AdventureBot.User.User, ) -> None:
         ...
 
@@ -103,6 +56,18 @@ class Town(AdventureBot.Room.IRoom, AdventureBot.Room.RoomBase):
         ...
 
     def OnMessage(self, user: AdventureBot.User.User, message: AdventureBot.Messenger.ReceivedMessage, ) -> None:
+        ...
+
+    def Buy(self, user: AdventureBot.User.User, message: AdventureBot.Messenger.ReceivedMessage, ) -> None:
+        ...
+
+    def Buy2(self, user: AdventureBot.User.User, message: AdventureBot.Messenger.ReceivedMessage, ) -> None:
+        ...
+
+    def Sell(self, user: AdventureBot.User.User, message: AdventureBot.Messenger.ReceivedMessage, ) -> None:
+        ...
+
+    def Sell2(self, user: AdventureBot.User.User, message: AdventureBot.Messenger.ReceivedMessage, ) -> None:
         ...
 
 class Gym(AdventureBot.Room.IRoom, AdventureBot.Room.RoomBase):
@@ -180,7 +145,7 @@ class ShopExtensions(System.Object, abc.ABC):
     def AvailableToSell(items: System.Collections.Generic.IEnumerable[AdventureBot.Item.ItemInfo], ) -> System.Collections.Generic.List[AdventureBot.Item.ItemInfo]:
         ...
 
-class Market(AdventureBot.Room.IRoom, AdventureBot.Room.RoomBase):
+class Town(AdventureBot.Room.IRoom, AdventureBot.Room.RoomBase):
     @typing.overload
     def __init__(self, **kwargs):
         ...
@@ -215,6 +180,9 @@ class Market(AdventureBot.Room.IRoom, AdventureBot.Room.RoomBase):
     def __init__(self, ):
         ...
 
+    def OnReturn(self, user: AdventureBot.User.User, ) -> None:
+        ...
+
     def OnEnter(self, user: AdventureBot.User.User, ) -> None:
         ...
 
@@ -224,16 +192,111 @@ class Market(AdventureBot.Room.IRoom, AdventureBot.Room.RoomBase):
     def OnMessage(self, user: AdventureBot.User.User, message: AdventureBot.Messenger.ReceivedMessage, ) -> None:
         ...
 
-    def Buy(self, user: AdventureBot.User.User, message: AdventureBot.Messenger.ReceivedMessage, ) -> None:
+class Mirror(AdventureBot.Room.IRoom, AdventureBot.Room.RoomBase):
+    @typing.overload
+    def __init__(self, **kwargs):
         ...
 
-    def Buy2(self, user: AdventureBot.User.User, message: AdventureBot.Messenger.ReceivedMessage, ) -> None:
+    # static fields
+    Id: str = ...
+
+    # properties
+    @property
+    def Name(self) -> str:
         ...
 
-    def Sell(self, user: AdventureBot.User.User, message: AdventureBot.Messenger.ReceivedMessage, ) -> None:
+    @property
+    def Identifier(self) -> str:
         ...
 
-    def Sell2(self, user: AdventureBot.User.User, message: AdventureBot.Messenger.ReceivedMessage, ) -> None:
+    @property
+    def Routes(self) -> System.Array[AdventureBot.Room.MessageReceived]:
+        ...
+    @Routes.setter
+    def Routes(self, val: System.Array[AdventureBot.Room.MessageReceived]):
+        ...
+
+    @property
+    def Buttons(self) -> AdventureBot.NullableDictionary[AdventureBot.Room.MessageReceived, System.Collections.Generic.Dictionary[str, AdventureBot.Room.MessageReceived]]:
+        ...
+    @Buttons.setter
+    def Buttons(self, val: AdventureBot.NullableDictionary[AdventureBot.Room.MessageReceived, System.Collections.Generic.Dictionary[str, AdventureBot.Room.MessageReceived]]):
+        ...
+
+    # methods
+    def __init__(self, ):
+        ...
+
+    def OnEnter(self, user: AdventureBot.User.User, ) -> None:
+        ...
+
+    def OnLeave(self, user: AdventureBot.User.User, ) -> bool:
+        ...
+
+    def OnMessage(self, user: AdventureBot.User.User, message: AdventureBot.Messenger.ReceivedMessage, ) -> None:
+        ...
+
+    def ChangeName(self, user: AdventureBot.User.User, message: AdventureBot.Messenger.ReceivedMessage, ) -> None:
+        ...
+
+    def ShowStats(self, user: AdventureBot.User.User, ) -> None:
+        ...
+
+    @staticmethod
+    def EditButtons(user: AdventureBot.User.User, ) -> System.Array[System.Array[str]]:
+        ...
+
+    def EditStats(self, user: AdventureBot.User.User, message: AdventureBot.Messenger.ReceivedMessage, ) -> None:
+        ...
+
+    def Inventory(self, user: AdventureBot.User.User, message: AdventureBot.Messenger.ReceivedMessage, ) -> None:
+        ...
+
+class Tavern(AdventureBot.Room.IRoom, AdventureBot.Room.BetterRoom.BetterRoomBase[Content.Town.Tavern]):
+    @typing.overload
+    def __init__(self, **kwargs):
+        self._actions: System.Collections.Generic.Dictionary[System.Type, AdventureBot.Room.BetterRoom.ActionBase]
+        self._rootAction: AdventureBot.Room.BetterRoom.ActionBase
+        ...
+
+    # static fields
+    Id: str = ...
+
+    # properties
+    @property
+    def Name(self) -> str:
+        ...
+
+    @property
+    def Identifier(self) -> str:
+        ...
+
+    @property
+    def actions(self) -> System.Array[System.Type]:
+        ...
+
+    @property
+    def Routes(self) -> System.Array[AdventureBot.Room.MessageReceived]:
+        ...
+    @Routes.setter
+    def Routes(self, val: System.Array[AdventureBot.Room.MessageReceived]):
+        ...
+
+    @property
+    def Buttons(self) -> AdventureBot.NullableDictionary[AdventureBot.Room.MessageReceived, System.Collections.Generic.Dictionary[str, AdventureBot.Room.MessageReceived]]:
+        ...
+    @Buttons.setter
+    def Buttons(self, val: AdventureBot.NullableDictionary[AdventureBot.Room.MessageReceived, System.Collections.Generic.Dictionary[str, AdventureBot.Room.MessageReceived]]):
+        ...
+
+    # methods
+    def __init__(self, ):
+        ...
+
+    def OnEnter(self, user: AdventureBot.User.User, ) -> None:
+        ...
+
+    def TryFindQuest(self, user: AdventureBot.User.User, questId: str, varSuffix: str, ) -> System.Tuple[System.Guid, Content.Quests.KillMonsterBase]:
         ...
 
 class Adventures(AdventureBot.Room.IRoom, AdventureBot.Room.RoomBase):
@@ -309,54 +372,7 @@ class Adventures(AdventureBot.Room.IRoom, AdventureBot.Room.RoomBase):
     def SwitchRoom(user: AdventureBot.User.User, room: str, ) -> None:
         ...
 
-class Tavern(AdventureBot.Room.IRoom, AdventureBot.Room.BetterRoom.BetterRoomBase[Content.Town.Tavern]):
-    @typing.overload
-    def __init__(self, **kwargs):
-        self._actions: System.Collections.Generic.Dictionary[System.Type, AdventureBot.Room.BetterRoom.ActionBase]
-        self._rootAction: AdventureBot.Room.BetterRoom.ActionBase
-        ...
-
-    # static fields
-    Id: str = ...
-
-    # properties
-    @property
-    def Name(self) -> str:
-        ...
-
-    @property
-    def Identifier(self) -> str:
-        ...
-
-    @property
-    def actions(self) -> System.Array[System.Type]:
-        ...
-
-    @property
-    def Routes(self) -> System.Array[AdventureBot.Room.MessageReceived]:
-        ...
-    @Routes.setter
-    def Routes(self, val: System.Array[AdventureBot.Room.MessageReceived]):
-        ...
-
-    @property
-    def Buttons(self) -> AdventureBot.NullableDictionary[AdventureBot.Room.MessageReceived, System.Collections.Generic.Dictionary[str, AdventureBot.Room.MessageReceived]]:
-        ...
-    @Buttons.setter
-    def Buttons(self, val: AdventureBot.NullableDictionary[AdventureBot.Room.MessageReceived, System.Collections.Generic.Dictionary[str, AdventureBot.Room.MessageReceived]]):
-        ...
-
-    # methods
-    def __init__(self, ):
-        ...
-
-    def OnEnter(self, user: AdventureBot.User.User, ) -> None:
-        ...
-
-    def TryFindQuest(self, user: AdventureBot.User.User, questId: str, varSuffix: str, ) -> System.Tuple[System.Guid, Content.Quests.KillMonsterBase]:
-        ...
-
-class Mirror(AdventureBot.Room.IRoom, AdventureBot.Room.RoomBase):
+class Guild(AdventureBot.Room.IRoom, AdventureBot.Room.RoomBase):
     @typing.overload
     def __init__(self, **kwargs):
         ...
@@ -398,21 +414,5 @@ class Mirror(AdventureBot.Room.IRoom, AdventureBot.Room.RoomBase):
         ...
 
     def OnMessage(self, user: AdventureBot.User.User, message: AdventureBot.Messenger.ReceivedMessage, ) -> None:
-        ...
-
-    def ChangeName(self, user: AdventureBot.User.User, message: AdventureBot.Messenger.ReceivedMessage, ) -> None:
-        ...
-
-    def ShowStats(self, user: AdventureBot.User.User, ) -> None:
-        ...
-
-    @staticmethod
-    def EditButtons(user: AdventureBot.User.User, ) -> System.Array[System.Array[str]]:
-        ...
-
-    def EditStats(self, user: AdventureBot.User.User, message: AdventureBot.Messenger.ReceivedMessage, ) -> None:
-        ...
-
-    def Inventory(self, user: AdventureBot.User.User, message: AdventureBot.Messenger.ReceivedMessage, ) -> None:
         ...
 

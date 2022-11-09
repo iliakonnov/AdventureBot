@@ -13,60 +13,6 @@ import System
 import AdventureBot
 
 
-class Sergeant(AdventureBot.Room.BetterRoom.ActionBase[Content.Town.Tavern]):
-    @typing.overload
-    def __init__(self, **kwargs):
-        self.Buttons: System.Collections.Generic.Dictionary[str, AdventureBot.Room.MessageReceived]
-        self.Room: AdventureBot.Room.BetterRoom.BetterRoomBase
-        ...
-
-    # static fields
-
-    # properties
-    @property
-    def Room(self) -> Content.Town.Tavern:
-        ...
-
-    # methods
-    def __init__(self, room: Content.Town.Tavern, ):
-        ...
-
-    def Yes(self, user: AdventureBot.User.User, message: AdventureBot.Messenger.ReceivedMessage, ) -> None:
-        ...
-
-    def Reward(self, user: AdventureBot.User.User, message: AdventureBot.Messenger.ReceivedMessage, ) -> None:
-        ...
-
-    def No(self, user: AdventureBot.User.User, message: AdventureBot.Messenger.ReceivedMessage, ) -> None:
-        ...
-
-class Owner(AdventureBot.Room.BetterRoom.ActionBase[Content.Town.Tavern]):
-    @typing.overload
-    def __init__(self, **kwargs):
-        self.Buttons: System.Collections.Generic.Dictionary[str, AdventureBot.Room.MessageReceived]
-        self.Room: AdventureBot.Room.BetterRoom.BetterRoomBase
-        ...
-
-    # static fields
-
-    # properties
-    @property
-    def Room(self) -> Content.Town.Tavern:
-        ...
-
-    # methods
-    def __init__(self, room: Content.Town.Tavern, ):
-        ...
-
-    def Business(self, user: AdventureBot.User.User, message: AdventureBot.Messenger.ReceivedMessage, ) -> None:
-        ...
-
-    def Gossip(self, user: AdventureBot.User.User, message: AdventureBot.Messenger.ReceivedMessage, ) -> None:
-        ...
-
-    def Back(self, user: AdventureBot.User.User, message: AdventureBot.Messenger.ReceivedMessage, ) -> None:
-        ...
-
 class MainAction(AdventureBot.Room.BetterRoom.ActionBase[Content.Town.Tavern]):
     @typing.overload
     def __init__(self, **kwargs):
@@ -132,5 +78,59 @@ class Leaderboard(AdventureBot.Room.BetterRoom.ActionBase[Content.Town.Tavern]):
         ...
 
     def Away(self, user: AdventureBot.User.User, message: AdventureBot.Messenger.ReceivedMessage, ) -> None:
+        ...
+
+class Owner(AdventureBot.Room.BetterRoom.ActionBase[Content.Town.Tavern]):
+    @typing.overload
+    def __init__(self, **kwargs):
+        self.Buttons: System.Collections.Generic.Dictionary[str, AdventureBot.Room.MessageReceived]
+        self.Room: AdventureBot.Room.BetterRoom.BetterRoomBase
+        ...
+
+    # static fields
+
+    # properties
+    @property
+    def Room(self) -> Content.Town.Tavern:
+        ...
+
+    # methods
+    def __init__(self, room: Content.Town.Tavern, ):
+        ...
+
+    def Business(self, user: AdventureBot.User.User, message: AdventureBot.Messenger.ReceivedMessage, ) -> None:
+        ...
+
+    def Gossip(self, user: AdventureBot.User.User, message: AdventureBot.Messenger.ReceivedMessage, ) -> None:
+        ...
+
+    def Back(self, user: AdventureBot.User.User, message: AdventureBot.Messenger.ReceivedMessage, ) -> None:
+        ...
+
+class Sergeant(AdventureBot.Room.BetterRoom.ActionBase[Content.Town.Tavern]):
+    @typing.overload
+    def __init__(self, **kwargs):
+        self.Buttons: System.Collections.Generic.Dictionary[str, AdventureBot.Room.MessageReceived]
+        self.Room: AdventureBot.Room.BetterRoom.BetterRoomBase
+        ...
+
+    # static fields
+
+    # properties
+    @property
+    def Room(self) -> Content.Town.Tavern:
+        ...
+
+    # methods
+    def __init__(self, room: Content.Town.Tavern, ):
+        ...
+
+    def Yes(self, user: AdventureBot.User.User, message: AdventureBot.Messenger.ReceivedMessage, ) -> None:
+        ...
+
+    def Reward(self, user: AdventureBot.User.User, message: AdventureBot.Messenger.ReceivedMessage, ) -> None:
+        ...
+
+    def No(self, user: AdventureBot.User.User, message: AdventureBot.Messenger.ReceivedMessage, ) -> None:
         ...
 

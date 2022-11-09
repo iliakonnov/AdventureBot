@@ -10,7 +10,7 @@ import AdventureBot.User
 import AdventureBot.Messenger
 
 
-class RemoveOfferAction(Content.Town.Auction.RemoveOfferActionBase):
+class AllOffersAction(Content.Town.Auction.AllOffersActionBase):
     @typing.overload
     def __init__(self, **kwargs):
         self.Buttons: System.Collections.Generic.Dictionary[str, AdventureBot.Room.MessageReceived]
@@ -28,7 +28,43 @@ class RemoveOfferAction(Content.Town.Auction.RemoveOfferActionBase):
     def __init__(self, room: Content.Town.Auction.AuctionRoom, ):
         ...
 
-class AddOfferAction(Content.Town.Auction.AddOfferActionBase):
+class PriceGroupSelectionAction(Content.Town.Auction.PriceGroupSelectionActionBase):
+    @typing.overload
+    def __init__(self, **kwargs):
+        self.Buttons: System.Collections.Generic.Dictionary[str, AdventureBot.Room.MessageReceived]
+        self.Room: AdventureBot.Room.BetterRoom.BetterRoomBase
+        ...
+
+    # static fields
+
+    # properties
+    @property
+    def Room(self) -> Content.Town.Auction.AuctionRoom:
+        ...
+
+    # methods
+    def __init__(self, room: Content.Town.Auction.AuctionRoom, ):
+        ...
+
+class MyOffersAction(Content.Town.Auction.MyOffersActionBase):
+    @typing.overload
+    def __init__(self, **kwargs):
+        self.Buttons: System.Collections.Generic.Dictionary[str, AdventureBot.Room.MessageReceived]
+        self.Room: AdventureBot.Room.BetterRoom.BetterRoomBase
+        ...
+
+    # static fields
+
+    # properties
+    @property
+    def Room(self) -> Content.Town.Auction.AuctionRoom:
+        ...
+
+    # methods
+    def __init__(self, room: Content.Town.Auction.AuctionRoom, ):
+        ...
+
+class RemoveOfferAction(Content.Town.Auction.RemoveOfferActionBase):
     @typing.overload
     def __init__(self, **kwargs):
         self.Buttons: System.Collections.Generic.Dictionary[str, AdventureBot.Room.MessageReceived]
@@ -76,25 +112,7 @@ class MainAction(AdventureBot.Room.BetterRoom.ActionBase[Content.Town.Auction.Au
     def Exit(self, user: AdventureBot.User.User, message: AdventureBot.Messenger.ReceivedMessage, ) -> None:
         ...
 
-class PriceSelectionAction(Content.Town.Auction.PriceSelectionActionBase):
-    @typing.overload
-    def __init__(self, **kwargs):
-        self.Buttons: System.Collections.Generic.Dictionary[str, AdventureBot.Room.MessageReceived]
-        self.Room: AdventureBot.Room.BetterRoom.BetterRoomBase
-        ...
-
-    # static fields
-
-    # properties
-    @property
-    def Room(self) -> Content.Town.Auction.AuctionRoom:
-        ...
-
-    # methods
-    def __init__(self, room: Content.Town.Auction.AuctionRoom, ):
-        ...
-
-class PriceGroupSelectionAction(Content.Town.Auction.PriceGroupSelectionActionBase):
+class AddOfferAction(Content.Town.Auction.AddOfferActionBase):
     @typing.overload
     def __init__(self, **kwargs):
         self.Buttons: System.Collections.Generic.Dictionary[str, AdventureBot.Room.MessageReceived]
@@ -130,25 +148,7 @@ class QuantitySelectionAction(Content.Town.Auction.QuantitySelectionActionBase):
     def __init__(self, room: Content.Town.Auction.AuctionRoom, ):
         ...
 
-class AllOffersAction(Content.Town.Auction.AllOffersActionBase):
-    @typing.overload
-    def __init__(self, **kwargs):
-        self.Buttons: System.Collections.Generic.Dictionary[str, AdventureBot.Room.MessageReceived]
-        self.Room: AdventureBot.Room.BetterRoom.BetterRoomBase
-        ...
-
-    # static fields
-
-    # properties
-    @property
-    def Room(self) -> Content.Town.Auction.AuctionRoom:
-        ...
-
-    # methods
-    def __init__(self, room: Content.Town.Auction.AuctionRoom, ):
-        ...
-
-class MyOffersAction(Content.Town.Auction.MyOffersActionBase):
+class PriceSelectionAction(Content.Town.Auction.PriceSelectionActionBase):
     @typing.overload
     def __init__(self, **kwargs):
         self.Buttons: System.Collections.Generic.Dictionary[str, AdventureBot.Room.MessageReceived]

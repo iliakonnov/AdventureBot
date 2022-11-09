@@ -73,24 +73,47 @@ class DbDataReader(System.Data.IDataReader, System.IDisposable, System.Data.IDat
     def Close(self, ) -> None:
         ...
 
+    def CloseAsync(self, ) -> System.Threading.Tasks.Task:
+        ...
+
+    @typing.overload
+    def Dispose(self, ) -> None:
+        ...
+
+    @typing.overload
+    def Dispose(self, disposing: bool, ) -> None:
+        ...
+
+    def DisposeAsync(self, ) -> System.Threading.Tasks.ValueTask:
+        ...
+
+    @abc.abstractmethod
+    def GetDataTypeName(self, ordinal: int, ) -> str:
+        ...
+
+    @abc.abstractmethod
+    def GetEnumerator(self, ) -> System.Collections.IEnumerator:
+        ...
+
+    @abc.abstractmethod
+    def GetFieldType(self, ordinal: int, ) -> System.Type:
+        ...
+
+    @abc.abstractmethod
+    def GetName(self, ordinal: int, ) -> str:
+        ...
+
+    @abc.abstractmethod
+    def GetOrdinal(self, name: str, ) -> int:
+        ...
+
     def GetSchemaTable(self, ) -> System.Data.DataTable:
         ...
 
-    @abc.abstractmethod
-    def NextResult(self, ) -> bool:
+    def GetSchemaTableAsync(self, cancellationToken: System.Threading.CancellationToken = ..., ) -> System.Threading.Tasks.Task[System.Data.DataTable]:
         ...
 
-    @abc.abstractmethod
-    def Read(self, ) -> bool:
-        ...
-
-    def GetProviderSpecificFieldType(self, ordinal: int, ) -> System.Type:
-        ...
-
-    def GetProviderSpecificValue(self, ordinal: int, ) -> System.Object:
-        ...
-
-    def GetProviderSpecificValues(self, values: System.Array[System.Object], ) -> int:
+    def GetColumnSchemaAsync(self, cancellationToken: System.Threading.CancellationToken = ..., ) -> System.Threading.Tasks.Task[System.Collections.ObjectModel.ReadOnlyCollection[System.Data.Common.DbColumn]]:
         ...
 
     @abc.abstractmethod
@@ -113,8 +136,13 @@ class DbDataReader(System.Data.IDataReader, System.IDisposable, System.Data.IDat
     def GetChars(self, ordinal: int, dataOffset: int, buffer: System.Array[str], bufferOffset: int, length: int, ) -> int:
         ...
 
-    @abc.abstractmethod
-    def GetDataTypeName(self, ordinal: int, ) -> str:
+    def GetData(self, ordinal: int, ) -> System.Data.Common.DbDataReader:
+        ...
+
+    def GetData(self, ordinal: int, ) -> System.Data.IDataReader:
+        ...
+
+    def GetDbDataReader(self, ordinal: int, ) -> System.Data.Common.DbDataReader:
         ...
 
     @abc.abstractmethod
@@ -127,10 +155,6 @@ class DbDataReader(System.Data.IDataReader, System.IDisposable, System.Data.IDat
 
     @abc.abstractmethod
     def GetDouble(self, ordinal: int, ) -> float:
-        ...
-
-    @abc.abstractmethod
-    def GetFieldType(self, ordinal: int, ) -> System.Type:
         ...
 
     @abc.abstractmethod
@@ -153,67 +177,27 @@ class DbDataReader(System.Data.IDataReader, System.IDisposable, System.Data.IDat
     def GetInt64(self, ordinal: int, ) -> int:
         ...
 
-    @abc.abstractmethod
-    def GetName(self, ordinal: int, ) -> str:
+    def GetProviderSpecificFieldType(self, ordinal: int, ) -> System.Type:
         ...
 
-    @abc.abstractmethod
-    def GetOrdinal(self, name: str, ) -> int:
+    def GetProviderSpecificValue(self, ordinal: int, ) -> System.Object:
+        ...
+
+    def GetProviderSpecificValues(self, values: System.Array[System.Object], ) -> int:
         ...
 
     @abc.abstractmethod
     def GetString(self, ordinal: int, ) -> str:
         ...
 
-    @abc.abstractmethod
-    def GetValue(self, ordinal: int, ) -> System.Object:
-        ...
-
-    @abc.abstractmethod
-    def GetValues(self, values: System.Array[System.Object], ) -> int:
-        ...
-
-    @abc.abstractmethod
-    def IsDBNull(self, ordinal: int, ) -> bool:
-        ...
-
-    @abc.abstractmethod
-    def GetEnumerator(self, ) -> System.Collections.IEnumerator:
-        ...
-
-    def CloseAsync(self, ) -> System.Threading.Tasks.Task:
-        ...
-
-    @typing.overload
-    def Dispose(self, ) -> None:
-        ...
-
-    @typing.overload
-    def Dispose(self, disposing: bool, ) -> None:
-        ...
-
-    def DisposeAsync(self, ) -> System.Threading.Tasks.ValueTask:
-        ...
-
-    def GetSchemaTableAsync(self, cancellationToken: System.Threading.CancellationToken = ..., ) -> System.Threading.Tasks.Task[System.Data.DataTable]:
-        ...
-
-    def GetColumnSchemaAsync(self, cancellationToken: System.Threading.CancellationToken = ..., ) -> System.Threading.Tasks.Task[System.Collections.ObjectModel.ReadOnlyCollection[System.Data.Common.DbColumn]]:
-        ...
-
-    def GetData(self, ordinal: int, ) -> System.Data.Common.DbDataReader:
-        ...
-
-    def GetData(self, ordinal: int, ) -> System.Data.IDataReader:
-        ...
-
-    def GetDbDataReader(self, ordinal: int, ) -> System.Data.Common.DbDataReader:
-        ...
-
     def GetStream(self, ordinal: int, ) -> System.IO.Stream:
         ...
 
     def GetTextReader(self, ordinal: int, ) -> System.IO.TextReader:
+        ...
+
+    @abc.abstractmethod
+    def GetValue(self, ordinal: int, ) -> System.Object:
         ...
 
     def GetFieldValue(self, ordinal: int, ) -> T:
@@ -227,12 +211,28 @@ class DbDataReader(System.Data.IDataReader, System.IDisposable, System.Data.IDat
     def GetFieldValueAsync(self, ordinal: int, cancellationToken: System.Threading.CancellationToken, ) -> System.Threading.Tasks.Task[T]:
         ...
 
+    @abc.abstractmethod
+    def GetValues(self, values: System.Array[System.Object], ) -> int:
+        ...
+
+    @abc.abstractmethod
+    def IsDBNull(self, ordinal: int, ) -> bool:
+        ...
+
     @typing.overload
     def IsDBNullAsync(self, ordinal: int, ) -> System.Threading.Tasks.Task[bool]:
         ...
 
     @typing.overload
     def IsDBNullAsync(self, ordinal: int, cancellationToken: System.Threading.CancellationToken, ) -> System.Threading.Tasks.Task[bool]:
+        ...
+
+    @abc.abstractmethod
+    def NextResult(self, ) -> bool:
+        ...
+
+    @abc.abstractmethod
+    def Read(self, ) -> bool:
         ...
 
     @typing.overload

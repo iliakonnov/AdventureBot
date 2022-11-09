@@ -3,38 +3,12 @@ import typing, abc, enum
 from stubhelper import *
 
 import AdventureBot.Quest
-import Content.Quests
-import AdventureBot.Room
 import AdventureBot.User
 import System
+import Content.Quests
+import AdventureBot.Room
 
 
-class KillMonster(AdventureBot.Quest.IQuest, Content.Quests.KillMonsterBase):
-    @typing.overload
-    def __init__(self, **kwargs):
-        ...
-
-    # static fields
-    Id: str = ...
-
-    # properties
-    @property
-    def Identifer(self) -> str:
-        ...
-
-    # methods
-    def __init__(self, ):
-        ...
-
-class IQuestMonster(AdventureBot.Room.IMonster, AdventureBot.Room.IRoom, abc.ABC):
-    @typing.overload
-    def __init__(self, **kwargs):
-        ...
-
-    # static fields
-
-    # properties
-    # methods
 class KillMonsterBase(AdventureBot.Quest.IQuest, AdventureBot.Quest.QuestBase, abc.ABC):
     @typing.overload
     def __init__(self, **kwargs):
@@ -94,5 +68,31 @@ class KillMonsterFree(AdventureBot.Quest.IQuest, Content.Quests.KillMonsterBase)
         ...
 
     def Finish(self, user: AdventureBot.User.User, questId: System.Guid, ) -> None:
+        ...
+
+class IQuestMonster(AdventureBot.Room.IMonster, AdventureBot.Room.IRoom, abc.ABC):
+    @typing.overload
+    def __init__(self, **kwargs):
+        ...
+
+    # static fields
+
+    # properties
+    # methods
+class KillMonster(AdventureBot.Quest.IQuest, Content.Quests.KillMonsterBase):
+    @typing.overload
+    def __init__(self, **kwargs):
+        ...
+
+    # static fields
+    Id: str = ...
+
+    # properties
+    @property
+    def Identifer(self) -> str:
+        ...
+
+    # methods
+    def __init__(self, ):
         ...
 

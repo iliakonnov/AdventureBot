@@ -10,6 +10,30 @@ import AdventureBot.User
 import AdventureBot.Messenger
 
 
+class ConfirmExit(AdventureBot.Room.BetterRoom.ActionBase[Content.Rooms.DeadlyBattle.Tournament]):
+    @typing.overload
+    def __init__(self, **kwargs):
+        self.Buttons: System.Collections.Generic.Dictionary[str, AdventureBot.Room.MessageReceived]
+        self.Room: AdventureBot.Room.BetterRoom.BetterRoomBase
+        ...
+
+    # static fields
+
+    # properties
+    @property
+    def Room(self) -> Content.Rooms.DeadlyBattle.Tournament:
+        ...
+
+    # methods
+    def __init__(self, room: Content.Rooms.DeadlyBattle.Tournament, ):
+        ...
+
+    def Yes(self, user: AdventureBot.User.User, message: AdventureBot.Messenger.ReceivedMessage, ) -> None:
+        ...
+
+    def No(self, user: AdventureBot.User.User, message: AdventureBot.Messenger.ReceivedMessage, ) -> None:
+        ...
+
 class Main(AdventureBot.Room.BetterRoom.ActionBase[Content.Rooms.DeadlyBattle.Tournament]):
     @typing.overload
     def __init__(self, **kwargs):
@@ -59,29 +83,5 @@ class Rest(AdventureBot.Room.BetterRoom.ActionBase[Content.Rooms.DeadlyBattle.To
         ...
 
     def Mirror(self, user: AdventureBot.User.User, message: AdventureBot.Messenger.ReceivedMessage, ) -> None:
-        ...
-
-class ConfirmExit(AdventureBot.Room.BetterRoom.ActionBase[Content.Rooms.DeadlyBattle.Tournament]):
-    @typing.overload
-    def __init__(self, **kwargs):
-        self.Buttons: System.Collections.Generic.Dictionary[str, AdventureBot.Room.MessageReceived]
-        self.Room: AdventureBot.Room.BetterRoom.BetterRoomBase
-        ...
-
-    # static fields
-
-    # properties
-    @property
-    def Room(self) -> Content.Rooms.DeadlyBattle.Tournament:
-        ...
-
-    # methods
-    def __init__(self, room: Content.Rooms.DeadlyBattle.Tournament, ):
-        ...
-
-    def Yes(self, user: AdventureBot.User.User, message: AdventureBot.Messenger.ReceivedMessage, ) -> None:
-        ...
-
-    def No(self, user: AdventureBot.User.User, message: AdventureBot.Messenger.ReceivedMessage, ) -> None:
         ...
 

@@ -34,6 +34,30 @@ class BuyOther(AdventureBot.Room.BetterRoom.ActionBase[Content.Halls.Weaponsmith
     def HandleButton(self, user: AdventureBot.User.User, message: AdventureBot.Messenger.ReceivedMessage, ) -> None:
         ...
 
+class BuyWeapon(AdventureBot.Room.BetterRoom.ActionBase[Content.Halls.Weaponsmith]):
+    @typing.overload
+    def __init__(self, **kwargs):
+        self.Buttons: System.Collections.Generic.Dictionary[str, AdventureBot.Room.MessageReceived]
+        self.Room: AdventureBot.Room.BetterRoom.BetterRoomBase
+        ...
+
+    # static fields
+
+    # properties
+    @property
+    def Room(self) -> Content.Halls.Weaponsmith:
+        ...
+
+    # methods
+    def __init__(self, room: Content.Halls.Weaponsmith, ):
+        ...
+
+    def Nothing(self, user: AdventureBot.User.User, message: AdventureBot.Messenger.ReceivedMessage, ) -> None:
+        ...
+
+    def HandleButton(self, user: AdventureBot.User.User, message: AdventureBot.Messenger.ReceivedMessage, ) -> None:
+        ...
+
 class MainAction(AdventureBot.Room.BetterRoom.ActionBase[Content.Halls.Weaponsmith]):
     @typing.overload
     def __init__(self, **kwargs):
@@ -65,29 +89,5 @@ class MainAction(AdventureBot.Room.BetterRoom.ActionBase[Content.Halls.Weaponsmi
         ...
 
     def Leave(self, user: AdventureBot.User.User, message: AdventureBot.Messenger.ReceivedMessage, ) -> None:
-        ...
-
-class BuyWeapon(AdventureBot.Room.BetterRoom.ActionBase[Content.Halls.Weaponsmith]):
-    @typing.overload
-    def __init__(self, **kwargs):
-        self.Buttons: System.Collections.Generic.Dictionary[str, AdventureBot.Room.MessageReceived]
-        self.Room: AdventureBot.Room.BetterRoom.BetterRoomBase
-        ...
-
-    # static fields
-
-    # properties
-    @property
-    def Room(self) -> Content.Halls.Weaponsmith:
-        ...
-
-    # methods
-    def __init__(self, room: Content.Halls.Weaponsmith, ):
-        ...
-
-    def Nothing(self, user: AdventureBot.User.User, message: AdventureBot.Messenger.ReceivedMessage, ) -> None:
-        ...
-
-    def HandleButton(self, user: AdventureBot.User.User, message: AdventureBot.Messenger.ReceivedMessage, ) -> None:
         ...
 
