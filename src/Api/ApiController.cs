@@ -1,6 +1,8 @@
+using System;
 using System.Text;
 using System.Threading.Tasks;
 using AdventureBot;
+using AdventureBot.Api;
 using AdventureBot.Messenger;
 using AdventureBot.User;
 using EmbedIO;
@@ -11,18 +13,22 @@ using MessagePack;
 
 namespace Api;
 
+[WebApi("/api")]
 public class ApiController : WebApiController
 {
+    private static readonly Random Random = new();
+    private static string Secret => Configuration.Config["api_secret"];
+
     [Route(HttpVerbs.Get, "/register")]
     [UsedImplicitly]
     public string Register([QueryField] string secret, [QueryField] long? id)
     {
-        if (secret != ApiMessenger._secret)
+        if (secret != Secret)
         {
             throw HttpException.Forbidden();
         }
 
-        var userId = id ?? ApiMessenger.LongRandom();
+        var userId = id ?? LongRandom();
         using var context = new UserContext(new UserId(ApiMessenger.MessengerId, userId));
         return $"{userId}:{context.User.Token}";
     }
@@ -37,7 +43,7 @@ public class ApiController : WebApiController
             throw HttpException.Forbidden();
         }
 
-        var (chat, user) = ((ChatId, UserId)) token;
+        var (chat, user) = ((ChatId, UserId))token;
 
         var text = await HttpContext.GetRequestDataAsync<string>();
 
@@ -60,7 +66,7 @@ public class ApiController : WebApiController
             throw HttpException.Forbidden();
         }
 
-        var (_, user) = ((ChatId, UserId)) token;
+        var (_, user) = ((ChatId, UserId))token;
 
         using var context = new UserContext(user);
         var publicUser = new PublicUser(context.User);
@@ -78,5 +84,13 @@ public class ApiController : WebApiController
 
         await using var stream = HttpContext.OpenResponseStream();
         await stream.WriteAsync(bytes, 0, bytes.Length);
+    }
+
+    private static long LongRandom()
+    {
+        var buf = new byte[8];
+        Random.NextBytes(buf);
+        var longRand = BitConverter.ToInt64(buf, 0);
+        return Math.Abs(longRand);
     }
 }

@@ -18,14 +18,14 @@ public class MessengerManager : IManager<IMessenger>
 
     private readonly List<IMessenger> _messengers = new();
 
-    public void Register(GameObjectAttribute attribute, Create<IMessenger> creator)
+    public void Register(GameObjectAttribute attribute, Func<IMessenger> factory)
     {
         if (!(attribute is MessengerAttribute))
         {
             return;
         }
 
-        Register(creator());
+        Register(factory());
     }
 
     public static event GameEventHandler<ReceivedMessage> OnReceived;

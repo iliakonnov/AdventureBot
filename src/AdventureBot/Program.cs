@@ -1,14 +1,14 @@
 ﻿using System;
-using System.IO;
 using System.Reflection;
-using System.Threading;
 using AdventureBot.Analysis;
+using AdventureBot.Api;
 using AdventureBot.Item;
 using AdventureBot.Messenger;
 using AdventureBot.ObjectManager;
 using AdventureBot.Quest;
 using AdventureBot.Room;
 using AdventureBot.UserManager;
+using EmbedIO.WebApi;
 using IronPython.Hosting;
 using Microsoft.Scripting.Hosting.Shell;
 using NLog;
@@ -40,6 +40,7 @@ internal static class Program
         ObjectManager<IQuest>.Instance.RegisterManager<QuestManager>();
         ObjectManager<IMessenger>.Instance.RegisterManager<MessengerManager>();
         ObjectManager<IMigrator>.Instance.RegisterManager<MigratorManager>();
+        ObjectManager<WebApiController>.Instance.RegisterManager<ApiControllerManager>();
 
         Logger.Debug("Loading objects...");
         MainManager.Instance.LoadAssembly(Assembly.GetExecutingAssembly());
@@ -47,6 +48,7 @@ internal static class Program
         {
             MainManager.Instance.LoadAssembly(assembly.Value);
         }
+
         foreach (var python in Configuration.Config.GetSection("python").GetChildren())
         {
             MainManager.Instance.LoadPython(python.Value);
@@ -55,6 +57,7 @@ internal static class Program
         Logger.Debug("Loading other...");
 
         ObjectManager<IMessenger>.Instance.Get<MessengerManager>().BeginPolling();
+        ObjectManager<WebApiController>.Instance.Get<ApiControllerManager>().RunAsync();
     }
 
     private static void Main()
@@ -75,7 +78,7 @@ internal static class Program
             Exit();
         };
         AppDomain.CurrentDomain.ProcessExit += (sender, args) => { Exit(); };
-        
+
         var server = new MetricServer(hostname: "*", port: 9100);
         server.Start();
 

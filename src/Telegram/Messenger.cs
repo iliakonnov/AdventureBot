@@ -36,7 +36,7 @@ public class Messenger : IMessenger
     public Messenger()
     {
         var token = Configuration.Config.GetSection("telegram_token").Value;
-        _messenger = new TelegramBot(token, true);
+        _messenger = new TelegramBot(token);
     }
 
     public async Task Send(SentMessage message, ReceivedMessage receivedMessage, User user)
@@ -45,7 +45,7 @@ public class Messenger : IMessenger
         if (message.Text.Length > maxSize)
         {
             // Message too long, so split it to small part and all other.
-            Send(new SentMessage
+            await Send(new SentMessage
             {
                 Buttons = message.Buttons,
                 ChatId = message.ChatId,
@@ -54,7 +54,7 @@ public class Messenger : IMessenger
                 PreferToUpdate = false
             }, receivedMessage, user);
 
-            Send(new SentMessage
+            await Send(new SentMessage
             {
                 Buttons = message.Buttons,
                 ChatId = message.ChatId,

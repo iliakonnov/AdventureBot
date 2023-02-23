@@ -10,7 +10,7 @@ public class StorageManager<T, TAttribute> : IManager<T> where TAttribute : Iden
 
     private readonly NullableDictionary<string, Item> _items = new();
 
-    public void Register(GameObjectAttribute attribute, Create<T> creator)
+    public void Register(GameObjectAttribute attribute, Func<T> factory)
     {
         if (!(attribute is TAttribute identifiableAttribute))
         {
@@ -22,7 +22,7 @@ public class StorageManager<T, TAttribute> : IManager<T> where TAttribute : Iden
         _items[identifier] = new Item
         {
             Identificator = identifier,
-            Creator = creator,
+            Factory = factory,
             Attribute = identifiableAttribute
         };
 
@@ -50,9 +50,9 @@ public class StorageManager<T, TAttribute> : IManager<T> where TAttribute : Iden
             return default;
         }
 
-        var res = item.Creator();
+        var res = item.Factory();
         _cache[identifier] = res;
-        item.Creator = () => throw new Exception("This item already initialized!");
+        item.Factory = () => throw new Exception("This item already initialized!");
         return res;
     }
 
@@ -74,7 +74,7 @@ public class StorageManager<T, TAttribute> : IManager<T> where TAttribute : Iden
     public class Item
     {
         public TAttribute Attribute;
-        internal Create<T> Creator;
+        internal Func<T> Factory;
         public string Identificator;
     }
 }

@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 
 namespace AdventureBot.ObjectManager;
 
-public delegate T Create<out T>();
-
 public interface IManager<in T>
 {
-    void Register(GameObjectAttribute attribute, Create<T> creator);
+    void Register(GameObjectAttribute attribute, Func<T> factory);
 }
 
 public class ObjectManager<TObj> : Singleton<ObjectManager<TObj>>, IObjectManager
@@ -19,17 +18,20 @@ public class ObjectManager<TObj> : Singleton<ObjectManager<TObj>>, IObjectManage
         MainManager.Instance.Register(this);
     }
 
-    public void Register(GameObjectAttribute attribute, Create<object> creator)
+    public void Register(GameObjectAttribute attribute, Expression ctor)
     {
+        var targetType = attribute.Type ?? typeof(TObj);
+        if (!targetType.IsAssignableTo(typeof(TObj)))
+        {
+            return;
+        }
+
+        var factory = (Func<TObj>)Expression.Lambda(Expression.Convert(ctor, targetType)).Compile();
+
         foreach (var manager in _managers.Values)
         {
-            manager.Register(attribute, () => (TObj) creator());
+            manager.Register(attribute, factory);
         }
-    }
-
-    public void RegisterManager<TMgr>(TMgr manager) where TMgr : IManager<TObj>
-    {
-        _managers[typeof(TMgr)] = manager;
     }
 
     public void RegisterManager<TMgr>() where TMgr : IManager<TObj>, new()
@@ -39,11 +41,6 @@ public class ObjectManager<TObj> : Singleton<ObjectManager<TObj>>, IObjectManage
 
     public TMgr Get<TMgr>() where TMgr : IManager<TObj>
     {
-        return (TMgr) _managers[typeof(TMgr)];
-    }
-
-    public void Register<T>(GameObjectAttribute attribute) where T : TObj, new()
-    {
-        Register(attribute, () => new T());
+        return (TMgr)_managers[typeof(TMgr)];
     }
 }

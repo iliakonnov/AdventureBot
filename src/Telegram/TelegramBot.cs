@@ -32,19 +32,28 @@ internal class TelegramBot
     private static readonly Counter ErrorCounter =
         Metrics.CreateCounter("telegram_messenger_errors", "Total number of errors in TelegramMessenger");
 
-    private TelegramBotClient _bot;
+    private readonly TelegramBotClient _bot;
     private string _username;
 
-    public TelegramBot(string token, bool reciveMessages)
+    public TelegramBot(string token)
     {
         Token = token;
-        ReciveMessages = reciveMessages;
         Id = long.Parse(Token.Split(':')[0]);
+
+        _bot = new TelegramBotClient(Token);
+        _bot.OnMakingApiRequest += async (_, _, _) => ApiRequestsTotal.Inc();
+        _bot.OnApiResponseReceived += async (_, args, _) =>
+        {
+            if (!args.ResponseMessage.IsSuccessStatusCode)
+            {
+                ApiRequestsFailed.Inc();
+            }
+        };
     }
 
     public long Id { get; }
     public string Token { get; }
-    public bool ReciveMessages { get; }
+    public bool EnablePolling { get; }
 
     public DateTime LastMessageSent { get; private set; }
 
@@ -203,34 +212,21 @@ internal class TelegramBot
 
     public async void BeginPolling()
     {
-        _bot = new TelegramBotClient(Token);
-        _bot.OnMakingApiRequest += async (_, _, _) => ApiRequestsTotal.Inc();
-        _bot.OnApiResponseReceived += async (_, args, _) =>
-        {
-            if (!args.ResponseMessage.IsSuccessStatusCode)
-            {
-                ApiRequestsFailed.Inc();
-            }
-        };
-
         var me = await _bot.GetMeAsync();
         _username = me.Username;
-        if (ReciveMessages)
-        {
-            _bot.StartReceiving(
-                HandleUpdateAsync,
-                HandlePollingErrorAsync,
-                new ReceiverOptions
-                {
-                    AllowedUpdates = new[] { UpdateType.Message, UpdateType.CallbackQuery },
-                }
-            );
-            Logger.Info("Start receiving for @{username}", _username);
-        }
-        else
-        {
-            Logger.Info("Start only sending for @{username}", _username);
-        }
+        _bot.StartReceiving(
+            HandleUpdateAsync,
+            HandlePollingErrorAsync,
+            new ReceiverOptions
+            {
+                AllowedUpdates = new[] { UpdateType.Message, UpdateType.CallbackQuery },
+            }
+        );
+        Logger.Info("Start receiving for @{username}", _username);
+    }
+
+    public async void HandleWebhook(Update update)
+    {
     }
 
     private Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
