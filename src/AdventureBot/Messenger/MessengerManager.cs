@@ -187,6 +187,11 @@ public class MessengerManager : IManager<IMessenger>
         _messengers.ForEach(m => m.BeginPolling());
     }
 
+    public T Find<T>() where T: class, IMessenger
+    {
+        return _messengers.Select(x => x as T).First(x => x is not null);
+    }
+
     public static event GameEventHandler<Tuple<SentMessage, ReceivedMessage>> OnReply;
 
     public void Reply(SentMessage message, [CanBeNull] ReceivedMessage receivedMessage, User.User user)

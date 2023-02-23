@@ -6,6 +6,7 @@ using AdventureBot;
 using AdventureBot.Messenger;
 using JetBrains.Annotations;
 using MessagePack;
+using Microsoft.Extensions.Configuration;
 using NLog;
 using Prometheus;
 using Telegram.Bot;
@@ -177,7 +178,8 @@ internal class TelegramBot
                     }
                 }
 
-                message.MessengerSpecificData[MessengerId] = new SentMessageAssociatedData(_username, chatId, messageId);
+                message.MessengerSpecificData[MessengerId] =
+                    new SentMessageAssociatedData(_username, chatId, messageId);
                 return;
             }
 
@@ -214,6 +216,10 @@ internal class TelegramBot
     {
         var me = await _bot.GetMeAsync();
         _username = me.Username;
+        if (!Configuration.Config.GetValue<bool>("telegram_polling"))
+        {
+            return;
+        }
         _bot.StartReceiving(
             HandleUpdateAsync,
             HandlePollingErrorAsync,
@@ -225,11 +231,7 @@ internal class TelegramBot
         Logger.Info("Start receiving for @{username}", _username);
     }
 
-    public async void HandleWebhook(Update update)
-    {
-    }
-
-    private Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
+    internal Task HandleUpdateAsync(Update update)
     {
         if (update.Message is { } message)
         {
@@ -241,6 +243,11 @@ internal class TelegramBot
         }
 
         return Task.CompletedTask;
+    }
+
+    private Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
+    {
+        return HandleUpdateAsync(update);
     }
 
     private Task HandlePollingErrorAsync(ITelegramBotClient botClient, Exception exception,

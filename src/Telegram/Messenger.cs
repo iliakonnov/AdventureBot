@@ -29,14 +29,13 @@ public class Messenger : IMessenger
     //    ...
     // }
 
-    private const string RootVariable = "Telegram.Messenger/available_messengers";
     private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
-    private readonly TelegramBot _messenger;
+    internal readonly TelegramBot messenger;
 
     public Messenger()
     {
         var token = Configuration.Config.GetSection("telegram_token").Value;
-        _messenger = new TelegramBot(token);
+        messenger = new TelegramBot(token);
     }
 
     public async Task Send(SentMessage message, ReceivedMessage receivedMessage, User user)
@@ -66,14 +65,14 @@ public class Messenger : IMessenger
             return;
         }
 
-        await _messenger.Send(message, receivedMessage);
+        await messenger.Send(message, receivedMessage);
     }
 
     public event MessageHandler MessageReceived;
 
     public void BeginPolling()
     {
-        _messenger.OnMessageReceived += message =>
+        messenger.OnMessageReceived += message =>
         {
             try
             {
@@ -84,6 +83,6 @@ public class Messenger : IMessenger
                 Logger.Error(e, "Error");
             }
         };
-        _messenger.BeginPolling();
+        messenger.BeginPolling();
     }
 }
