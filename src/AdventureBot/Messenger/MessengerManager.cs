@@ -18,14 +18,14 @@ public class MessengerManager : IManager<IMessenger>
 
     private readonly List<IMessenger> _messengers = new();
 
-    public void Register(GameObjectAttribute attribute, Create<IMessenger> creator)
+    public void Register(GameObjectAttribute attribute, Func<IMessenger> factory)
     {
         if (!(attribute is MessengerAttribute))
         {
             return;
         }
 
-        Register(creator());
+        Register(factory());
     }
 
     public static event GameEventHandler<ReceivedMessage> OnReceived;
@@ -185,6 +185,11 @@ public class MessengerManager : IManager<IMessenger>
     public void BeginPolling()
     {
         _messengers.ForEach(m => m.BeginPolling());
+    }
+
+    public T Find<T>() where T: class, IMessenger
+    {
+        return _messengers.Select(x => x as T).First(x => x is not null);
     }
 
     public static event GameEventHandler<Tuple<SentMessage, ReceivedMessage>> OnReply;

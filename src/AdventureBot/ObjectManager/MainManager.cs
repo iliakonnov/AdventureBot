@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using IronPython.Hosting;
 using IronPython.Runtime;
@@ -15,7 +16,7 @@ namespace AdventureBot.ObjectManager;
 
 internal interface IObjectManager
 {
-    void Register(GameObjectAttribute attribute, Create<object> creator);
+    void Register(GameObjectAttribute attribute, Expression ctor);
 }
 
 internal class MainManager : Singleton<MainManager>
@@ -35,11 +36,13 @@ internal class MainManager : Singleton<MainManager>
             return;
         }
 
+        attr.Type = type;
+
         var ctor = type.GetConstructor(Type.EmptyTypes);
         foreach (var manager in _managers)
         {
             Debug.Assert(ctor != null, nameof(ctor) + " != null");
-            manager.Register(attr, () => ctor.Invoke(new object[] { }));
+            manager.Register(attr, Expression.New(ctor));
         }
     }
 

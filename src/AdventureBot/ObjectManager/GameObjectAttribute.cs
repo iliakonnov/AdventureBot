@@ -4,6 +4,7 @@ namespace AdventureBot.ObjectManager;
 
 public class GameObjectAttribute : Attribute
 {
+    internal Type Type = null;
 }
 
 public class IdentifiableAttribute : GameObjectAttribute

@@ -6,6 +6,7 @@ using AdventureBot;
 using AdventureBot.Messenger;
 using JetBrains.Annotations;
 using MessagePack;
+using Microsoft.Extensions.Configuration;
 using NLog;
 using Prometheus;
 using Telegram.Bot;
@@ -32,19 +33,28 @@ internal class TelegramBot
     private static readonly Counter ErrorCounter =
         Metrics.CreateCounter("telegram_messenger_errors", "Total number of errors in TelegramMessenger");
 
-    private TelegramBotClient _bot;
+    private readonly TelegramBotClient _bot;
     private string _username;
 
-    public TelegramBot(string token, bool reciveMessages)
+    public TelegramBot(string token)
     {
         Token = token;
-        ReciveMessages = reciveMessages;
         Id = long.Parse(Token.Split(':')[0]);
+
+        _bot = new TelegramBotClient(Token);
+        _bot.OnMakingApiRequest += async (_, _, _) => ApiRequestsTotal.Inc();
+        _bot.OnApiResponseReceived += async (_, args, _) =>
+        {
+            if (!args.ResponseMessage.IsSuccessStatusCode)
+            {
+                ApiRequestsFailed.Inc();
+            }
+        };
     }
 
     public long Id { get; }
     public string Token { get; }
-    public bool ReciveMessages { get; }
+    public bool EnablePolling { get; }
 
     public DateTime LastMessageSent { get; private set; }
 
@@ -168,7 +178,8 @@ internal class TelegramBot
                     }
                 }
 
-                message.MessengerSpecificData[MessengerId] = new SentMessageAssociatedData(_username, chatId, messageId);
+                message.MessengerSpecificData[MessengerId] =
+                    new SentMessageAssociatedData(_username, chatId, messageId);
                 return;
             }
 
@@ -203,37 +214,24 @@ internal class TelegramBot
 
     public async void BeginPolling()
     {
-        _bot = new TelegramBotClient(Token);
-        _bot.OnMakingApiRequest += async (_, _, _) => ApiRequestsTotal.Inc();
-        _bot.OnApiResponseReceived += async (_, args, _) =>
-        {
-            if (!args.ResponseMessage.IsSuccessStatusCode)
-            {
-                ApiRequestsFailed.Inc();
-            }
-        };
-
         var me = await _bot.GetMeAsync();
         _username = me.Username;
-        if (ReciveMessages)
+        if (!Configuration.Config.GetValue<bool>("telegram_polling"))
         {
-            _bot.StartReceiving(
-                HandleUpdateAsync,
-                HandlePollingErrorAsync,
-                new ReceiverOptions
-                {
-                    AllowedUpdates = new[] { UpdateType.Message, UpdateType.CallbackQuery },
-                }
-            );
-            Logger.Info("Start receiving for @{username}", _username);
+            return;
         }
-        else
-        {
-            Logger.Info("Start only sending for @{username}", _username);
-        }
+        _bot.StartReceiving(
+            HandleUpdateAsync,
+            HandlePollingErrorAsync,
+            new ReceiverOptions
+            {
+                AllowedUpdates = new[] { UpdateType.Message, UpdateType.CallbackQuery },
+            }
+        );
+        Logger.Info("Start receiving for @{username}", _username);
     }
 
-    private Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
+    internal Task HandleUpdateAsync(Update update)
     {
         if (update.Message is { } message)
         {
@@ -245,6 +243,11 @@ internal class TelegramBot
         }
 
         return Task.CompletedTask;
+    }
+
+    private Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
+    {
+        return HandleUpdateAsync(update);
     }
 
     private Task HandlePollingErrorAsync(ITelegramBotClient botClient, Exception exception,
