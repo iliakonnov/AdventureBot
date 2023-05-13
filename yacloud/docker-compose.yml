@@ -14,6 +14,15 @@ services:
     devices:
       - /dev/ttyS1:/dev/ttyS1
 
+  postgres:
+    image: postgres:alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: adventurebot
+    volumes:
+      - /data/work/pg:/var/lib/postgresql/data
+
   fluentd:
     container_name: fluentd
     image: cr.yandex/yc/fluent-bit-plugin-yandex:v2.0.3-fluent-bit-1.9.3

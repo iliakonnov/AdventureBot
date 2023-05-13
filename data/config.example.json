@@ -2,7 +2,7 @@
     "telegram_token": "1111111111:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
     "vk_token": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
     "vk_group": 111111111,
-    "database": "./db.sqlite3",
+    "api_host": "http://localhost:8080",
     "assemblies": [
         "/app/bin/Content.dll",
         "/app/bin/Telegram.dll",
