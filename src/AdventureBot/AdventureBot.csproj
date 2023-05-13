@@ -27,11 +27,11 @@
         <PackageReference Include="MessagePack" Version="2.4.35" />
         <PackageReference Include="MessagePack.ImmutableCollection" Version="2.4.35" />
         <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
-        <PackageReference Include="Microsoft.Data.Sqlite" Version="6.0.8" />
         <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="6.0.0" />
         <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="6.0.0" />
         <PackageReference Include="NLog" Version="5.0.2" />
         <PackageReference Include="NLog.Targets.Fluentd.Net5" Version="1.0.2" />
+        <PackageReference Include="Npgsql" Version="8.0.0-preview.3" />
         <PackageReference Include="prometheus-net" Version="6.0.0" />
         <PackageReference Include="System.Security.Permissions" Version="6.0.0" />
         <PackageReference Include="Ydb.Sdk" Version="0.0.5" />

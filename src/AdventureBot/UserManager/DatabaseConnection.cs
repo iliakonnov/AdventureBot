@@ -3,20 +3,20 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using AdventureBot.User;
-using Microsoft.Data.Sqlite;
 using NLog;
+using Npgsql;
+using NpgsqlTypes;
 
 namespace AdventureBot.UserManager;
 
 public static class DatabaseConnection
 {
     private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
-    private static readonly SqliteConnection Connection;
+    private static readonly NpgsqlConnection Connection;
 
     static DatabaseConnection()
     {
-        var connectionString = $"Data Source = {Configuration.Config["database"]}";
-        Connection = new SqliteConnection(connectionString);
+        Connection = new NpgsqlConnection(Configuration.Config["connection_string"]);
         Connection.Open();
         QueryHelper(InitailizeTables);
     }
@@ -40,7 +40,7 @@ public static class DatabaseConnection
 
     public static List<UserId> GetUsersList(int? messengerId = null)
     {
-        List<UserId> Query(SqliteCommand command)
+        List<UserId> Query(NpgsqlCommand command)
         {
             var result = new List<UserId>();
 
@@ -67,7 +67,7 @@ public static class DatabaseConnection
         List<(DbColumnAttribute, string, object)> filter,
         int? limit)
     {
-        List<UserData> Query(SqliteCommand command)
+        List<UserData> Query(NpgsqlCommand command)
         {
             var result = new List<UserData>();
 
@@ -137,7 +137,7 @@ public static class DatabaseConnection
 
     public static UserData LoadUserData(UserId id)
     {
-        UserData Query(SqliteCommand command)
+        UserData Query(NpgsqlCommand command)
         {
             command.CommandText = "SELECT * FROM users WHERE id=@user_id AND messenger=@messenger";
             command.Parameters.AddWithValue("@messenger", id.Messenger);
@@ -175,12 +175,12 @@ public static class DatabaseConnection
 
     public static void SaveUsers(IEnumerable<UserData> users)
     {
-        int Query(SqliteCommand command)
+        int Query(NpgsqlCommand command)
         {
             var columns = DatabaseVariables.GetColumns();
             var varNames = new List<string>();
             var varValues = new List<string>();
-            var parameters = new List<(SqliteParameter, Func<DatabaseVariables, object>)>();
+            var parameters = new List<(NpgsqlParameter, Func<DatabaseVariables, object>)>();
             for (var i = 0; i < columns.Length; i++)
             {
                 var column = columns[i];
@@ -194,10 +194,10 @@ public static class DatabaseConnection
                 $"INSERT OR REPLACE INTO users (messenger, id, data, version, {string.Join(", ", varNames)}) " +
                 $"VALUES (@messenger, @user_id, @data, @version, {string.Join(", ", varValues)})";
 
-            var messengerParam = command.Parameters.Add("@messenger", SqliteType.Integer);
-            var idParam = command.Parameters.Add("@user_id", SqliteType.Integer);
-            var dataParam = command.Parameters.Add("@data", SqliteType.Blob);
-            var versionParam = command.Parameters.Add("@version", SqliteType.Integer);
+            var messengerParam = command.Parameters.Add("@messenger", NpgsqlDbType.Integer);
+            var idParam = command.Parameters.Add("@user_id", NpgsqlDbType.Integer);
+            var dataParam = command.Parameters.Add("@data", NpgsqlDbType.Jsonb);
+            var versionParam = command.Parameters.Add("@version", NpgsqlDbType.Integer);
 
             var cnt = 0;
             foreach (var user in users)
@@ -227,7 +227,7 @@ public static class DatabaseConnection
         }
     }
 
-    private static Void InitailizeTables(SqliteCommand command)
+    private static Void InitailizeTables(NpgsqlCommand command)
     {
         var variables = string.Join(
             ", ",
@@ -251,5 +251,5 @@ public static class DatabaseConnection
     {
     }
 
-    private delegate T QueryCallback<out T>(SqliteCommand command);
+    private delegate T QueryCallback<out T>(NpgsqlCommand command);
 }
