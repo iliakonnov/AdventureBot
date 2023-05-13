@@ -6,8 +6,6 @@ namespace AdventureBot.UserManager;
 
 public class UserProxy
 {
-    private static readonly Dictionary<UserId, UserProxy> _proxies = new();
-
     private static readonly TimeSpan Timeout = new(0, 0, 5);
     private readonly ManualResetEvent _available = new(true);
     private readonly UserId _id;
@@ -23,17 +21,7 @@ public class UserProxy
 
     private static UserProxy GetLoadedUser(UserId id)
     {
-        lock (_proxies)
-        {
-            if (_proxies.TryGetValue(id, out var proxy))
-            {
-                return proxy;
-            }
-
-            proxy = new UserProxy(id);
-            _proxies[id] = proxy;
-            return proxy;
-        }
+        return new UserProxy(id);
     }
 
     public static User.User Get(UserId id)
@@ -51,7 +39,7 @@ public class UserProxy
         GetLoadedUser(user.Info.UserId).Release(user);
     }
 
-    public User.User Acquire()
+    private User.User Acquire()
     {
         var timeRemaining = _unlockAt - DateTime.Now;
         if (timeRemaining <= TimeSpan.Zero)
@@ -63,19 +51,16 @@ public class UserProxy
         return GetUser();
     }
 
-    public User.User GetUnsafe()
+    private User.User GetUnsafe()
     {
-        lock (_lock)
-        {
-            return Cache.Instance.Get(_id);
-        }
+        return DatabaseConnection.LoadUserData(_id).Deserialize();
     }
 
     private User.User GetUser()
     {
         lock (_lock)
         {
-            var user = Cache.Instance.Get(_id);
+            var user = DatabaseConnection.LoadUserData(_id).Deserialize();
             _loaded = user;
             _unlockAt = DateTime.Now + Timeout;
             _available.Reset();
@@ -83,13 +68,13 @@ public class UserProxy
         }
     }
 
-    public void Release(User.User user)
+    private void Release(User.User user)
     {
         if (ReferenceEquals(user, _loaded))
         {
             lock (_lock)
             {
-                Cache.Instance.Put(user);
+                DatabaseConnection.SaveUsers(new[] { UserData.Serialize(user)  });
                 _available.Set();
                 _loaded = null;
             }
