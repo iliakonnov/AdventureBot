@@ -3,7 +3,7 @@
         <IsPackable>false</IsPackable>
         <IsPublishable>false</IsPublishable>
         <LangVersion>default</LangVersion>
-        <TargetFramework>net6.0</TargetFramework>
+        <TargetFramework>net7.0</TargetFramework>
         <Nullable>disable</Nullable>
     </PropertyGroup>
     <ItemGroup>
