@@ -3,6 +3,7 @@
     "vk_token": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
     "vk_group": 111111111,
     "api_host": "http://localhost:8080",
+    "connection_string": "Host=localhost;Username=postgres;Password=postgres;Database=adventurebot;Timeout=3",
     "assemblies": [
         "/app/bin/Content.dll",
         "/app/bin/Telegram.dll",

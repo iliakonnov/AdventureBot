@@ -22,8 +22,6 @@ internal static class Program
 
     private static void Exit()
     {
-        Logger.Info("Saving users...");
-        Cache.Instance.FlushAll();
         Logger.Info("Saving variables...");
 
         GlobalVariables.Flush();

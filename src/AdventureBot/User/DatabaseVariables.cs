@@ -2,7 +2,8 @@
 using System.Data;
 using System.Linq.Expressions;
 using System.Reflection;
-using Microsoft.Data.Sqlite;
+using Npgsql;
+using NpgsqlTypes;
 
 namespace AdventureBot.User;
 
@@ -14,15 +15,15 @@ public class DbColumnAttribute : Attribute
         Name = name;
         (Type, TypeString) = type switch
         {
-            DbType.Decimal => (SqliteType.Integer, "INTEGER"),
-            DbType.Int32 => (SqliteType.Integer, "NUMERIC"),
-            DbType.DateTime => (SqliteType.Text, "DATETIME"),
+            DbType.Decimal => (NpgsqlDbType.Integer, "INTEGER"),
+            DbType.Int32 => (NpgsqlDbType.Integer, "NUMERIC"),
+            DbType.DateTime => (NpgsqlDbType.Timestamp, "timestamp"),
             _ => throw new ArgumentOutOfRangeException()
         };
     }
 
     public string Name { get; }
-    public SqliteType Type { get; }
+    public NpgsqlDbType Type { get; }
     public string TypeString { get; }
 }
 
@@ -109,7 +110,7 @@ public class DatabaseVariables
         {
         }
 
-        public static Deserializer Create(SqliteDataReader reader)
+        public static Deserializer Create(NpgsqlDataReader reader)
         {
             return new Deserializer
             {
