@@ -17,7 +17,7 @@ public class DbColumnAttribute : Attribute
         {
             DbType.Decimal => (NpgsqlDbType.Integer, "INTEGER"),
             DbType.Int32 => (NpgsqlDbType.Integer, "NUMERIC"),
-            DbType.DateTime => (NpgsqlDbType.Text, "DATETIME"),
+            DbType.DateTime => (NpgsqlDbType.Timestamp, "timestamp"),
             _ => throw new ArgumentOutOfRangeException()
         };
     }

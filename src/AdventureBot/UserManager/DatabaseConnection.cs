@@ -1,9 +1,9 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using AdventureBot.User;
-using NLog;
 using Npgsql;
 using NpgsqlTypes;
 
@@ -11,31 +11,41 @@ namespace AdventureBot.UserManager;
 
 public static class DatabaseConnection
 {
-    private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
-    private static readonly NpgsqlConnection Connection;
+    private static readonly string ConnectionString;
 
     static DatabaseConnection()
     {
-        Connection = new NpgsqlConnection(Configuration.Config["connection_string"]);
-        Connection.Open();
+        ConnectionString = Configuration.Config["connection_string"];
         QueryHelper(InitailizeTables);
     }
 
-    private static T QueryHelper<T>(QueryCallback<T> callback)
+    internal static NpgsqlConnection GetConnection()
     {
-        lock (Connection)
+        var connection = new NpgsqlConnection(ConnectionString);
+        connection.Open();
+        return connection;
+    }
+
+    private static T QueryHelper<T>(QueryCallback<T> callback, NpgsqlTransaction transaction = null)
+    {
+        var connection = GetConnection();
+        using var command = connection.CreateCommand();
+        T result;
+
+        if (transaction == null)
         {
-            using (var command = Connection.CreateCommand())
-            using (var transaction = Connection.BeginTransaction())
-            {
-                command.Transaction = transaction;
-
-                var result = callback(command);
-
-                transaction.Commit();
-                return result;
-            }
+            using var trans = connection.BeginTransaction();
+            command.Transaction = trans;
+            result = callback(command);
+            trans.Commit();
         }
+        else
+        {
+            command.Transaction = transaction;
+            result = callback(command);
+        }
+
+        return result;
     }
 
     public static List<UserId> GetUsersList(int? messengerId = null)
@@ -135,51 +145,50 @@ public static class DatabaseConnection
         return QueryHelper(Query);
     }
 
-    public static UserData LoadUserData(UserId id)
+    public static UserData LoadUserData(UserId id, NpgsqlTransaction transaction = null)
     {
         UserData Query(NpgsqlCommand command)
         {
-            command.CommandText = "SELECT * FROM users WHERE id=@user_id AND messenger=@messenger";
+            command.CommandText = "SELECT * FROM users WHERE id=@user_id AND messenger=@messenger FOR NO KEY UPDATE";
             command.Parameters.AddWithValue("@messenger", id.Messenger);
             command.Parameters.AddWithValue("@user_id", id.Id);
 
-            using (var reader = command.ExecuteReader())
+            using var reader = command.ExecuteReader();
+            var variablesDeserializer = DatabaseVariables.Deserializer.Create(reader);
+            var dataPos = reader.GetOrdinal("data");
+            var versionPos = reader.GetOrdinal("version");
+            if (!reader.Read())
             {
-                var variablesDeserializer = DatabaseVariables.Deserializer.Create(reader);
-                var dataPos = reader.GetOrdinal("data");
-                var versionPos = reader.GetOrdinal("version");
-                if (!reader.Read())
-                {
-                    goto NotFound;
-                }
-
-                var value = reader[dataPos];
-                if (value == null || Convert.IsDBNull(value))
-                {
-                    goto NotFound;
-                }
-
-                return new UserData(id,
-                    (byte[]) value,
-                    variablesDeserializer.Deserialize(reader),
-                    reader.GetInt32(versionPos));
+                goto NotFound;
             }
+
+            var value = reader[dataPos];
+            if (value == null || Convert.IsDBNull(value))
+            {
+                goto NotFound;
+            }
+
+            return new UserData(id,
+                (byte[]) value,
+                variablesDeserializer.Deserialize(reader),
+                reader.GetInt32(versionPos));
 
             NotFound:
             // User not found in database.
             return new UserData(id);
         }
 
-        return QueryHelper(Query);
+        return QueryHelper(Query, transaction);
     }
 
-    public static void SaveUsers(IEnumerable<UserData> users)
+    public static void SaveUser(UserData user, NpgsqlTransaction transaction = null)
     {
-        int Query(NpgsqlCommand command)
+        Void Query(NpgsqlCommand command)
         {
             var columns = DatabaseVariables.GetColumns();
             var varNames = new List<string>();
             var varValues = new List<string>();
+            var varUpdates = new List<string>();
             var parameters = new List<(NpgsqlParameter, Func<DatabaseVariables, object>)>();
             for (var i = 0; i < columns.Length; i++)
             {
@@ -187,44 +196,36 @@ public static class DatabaseConnection
                 varNames.Add($"{column.Item1.Name}");
                 var paramName = $"@param{i}";
                 varValues.Add(paramName);
+                varUpdates.Add($"{column.Item1.Name} = {paramName}");
                 parameters.Add((command.Parameters.Add(paramName, column.Item1.Type), column.Item2));
             }
 
             command.CommandText =
-                $"INSERT OR REPLACE INTO users (messenger, id, data, version, {string.Join(", ", varNames)}) " +
-                $"VALUES (@messenger, @user_id, @data, @version, {string.Join(", ", varValues)})";
+                $"INSERT INTO users (messenger, id, data, version, {string.Join(", ", varNames)}) " +
+                $"VALUES (@messenger, @user_id, @data, @version, {string.Join(", ", varValues)}) " +
+                "ON CONFLICT (messenger, id) DO UPDATE SET " +
+                $" messenger=@messenger, id=@user_id, data=@data, version=@version, {string.Join(", ", varUpdates)}";
 
             var messengerParam = command.Parameters.Add("@messenger", NpgsqlDbType.Integer);
             var idParam = command.Parameters.Add("@user_id", NpgsqlDbType.Integer);
-            var dataParam = command.Parameters.Add("@data", NpgsqlDbType.Jsonb);
+            var dataParam = command.Parameters.Add("@data", NpgsqlDbType.Bytea);
             var versionParam = command.Parameters.Add("@version", NpgsqlDbType.Integer);
-
-            var cnt = 0;
-            foreach (var user in users)
+            
+            foreach (var param in parameters)
             {
-                cnt++;
-
-                foreach (var param in parameters)
-                {
-                    param.Item1.Value = param.Item2(user.Variables);
-                }
-
-                messengerParam.Value = user.Id.Messenger;
-                idParam.Value = user.Id.Id;
-                dataParam.Value = user.Data;
-                versionParam.Value = user.Version;
-                command.ExecuteNonQuery();
+                param.Item1.Value = param.Item2(user.Variables);
             }
 
-            return cnt;
+            messengerParam.Value = user.Id.Messenger;
+            idParam.Value = user.Id.Id;
+            dataParam.Value = user.Data;
+            versionParam.Value = user.Version;
+            command.ExecuteNonQuery();
+
+            return new Void();
         }
 
-        var beginTime = DateTimeOffset.Now;
-        var count = QueryHelper(Query);
-        if (count != 0)
-        {
-            Logger.Info("Flushed {count} users in {time}", count, DateTimeOffset.Now - beginTime);
-        }
+        QueryHelper(Query, transaction);
     }
 
     private static Void InitailizeTables(NpgsqlCommand command)
@@ -232,16 +233,16 @@ public static class DatabaseConnection
         var variables = string.Join(
             ", ",
             DatabaseVariables.GetColumns()
-                .Select(db => $"`{db.Item1.Name}` {db.Item1.TypeString}")
+                .Select(db => $"{db.Item1.Name} {db.Item1.TypeString}")
         );
         command.CommandText =
-            "CREATE TABLE IF NOT EXISTS `users` (" +
-            "    `messenger`	INTEGER," +
-            "    `id`		INTEGER," +
-            "    `data`		BLOB," +
-            "    `version`	INTEGER," +
+            "CREATE TABLE IF NOT EXISTS users (" +
+            "    messenger	INTEGER," +
+            "    id 		INTEGER," +
+            "    data		bytea," +
+            "    version	INTEGER," +
             $"    {variables}," +
-            "    PRIMARY KEY(`messenger`, `id`)" +
+            "    PRIMARY KEY(messenger, id)" +
             ");";
         command.ExecuteNonQuery();
         return new Void();

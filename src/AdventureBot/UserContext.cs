@@ -13,7 +13,8 @@ public class UserContext : IDisposable
 
     private DateTime _opened;
     private Timer _timer;
-    private User.User _unlinked;
+    private UserProxy _unlinked;
+    private UserProxy _proxy;
 
     public UserContext(UserId userId)
     {
@@ -26,18 +27,15 @@ public class UserContext : IDisposable
         User.MessageManager.ChatId = chatId;
     }
 
-    public User.User User { get; private set; }
+    public User.User User => _proxy.User;
 
     public void Dispose()
     {
         UserOpenedDuration.Observe((DateTime.Now - _opened).TotalMilliseconds);
         Logger.Debug("User closed in {time}", DateTime.Now - _opened);
         _timer.Stop();
-        UserProxy.Save(User);
-        if (_unlinked != null)
-        {
-            UserProxy.Save(_unlinked);
-        }
+        _proxy?.Dispose();
+        _unlinked?.Dispose();
 
         _timer.Dispose();
     }
@@ -45,13 +43,13 @@ public class UserContext : IDisposable
     private void LoadUser(UserId userId)
     {
         Logger.Debug("Opening user {userId}", userId);
-        User = UserProxy.Get(userId);
+        _proxy = new UserProxy(userId);
         if (User.LinkedTo != null)
         {
-            _unlinked = User;
+            _unlinked = _proxy;
             // Load user not through UserContext, because it can be linked to other user and so on.
-            User = UserProxy.Get(User.LinkedTo.Item1);
-            if (User.Token != _unlinked.LinkedTo.Item2)
+            _proxy = new UserProxy(_proxy.User.LinkedTo.Item1);
+            if (User.Token != _unlinked.User.LinkedTo.Item2)
             {
                 // Token was revoked, so unlink this user
                 Unlink();
@@ -68,8 +66,9 @@ public class UserContext : IDisposable
             return false;
         }
 
-        _unlinked.LinkedTo = null;
-        User = _unlinked;
+        _unlinked.User.LinkedTo = null;
+        _proxy.Dispose();
+        _proxy = _unlinked;
         return true;
     }
 

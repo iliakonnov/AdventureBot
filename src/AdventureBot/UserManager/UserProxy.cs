@@ -1,87 +1,52 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Threading;
+using Npgsql;
 
 namespace AdventureBot.UserManager;
 
-public class UserProxy
+public class UserProxy : IDisposable
 {
-    private static readonly TimeSpan Timeout = new(0, 0, 5);
-    private readonly ManualResetEvent _available = new(true);
     private readonly UserId _id;
-
-    private readonly object _lock = new();
+    private NpgsqlTransaction _transaction;
     private User.User _loaded;
-    private DateTime _unlockAt;
 
-    private UserProxy(UserId id)
+    public UserProxy(UserId id)
     {
         _id = id;
     }
 
-    private static UserProxy GetLoadedUser(UserId id)
+    public static User.User GetUnsafe(UserId userId)
     {
-        return new UserProxy(id);
+        return DatabaseConnection.LoadUserData(userId).Deserialize();
     }
 
-    public static User.User Get(UserId id)
+    public User.User User
     {
-        return GetLoadedUser(id).Acquire();
-    }
-
-    public static User.User GetUnsafe(UserId id)
-    {
-        return GetLoadedUser(id).GetUnsafe();
-    }
-
-    public static void Save(User.User user)
-    {
-        GetLoadedUser(user.Info.UserId).Release(user);
-    }
-
-    private User.User Acquire()
-    {
-        var timeRemaining = _unlockAt - DateTime.Now;
-        if (timeRemaining <= TimeSpan.Zero)
+        get
         {
-            return GetUser();
-        }
+            if (_loaded != null)
+            {
+                return _loaded;
+            }
 
-        _available.WaitOne(timeRemaining);
-        return GetUser();
-    }
-
-    private User.User GetUnsafe()
-    {
-        return DatabaseConnection.LoadUserData(_id).Deserialize();
-    }
-
-    private User.User GetUser()
-    {
-        lock (_lock)
-        {
-            var user = DatabaseConnection.LoadUserData(_id).Deserialize();
+            _transaction ??= DatabaseConnection.GetConnection().BeginTransaction();
+            var user = DatabaseConnection.LoadUserData(_id, _transaction).Deserialize();
             _loaded = user;
-            _unlockAt = DateTime.Now + Timeout;
-            _available.Reset();
             return user;
         }
     }
 
-    private void Release(User.User user)
+    private void Save(User.User user)
     {
-        if (ReferenceEquals(user, _loaded))
+        DatabaseConnection.SaveUser(UserData.Serialize(user), _transaction);
+    }
+
+    public void Dispose()
+    {
+        if (_loaded != null)
         {
-            lock (_lock)
-            {
-                DatabaseConnection.SaveUsers(new[] { UserData.Serialize(user)  });
-                _available.Set();
-                _loaded = null;
-            }
+            Save(_loaded);
         }
-        else
-        {
-            throw new Exception("This user cannot be saved");
-        }
+
+        _transaction?.Dispose();
     }
 }
